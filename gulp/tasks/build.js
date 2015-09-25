@@ -76,7 +76,7 @@ function build() {
  * Build  release library. Use debug version and uglify it.
  */
 function release() {
-    var filename = [config.distFolder, config.devOutputName].join('/'),
+    var filename = `${config.distFolder}/${config.devOutputName}`,
         license = getLicense(),
         lib = gulp.src(filename)
             .pipe(uglify(config.releaseOutputName, {

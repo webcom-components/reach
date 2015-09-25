@@ -1,0 +1,293 @@
+let datarefs = (function() {
+
+    /**
+     * @description The datastore in the main object which can be considered has the root node of the base.
+     * It contains the instanciated Webcom defined by a WEBCOMBASE_URL or DEFAULT_WEBCOMBASE_URL.
+     * The main nodes containing the rooms, the SIP phone numbers and the reach and WebRTC data are children of this node.
+     */
+    var _datastore = null;
+    /**
+     * @description A node containing all the rooms of the communication system.
+     * Each "room" node possesses the participants and the exchanged instant messages for example.
+     * In the database, this node is identified by "roomsList".
+     */
+    var _rooms = null;
+    /**
+     * @description A node containing all the data about the reach service used to put in relation users.
+     * In the database, this node is identified by "reach".
+     */
+    var _reach = null;
+    /**
+     * @description A node containing all the data about the WebRTC feature.
+     * In the database, this node is identified by "webrtc".
+     */
+    var _webrtc = null;
+    /**
+     * @description A node containing all the data about the SIP phone numbers.
+     * In the database, this node is identified by "sipPhoneNumbers".
+     */
+    var _sipPhoneNumbers = null;
+    /**
+     * @description The authentifcation server's URL which is optional
+     */
+    var _authUrl = null;
+
+
+    /**
+     * The initialization function which instantiates the Webcom stored in the data store.
+     * All the children nodesnare defines here.
+     */
+    function _init() {
+
+        // WEBCOM-BASE
+        if (typeof WEBCOMBASE_URL !== 'undefined') {
+            _datastore = new Webcom(WEBCOMBASE_URL);
+        } else {
+            _datastore = new Webcom(DEFAULT_WEBCOMBASE_URL);
+        }
+
+        if (typeof AUTH_URL !== 'undefined') {
+            _authUrl = AUTH_URL;
+        } else {
+            _authUrl = DEFAULT_AUTH_URL;
+        }
+        _initChildren();
+    }
+
+    /**
+     * Defines the children nodes, i.e. creates for each of them a dedicated node in the database
+     * under the main node (data store). Created nodes are "roomsList", "reach", "webrtc", "sipPhoneNumbers".
+     */
+    function _initChildren() {
+        _rooms = _datastore.child("roomsList");
+        _reach = _datastore.child("reach");
+        _webrtc = _datastore.child("webrtc");
+        _sipPhoneNumbers = _datastore.child("sipPhoneNumbers");
+    }
+
+    /**
+     * Defines the Webcom URL and reinit the children.
+     * @param {string} p_webcombase_url - The URL of the Webcom
+     */
+    function _setWebcomBaseUrl(p_webcombase_url) {
+        _datastore = new Webcom(p_webcombase_url);
+        _initChildren();
+    }
+
+    /**
+     * return the Webcom URL.
+     */
+    function _getWebcomBaseUrl() {
+        if (_datastore) {
+            return _datastore.toString();
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Defines the datastore and reinit the children.
+     * @param {Webcom} p_datastore - A Webcom object which is the new data store
+     */
+    function _setDatastore(p_datastore) {
+        _datastore=p_datastore;
+        _initChildren();
+    }
+
+    /**
+     * Returns the datastore
+     * @return {Webcom} - The data store as a Webcom
+     */
+    function _getDatastore() {
+        return _datastore;
+    }
+
+    /**
+     * Defines the authentication URL
+     * @param {string} p_auth_url - The authentication URL to use
+     */
+    function _setAuthUrl(p_auth_url) {
+        _authUrl=p_auth_url;
+    }
+
+    /**
+     * Returns the authentication URL
+     * @param {string} - The authentication URL
+     */
+    function _getAuthUrl() {
+        return _authUrl;
+    }
+
+    /**
+     * Defines a new rooms node
+     * @param p_rooms - A node containing all the rooms
+     */
+    function _setRooms(p_rooms) {
+        _rooms=p_rooms;
+    }
+
+    /**
+     * Returns the root node of the rooms.
+     * @return - The node containing all the rooms list
+     */
+    function _getRooms() {
+        return _rooms;
+    }
+
+    /**
+     * Defines a new reach node
+     * @param p_reach - A node containing all the data about the reach service
+     */
+    function _setReach(p_reach) {
+        _reach=p_reach;
+    }
+
+    /**
+     * Returns the reach node of the rooms.
+     * @return - The node containing all the information about the reach service
+     */
+    function _getReach() {
+        return _reach;
+    }
+
+    /**
+     * Defines a new webrtc node
+     * @param p_webrtc - A node containing all the data about the WebRTC feature
+     */
+    function _setWebrtc(p_webrtc) {
+        _webrtc=p_webrtc;
+    }
+
+    /**
+     * Returns the WebRTC node
+     * @return - The node containig all the data about the WebRTC feature
+     */
+    function _getWebrtc() {
+        return _webrtc;
+    }
+
+    /**
+     * Defines a node containing the SIP phone numbers
+     * @param p_sipPhoneNumbers - The root node containing the SIP phone numbers
+     */
+    function _setSipPhoneNumbers(p_sipPhoneNumbers) {
+        _sipPhoneNumbers=p_sipPhoneNumbers;
+    }
+
+    /**
+     * Returns the root node containing the SIP phone numbers
+     * @return - The root node with the SIP numbers
+     */
+    function _getSipPhoneNumbers() {
+        return _sipPhoneNumbers;
+    }
+
+
+
+    _init();
+
+    return {
+        /**
+         * Defines the Webcom URL and reinit the children.
+         * @param {string} p_webcombase_url - The URL of the Webcom
+         */
+        setWebcomBaseUrl : function(p_webcombase_url) {
+            return _setWebcomBaseUrl(p_webcombase_url);
+        },
+        /**
+         * return the Webcom URL.
+
+         */
+        getWebcomBaseUrl : function() {
+            return _getWebcomBaseUrl();
+        },
+        /**
+         * Defines the datastore and reinit the children.
+         * @param {Webcom} p_datastore - A Webcom object which is the new data store
+         */
+        setDatastore : function(p_datastore) {
+            return _setDatastore(p_datastore);
+        },
+        /**
+         * Returns the datastore
+         * @return {Webcom} - The data store as a Webcom
+         */
+        getDatastore : function() {
+            return _getDatastore();
+        },
+        /**
+         * Defines the authentication URL
+         * @param {string} p_auth_url - The authentication URL to use
+         */
+        setAuthUrl : function(p_auth_url) {
+            return _setAuthUrl(p_auth_url);
+        },
+        /**
+         * Returns the authentication URL
+         * @param {string} - The authentication URL
+         */
+        getAuthUrl : function() {
+            return _getAuthUrl();
+        },
+        /**
+         * Defines a new rooms node
+         * @param p_rooms - A node containing all the rooms
+         */
+        setRooms : function(p_rooms) {
+            return _setRooms(p_rooms);
+        },
+        /**
+         * Returns the root node of the rooms.
+         * @return - The node containing all the rooms list
+         */
+        getRooms : function() {
+            return _getRooms();
+        },
+        /**
+         * Defines a new reach node
+         * @param p_reach - A node containing all the data about the reach service
+         */
+        setReach : function(p_reach) {
+            return _setReach(p_reach);
+        },
+        /**
+         * Returns the reach node of the rooms.
+         * @return - The node containing all the information about the reach service
+         */
+        getReach : function() {
+            return _getReach();
+        },
+        /**
+         * Defines a new webrtc node
+         * @param p_webrtc - A node containing all the data about the WebRTC feature
+         */
+        setWebrtc : function(p_webrtc) {
+            return _setWebrtc(p_webrtc);
+        },
+        /**
+         * Returns the WebRTC node
+         * @return - The node containig all the data about the WebRTC feature
+         */
+        getWebrtc : function() {
+            return _getWebrtc();
+        },
+        /**
+         * Defines a node containing the SIP phone numbers
+         * @param p_sipPhoneNumbers - The root node containing the SIP phone numbers
+         */
+        setSipPhoneNumbers : function(p_sipPhoneNumbers) {
+            return _setSipPhoneNumbers(p_sipPhoneNumbers);
+        },
+        /**
+         * Returns the root node containing the SIP phone numbers
+         * @return - The root node with the SIP numbers
+         */
+        getSipPhoneNumbers : function() {
+            return _getSipPhoneNumbers();
+        }
+    };
+})();
+
+export default {
+    datarefs: datarefs
+}
