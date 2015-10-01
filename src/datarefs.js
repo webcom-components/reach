@@ -1,4 +1,85 @@
-let datarefs = (function() {
+/**
+ * @file datarefs.js - JS file modelizing a dataref, i.e. a pointer to the Webcom xwith dedicated nodes for rooms, reach service and WebRTC communications.
+ * @author Webcom
+ * @copyright Orange Labs (C) 2013 - 2014
+ * @licence Orange
+ *
+ * Version doc : 1.4.0
+ *
+ * Available elements:
+ <ul>
+ <li>
+ datastore
+ </li>
+ <li>
+ rooms
+ </li>
+ <li>
+ reach
+ </li>
+ <li>
+ webrtc
+ </li>
+ <li>
+ sipPhoneNumbers
+ </li>
+ <li>
+ authUrl
+ </li>
+ <li>
+ setWebcomBaseUrl(p_webcombase_url)
+ </li>
+ <li>
+ setDatastore(datastore)
+ </li>
+ <li>
+ getDatastore()
+ </li>
+ <li>
+ setAuthUrl(p_auth_url)
+ </li>
+ <li>
+ setRooms(room)
+ </li>
+ <li>
+ getRooms()
+ </li>
+ <li>
+ setReach(reach)
+ </li>
+ <li>
+ getReach()
+ </li>
+ <li>
+ setWebrtc(webrtc)
+ </li>
+ <li>
+ getWebrtc()
+ </li>
+ <li>
+ setSipPhoneNumbers(sipPhoneNumbers)
+ </li>
+ <li>
+ getSipPhoneNumbers()
+ </li>
+ */
+
+/**
+ * Represents a dataref with several nodes in it which are pointing to some locations in the database.
+ * The datarefs can be considered as a Webcom object pointing to a base URL. This node contains children nodes for
+ * reach service, rooms and WebRTC communications.
+ *
+ * Warning : when used with demo UI, this file is not imported:  demo UI hase its own configuration system (import json config with a php server module)
+ * These nodes are :
+ *       - rooms
+ *       - reach
+ *       - webrtc
+ *       - sipPhoneNumbers
+ *       - datastore, i.e. the Webcom object
+ *       - authUrl
+ * @constructor
+ */
+var datarefs = (function() {
 
     /**
      * @description The datastore in the main object which can be considered has the root node of the base.
@@ -287,7 +368,3 @@ let datarefs = (function() {
         }
     };
 })();
-
-export default {
-    datarefs: datarefs
-}
