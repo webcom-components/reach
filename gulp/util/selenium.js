@@ -48,11 +48,13 @@ export default function(callback){
                                     port: options.hubPort
                                 },
 								name: 'Karma',
+                                /*
                                 proxy: {
                                     proxyType: 'manual',
                                     httpProxy: options.proxy,
                                     sslProxy: options.proxy
                                 }
+                                */
                             },
 							browser
 						);

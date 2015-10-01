@@ -6,10 +6,19 @@
  */
 
 // Help
-let usage = require('../util/usage');
+import usage from '../util/usage';
+import gulp	from 'gulp';
+import {Server as Karma} from 'karma';
+import selenium	from '../util/selenium';
+import _ from 'lodash';
+import babelify	from 'babelify';
+import Jasmine from 'jasmine';
+import babelConfig from '../../.babelrc.js';
+import args from '../util/handleArgs';
 
 usage.add('test:unit', 'Run unit tests', {
     'ci': 'Force singleRun & coverage',
+    'coverage': 'Create code coverage reports',
     'selenium': 'Use Selenium test browsers',
     'hubHost = <ip>': 'Selenium Hub host',
     'hubPort = <port>': 'Selenium Hub port',
@@ -17,14 +26,7 @@ usage.add('test:unit', 'Run unit tests', {
     'proxy = <ip:port>': 'proxy for selenium nodes'
 });
 
-let gulp		= require('gulp'),
-    Karma		= require('karma').Server,
-    selenium	= require('../util/selenium'),
-    _			= require('lodash'),
-    babelify	= require('babelify'),
-    Jasmine     = require('jasmine'),
-    babelOptions= _.clone(require('../../.babelrc.js')),
-    options		= require('../util/handleArgs')({
+let options		    = args({
         'boolean': ['ci', 'coverage', 'skipPruning'],
         'string': ['proxy', 'config'],
         'default': {
@@ -34,42 +36,18 @@ let gulp		= require('gulp'),
             config: 'development'
         }
     }),
-    dev			= options.ci === false,
-
     karmaStart = (file, taskFiles, done) => {
         selenium(function(launchers, browsers){
 
             var karmaArgs = {
                 hostname: require('../util/resolveIP')(),
-                singleRun: !dev,
-                autoWatch: dev,
+                singleRun: options.ci,
+                autoWatch: !options.ci,
                 customLaunchers: launchers,
-                browsers: dev ? [] : browsers,
+                browsers: !options.ci ? [] : browsers,
                 configFile: __dirname + '/../karma/' + file,
                 files: taskFiles
             };
-
-            /*jshint laxcomma: true */
-            babelOptions.optional = [
-                'utility.inlineEnvironmentVariables'
-                , 'minification.deadCodeElimination'
-                , 'minification.memberExpressionLiterals'
-                , 'minification.propertyLiterals'
-            ];
-
-            process.env.DEBUG = true;
-
-            _.extend(karmaArgs, {
-                browserify: {
-                    debug: true,
-                    bundleExternal: false,
-                    builtins: [],
-                    detectGlobals: true,
-                    transform: [
-                        babelify.configure(babelOptions)
-                    ]
-                }
-            });
 
             var srv = new Karma(karmaArgs,
                 () => {
@@ -83,7 +61,7 @@ let gulp		= require('gulp'),
     };
 
 /**
- * Unit test. Call with --ci for Jenkins
+ * Unit test with Webpack. Call with --ci for Jenkins
  */
 gulp.task('test:unit', function (done) {
     karmaStart(
@@ -92,7 +70,6 @@ gulp.task('test:unit', function (done) {
             'node_modules/babelify/node_modules/babel-core/browser-polyfill.js',
             'bower_components/webcom/webcom.js',
             'test/config/' + options.config + '.js',
-            'src/index.js',
             'test/unit/**/*.js'
         ],
         done
