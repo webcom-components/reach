@@ -1,28 +1,87 @@
 /**
  * @file webrtc.js - JS file used for WebRTC aspects
  * @author Webcom
- * @copyright Orange Labs (C) 2013 - 2014
- * @licence Orange
- *
- * Version doc : 1.4.0
- *
- * Available elements:
- <ul>
- <li>
- setOnClose(cb)
- </li>
- <li>
- close(cb)
- </li>
- <li>
- connectLocalStream(videoElt)
- </li>
- <li>
- connectRemoteStream(videoElt)
- </li>
- </ul>
  */
 
+import actions from './actions';
+import localstream from './localstream';
+import webrtcmngr from './webrtcmngr';
+
+/**
+ * ICE connection status : disconnected
+ * @constant
+ * @type {string}
+ */
+const ICE_CONNECTION_STATE_DISCONNECTED = 'disconnected';
+
+/**
+ * ICE connection status : connected
+ * @constant
+ * @type {string}
+ */
+const ICE_CONNECTION_STATE_CONNECTED= 'connected';
+
+/**
+ * ICE connection status : completed
+ * @constant
+ * @type {string}
+ */
+const ICE_CONNECTION_STATE_COMPLETED= 'completed';
+
+/**
+ * ICE connection status : checking
+ * @constant
+ * @type {string}
+ */
+const ICE_CONNECTION_STATE_CHECKING= 'checking';
+
+/**
+ * ICE connection status : closed
+ * @constant
+ * @type {string}
+ */
+const ICE_CONNECTION_STATE_CLOSED= 'closed';
+
+/**
+ * ICE connection status : failed
+ * @constant
+ * @type {string}
+ */
+const ICE_CONNECTION_STATE_FAILED= 'failed';
+
+/**
+ * ICE connection status : another status
+ * @constant
+ * @type {string}
+ */
+const ICE_CONNECTION_STATE_OTHER= 'other';
+
+
+/**
+ * The default ICE configuration for TURN and STUN servers to use for WebRTC communicationx
+ * NB : these configuration will be overwriten by the configuration on the Webcom server if present
+ * @constant
+ * @type {json}
+ */
+const DEFAULT_ICE_CONFIG = {
+    iceServers: [
+        {
+            "url": "turns:turn1.webcom.orange.com:443",
+            "username": "admin",
+            "credential": "webcom1234"
+        },
+        {
+            "url": "turn:turn1.webcom.orange.com:3478",
+            "username": "admin",
+            "credential": "webcom1234"
+        },
+        {
+            "url": "turns:webcom1.orange-labs.fr:443",
+            "username": "admin",
+            "credential": "webcom1234"
+        }
+    ]
+};
 
 /**
  * @constructor
@@ -35,7 +94,7 @@
  * @param p_muteAudio - optional - if true peerconnection will be created with audio muted
  * @param p_muteVideo - optional - if true peerconnection will be created with video muted
  */
-var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStackId,p_actionType,p_muteAudio,p_muteVideo) {
+var webrtc = function (p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStackId, p_actionType, p_muteAudio, p_muteVideo) {
 
     /**
      * @description The WebRTC stack identifier, here the current timestamp
@@ -141,13 +200,12 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      */
     var onCloseCb2 = null;
 
-    var isAudioMute=false;
+    var isAudioMute = false;
 
-    var isVideoMute=false;
+    var isVideoMute = false;
 
 
-
-    console.log("(webcomSDK::webrtc::)stackId="+stackId+ " isPublish="+isPublish + ',localDataRef=' + localDataRef + ',remoteDataRef=' + remoteDataRef + ')');
+    console.log("(webcomSDK::webrtc::)stackId=" + stackId + " isPublish=" + isPublish + ',localDataRef=' + localDataRef + ',remoteDataRef=' + remoteDataRef + ')');
 
     /**
      * @description A Datagram Transport Layer Security (DTLS) key agreement
@@ -167,9 +225,9 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * @description The publisher media constraints as a JSON array
      */
     var publisherMediaConstraints = {
-        'mandatory' : {
-            'OfferToReceiveAudio' : false,
-            'OfferToReceiveVideo' : false
+        'mandatory': {
+            'OfferToReceiveAudio': false,
+            'OfferToReceiveVideo': false
         }
     };
 
@@ -177,9 +235,9 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * @description The subscriber media constraints as a JSON array
      */
     var subscriberMediaConstraints = {
-        'mandatory' : {
-            'OfferToReceiveAudio' : true,
-            'OfferToReceiveVideo' : true
+        'mandatory': {
+            'OfferToReceiveAudio': true,
+            'OfferToReceiveVideo': true
         }
     };
 
@@ -188,7 +246,7 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * @param e - The error
      */
     function onError(e) {
-        console.log("(webcomSDK::webrtc::)stackId="+stackId+ "error="+e);
+        console.log("(webcomSDK::webrtc::)stackId=" + stackId + "error=" + e);
         console.dir(e);
     }
 
@@ -196,48 +254,42 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * Initializes the object
      */
     function init() {
-        console.log("(webcomSDK::webrtc::init)stackId="+stackId);
+        console.log("(webcomSDK::webrtc::init)stackId=" + stackId);
         // peerconnection
-        if (typeof(RTCPeerConnection)==="function")
-        {
-            myPeerConnection=RTCPeerConnection;
+        if (typeof(RTCPeerConnection) === "function") {
+            myPeerConnection = RTCPeerConnection;
         }
-        else
-        {
-            console.error("(webcomSDK::webrtc::init)stackId="+stackId+ " error=Webrtc is not supported on this browser !");
+        else {
+            console.error("(webcomSDK::webrtc::init)stackId=" + stackId + " error=Webrtc is not supported on this browser !");
             throw new Error("Webrtc is not supported on this browser !");
         }
 
-        if (typeof(RTCSessionDescription) === "function")
-        {
-            myRTCSessionDescription=RTCSessionDescription;
+        if (typeof(RTCSessionDescription) === "function") {
+            myRTCSessionDescription = RTCSessionDescription;
         }
-        else
-        {
-            console.error("(webcomSDK::webrtc::init)stackId="+stackId+ " error2=Webrtc is not supported on this browser !");
+        else {
+            console.error("(webcomSDK::webrtc::init)stackId=" + stackId + " error2=Webrtc is not supported on this browser !");
             throw new Error("Webrtc is not supported on this browser !");
         }
 
-        if (typeof(RTCIceCandidate) === "function")
-        {
-            myRTCIceCandidate=RTCIceCandidate;
+        if (typeof(RTCIceCandidate) === "function") {
+            myRTCIceCandidate = RTCIceCandidate;
         }
-        else
-        {
-            console.error("(webcomSDK::webrtc::init)stackId="+stackId+ " error3=Webrtc is not supported on this browser !");
-            throw new Error("Webrtc is not supported on this browser !") ;
+        else {
+            console.error("(webcomSDK::webrtc::init)stackId=" + stackId + " error3=Webrtc is not supported on this browser !");
+            throw new Error("Webrtc is not supported on this browser !");
         }
 
-        if (p_muteAudio) isAudioMute=true;
-        if (p_muteVideo) isVideoMute=true;
+        if (p_muteAudio) isAudioMute = true;
+        if (p_muteVideo) isVideoMute = true;
 
-        getIceServersConfigFromServer(function(_config) {
-            config=_config;
+        getIceServersConfigFromServer(function (_config) {
+            config = _config;
             console.log("(webcomSDK::webrtc::) use server config=", JSON.stringify(config));
             init_pc();
-        },function(error) {
+        }, function (error) {
             if (typeof DEFAULT_ICE_CONFIG !== 'undefined') {
-                config=DEFAULT_ICE_CONFIG;
+                config = DEFAULT_ICE_CONFIG;
                 console.log("(webcomSDK::webrtc::) use DEFAULT_ICE_CONFIG config=", JSON.stringify(config));
             } else {
                 console.log("(webcomSDK::webrtc::) no ice  config");
@@ -252,19 +304,19 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * @param {function} callbackOk - The callback if no problem occur
      * @param {function} callbackKo - The callback to trigger if a problem occurs during the configuration
      */
-    function getConfigFromServer(callbackOk,callbackKo) {
+    function getConfigFromServer(callbackOk, callbackKo) {
         if (datarefs.getDatastore()) {
             var fireConfig = datarefs.getDatastore().child("config");
-            fireConfig.once('value', function(snapshot) {
+            fireConfig.once('value', function (snapshot) {
                     if (snapshot && snapshot.val()) {
-                        config=snapshot.val();
+                        config = snapshot.val();
                         if (typeof callbackOk == "function")
                             callbackOk(snapshot.val());
                     } else {
                         if (typeof callbackKo == "function")
                             callbackKo();
                     }
-                },function(error) {
+                }, function (error) {
                     if (typeof callbackKo == "function")
                         callbackKo(error);
                 }
@@ -279,21 +331,21 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * Initializes the peer connection
      */
     function init_pc() {
-        console.log("(webcomSDK::webrtc::init_pc)stackId="+stackId+"_config=", JSON.stringify(config));
+        console.log("(webcomSDK::webrtc::init_pc)stackId=" + stackId + "_config=", JSON.stringify(config));
         // TODO test is config is malformated or empty
-        pc = new myPeerConnection(config,optional);
+        pc = new myPeerConnection(config, optional);
 
 
         // ------------------------------------------------------------------
         // Received Ice candidate from the stack: send it to the peer
         // ------------------------------------------------------------------
-        pc.onicecandidate = function(e) {
+        pc.onicecandidate = function (e) {
             if (e.candidate) {
-                console.log("(webcomSDK::webrtc::pc.onicecandidate)stackId="+stackId+ " send ice candidate="+JSON.stringify(e.candidate));
+                console.log("(webcomSDK::webrtc::pc.onicecandidate)stackId=" + stackId + " send ice candidate=" + JSON.stringify(e.candidate));
                 localDataRef.child("iceCandidatesList").push({
-                    label : e.candidate.sdpMLineIndex,
-                    id : e.candidate.sdpMid,
-                    candidate : e.candidate.candidate
+                    label: e.candidate.sdpMLineIndex,
+                    id: e.candidate.sdpMid,
+                    candidate: e.candidate.candidate
                 });
             }
         };
@@ -301,10 +353,10 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
         // ------------------------------------------------------------------
         // Received a remote stream from the stack: play it on the video player
         // ------------------------------------------------------------------
-        pc.onaddstream = function(e) {
-            console.debug("(webcomSDK::webrtc::onaddstream)stackId="+stackId + "-" + 'stream:'+JSON.stringify(e.stream));
-            if (e && e.stream)  {
-                receivedStream=e.stream;
+        pc.onaddstream = function (e) {
+            console.debug("(webcomSDK::webrtc::onaddstream)stackId=" + stackId + "-" + 'stream:' + JSON.stringify(e.stream));
+            if (e && e.stream) {
+                receivedStream = e.stream;
                 if (isAudioMute) _muteAudio();
                 if (isVideoMute) _muteVideo();
             }
@@ -318,59 +370,60 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
 //			}
         };
 
-        pc.oniceconnectionstatechange = function() {
+        pc.oniceconnectionstatechange = function () {
 
             if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_CHECKING) {
-                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId="+stackId + "-" +"checking");
-                iceConnectionState=ICE_CONNECTION_STATE_CHECKING;
+                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId=" + stackId + "-" + "checking");
+                iceConnectionState = ICE_CONNECTION_STATE_CHECKING;
             } else if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_CONNECTED) {
-                iceConnectionState=ICE_CONNECTION_STATE_CONNECTED;
-                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId="+stackId + "-" +"connected");
+                iceConnectionState = ICE_CONNECTION_STATE_CONNECTED;
+                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId=" + stackId + "-" + "connected");
                 if (receivedStream) {
-                    for (var i=0;i<remoteStreams.length;i++) {
+                    for (var i = 0; i < remoteStreams.length; i++) {
                         if (remoteStreams[i]) {
-                            console.debug("(webcomSDK::webrtc::onaddstream)pc.onaddstream stackId="+stackId + "-" +"rendering remote vid to "+remoteStreams[i].id);
-                            attachMediaStream( remoteStreams[i],receivedStream);
+                            console.debug("(webcomSDK::webrtc::onaddstream)pc.onaddstream stackId=" + stackId + "-" + "rendering remote vid to " + remoteStreams[i].id);
+                            attachMediaStream(remoteStreams[i], receivedStream);
                         }
                     }
-                    for (var j=0;j<remoteStreamsCb.length;j++) {
+                    for (var j = 0; j < remoteStreamsCb.length; j++) {
                         if (remoteStreamsCb[j]) {
                             remoteStreamsCb[j](receivedStream)
                         }
                     }
-                    remoteStreamsCb=[];
+                    remoteStreamsCb = [];
                 }
-                stopListeningToRemoteIceCandidate ();
-            }else if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_COMPLETED) {
-                iceConnectionState=ICE_CONNECTION_STATE_COMPLETED;
-                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId="+stackId + "-" +ICE_CONNECTION_STATE_COMPLETED);
-                stopListeningToRemoteIceCandidate ();
-            } if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_DISCONNECTED) {
-                iceConnectionState=ICE_CONNECTION_STATE_DISCONNECTED;
-                console.log("(webcomSDK::webrtc::oniceconnectionstatechange)stackId="+stackId + "-" + 'remote disconnection, closing peer connection');
+                stopListeningToRemoteIceCandidate();
+            } else if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_COMPLETED) {
+                iceConnectionState = ICE_CONNECTION_STATE_COMPLETED;
+                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId=" + stackId + "-" + ICE_CONNECTION_STATE_COMPLETED);
+                stopListeningToRemoteIceCandidate();
+            }
+            if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_DISCONNECTED) {
+                iceConnectionState = ICE_CONNECTION_STATE_DISCONNECTED;
+                console.log("(webcomSDK::webrtc::oniceconnectionstatechange)stackId=" + stackId + "-" + 'remote disconnection, closing peer connection');
                 _close();
             } else if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_CLOSED) {
-                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId="+stackId + "-" +"closed");
-                iceConnectionState=ICE_CONNECTION_STATE_CLOSED;
+                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId=" + stackId + "-" + "closed");
+                iceConnectionState = ICE_CONNECTION_STATE_CLOSED;
                 _close();
             } else if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_FAILED) {
-                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId="+stackId + "-" +"failed");
-                iceConnectionState=ICE_CONNECTION_STATE_FAILED;
+                console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId=" + stackId + "-" + "failed");
+                iceConnectionState = ICE_CONNECTION_STATE_FAILED;
                 _close();
-            }   else {
+            } else {
                 if (!!pc) {
-                    console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId="+stackId + "-" +pc.iceConnectionState);
+                    console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId=" + stackId + "-" + pc.iceConnectionState);
                 } else {
-                    console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId="+stackId + "-pc = null");
+                    console.debug("(webcomSDK::webrtc::oniceconnectionstatechange)stackId=" + stackId + "-pc = null");
                 }
 
-                iceConnectionState=ICE_CONNECTION_STATE_OTHER;
+                iceConnectionState = ICE_CONNECTION_STATE_OTHER;
             }
 
-            if (isClosed &&  (iceConnectionState==ICE_CONNECTION_STATE_DISCONNECTED || iceConnectionState==ICE_CONNECTION_STATE_CLOSED || iceConnectionState==ICE_CONNECTION_STATE_FAILED)) {
-                console.debug("(webcomSDK::webrtc::_close)stackId="+stackId + "-" + 'closed webrtc stack complete');
+            if (isClosed && (iceConnectionState == ICE_CONNECTION_STATE_DISCONNECTED || iceConnectionState == ICE_CONNECTION_STATE_CLOSED || iceConnectionState == ICE_CONNECTION_STATE_FAILED)) {
+                console.debug("(webcomSDK::webrtc::_close)stackId=" + stackId + "-" + 'closed webrtc stack complete');
                 pc = null;
-                closeInProgress=false;
+                closeInProgress = false;
                 webrtcmngr.clearWebrtcStacks(webrtcStackId);
                 if (onCloseCb && typeof onCloseCb == "function") {
                     onCloseCb();
@@ -383,14 +436,14 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
         };
 
         // subscribe to remote data
-        iceCandidatesListCb = function(snapshot) {
+        iceCandidatesListCb = function (snapshot) {
             var data = snapshot.val();
             var candidate = new myRTCIceCandidate({
-                sdpMLineIndex : data.label,
-                candidate : data.candidate,
-                sdpMid : data.id
+                sdpMLineIndex: data.label,
+                candidate: data.candidate,
+                sdpMid: data.id
             });
-            console.log("(webcomSDK::webrtc::iceCandidatesListCb)stackId="+stackId+ "received ice candidate="+JSON.stringify(candidate));
+            console.log("(webcomSDK::webrtc::iceCandidatesListCb)stackId=" + stackId + "received ice candidate=" + JSON.stringify(candidate));
 
             pc.addIceCandidate(candidate);
             // remove candidate from webcom
@@ -398,7 +451,7 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
         };
 
         if (isPublish) {
-            _initlocalStream(function() {
+            _initlocalStream(function () {
                 _initSdpCallbacks();
                 sendOffer();
 
@@ -408,7 +461,6 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
         }
 
 
-
     }
 
     /**
@@ -416,21 +468,21 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * @param callbackOk - The callback to trigger when the config retrievement is done
      * @param callbackKo - The callback to trigger when an error occurs
      */
-    function getIceServersConfigFromServer(callbackOk,callbackKo) {
+    function getIceServersConfigFromServer(callbackOk, callbackKo) {
         console.log("webcomSDK::webrtc::getIceServersConfigFromServer");
         var _config;
         if (localDataRef) {
             var fireConfig = localDataRef.root().child("config");
-            fireConfig.once('value', function(snapshot) {
+            fireConfig.once('value', function (snapshot) {
                     if (snapshot && snapshot.val()) {
-                        _config=snapshot.val();
+                        _config = snapshot.val();
                         if (typeof callbackOk == "function")
                             callbackOk(_config);
                     } else {
                         if (typeof callbackKo == "function")
                             callbackKo();
                     }
-                },function(error) {
+                }, function (error) {
                     if (typeof callbackKo == "function")
                         callbackKo(error);
                 }
@@ -445,7 +497,7 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * Starts the listing to a remote ICE candidate by enabling the dedicated callback
      * for the "child_added" event on the "iceCandidatesList" node in the database.
      */
-    function startListeningToRemoteIceCandidate (){
+    function startListeningToRemoteIceCandidate() {
         remoteDataRef.child("iceCandidatesList").on("child_added", iceCandidatesListCb);
     }
 
@@ -453,7 +505,7 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * Stops the listening to remote ICE candisdate by disabling the dedicated callback
      * for the "child_added" event on the "iceCandidatesList" node in the database.
      */
-    function stopListeningToRemoteIceCandidate (){
+    function stopListeningToRemoteIceCandidate() {
         remoteDataRef.child("iceCandidatesList").off("child_added", iceCandidatesListCb);
     }
 
@@ -463,23 +515,23 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      */
     function _initlocalStream(callback) {
         // get local video stream and renders to localVid
-        console.log("(webcomSDK::webrtc::_initlocalStream)stackId="+stackId+ " get local video stream and renders to local video");
+        console.log("(webcomSDK::webrtc::_initlocalStream)stackId=" + stackId + " get local video stream and renders to local video");
         if (actionType) {
             var initlocalStream;
-            if (actionType==ACTION_TYPE_VIDEO) {
-                initlocalStream = function() {
+            if (actionType == vars.ACTION_TYPE_VIDEO) {
+                initlocalStream = function () {
                     console.log("(webcomSDK::webrtc::_initlocalStream)initlocalStream_video");
-                    if (localstream.getVideoStream()&&localstream.getVideoStream().clone && typeof localstream.getVideoStream().clone == 'function') {
-                        sentStream=localstream.getVideoStream().clone();
+                    if (localstream.getVideoStream() && localstream.getVideoStream().clone && typeof localstream.getVideoStream().clone == 'function') {
+                        sentStream = localstream.getVideoStream().clone();
                     } else {
-                        sentStream=localstream.getVideoStream();
+                        sentStream = localstream.getVideoStream();
                     }
                     if (isAudioMute) _muteAudio();
                     if (isVideoMute) _muteVideo();
                     pc.addStream(sentStream);
-                    for (var i=0;i<localStreams.length;i++) {
-                        console.log("(webcomSDK::webrtc::_initlocalStream)stackId="+stackId+ " rendering local video to "+localStreams[i].id);
-                        attachMediaStream(localStreams[i],localstream.getVideoStream());
+                    for (var i = 0; i < localStreams.length; i++) {
+                        console.log("(webcomSDK::webrtc::_initlocalStream)stackId=" + stackId + " rendering local video to " + localStreams[i].id);
+                        attachMediaStream(localStreams[i], localstream.getVideoStream());
                     }
 
                     if (callback && typeof callback == "function") {
@@ -492,20 +544,20 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
                     localstream.addVideoListener(initlocalStream);
                     localstream.initVideo();
                 }
-            } else if (actionType==ACTION_TYPE_AUDIO) {
-                initlocalStream = function() {
+            } else if (actionType == vars.ACTION_TYPE_AUDIO) {
+                initlocalStream = function () {
                     console.log("(webcomSDK::webrtc::_initlocalStream)initlocalStream_audio");
-                    if (localstream.getAudioStream()&&localstream.getAudioStream().clone && typeof localstream.getAudioStream().clone == 'function') {
-                        sentStream=localstream.getAudioStream().clone();
+                    if (localstream.getAudioStream() && localstream.getAudioStream().clone && typeof localstream.getAudioStream().clone == 'function') {
+                        sentStream = localstream.getAudioStream().clone();
                     } else {
-                        sentStream=localstream.getAudioStream();
+                        sentStream = localstream.getAudioStream();
                     }
                     if (isAudioMute) _muteAudio();
                     if (isVideoMute) _muteVideo();
                     pc.addStream(sentStream);
-                    for (var i=0;i<localStreams.length;i++) {
-                        console.log("(webcomSDK::webrtc::_initlocalStream)stackId="+stackId+ " rendering local Audio to "+localStreams[i].id);
-                        attachMediaStream(localStreams[i],localstream.getAudioStream());
+                    for (var i = 0; i < localStreams.length; i++) {
+                        console.log("(webcomSDK::webrtc::_initlocalStream)stackId=" + stackId + " rendering local Audio to " + localStreams[i].id);
+                        attachMediaStream(localStreams[i], localstream.getAudioStream());
                     }
 
                     if (callback && typeof callback == "function") {
@@ -518,27 +570,26 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
                     localstream.addAudioListener(initlocalStream);
                     localstream.initAudio();
                 }
-            }else if (actionType==ACTION_TYPE_AUDIO_VIDEO) {
-                initlocalStream = function() {
+            } else if (actionType == actions.ACTION_TYPE_AUDIO_VIDEO) {
+                initlocalStream = function () {
                     console.log("(webcomSDK::webrtc::_initlocalStream)initlocalStream_audio_video");
-                    if (localstream.getAudioVideoStream()&&localstream.getAudioVideoStream().clone && typeof localstream.getAudioVideoStream().clone == 'function') {
-                        sentStream=localstream.getAudioVideoStream().clone();
+                    if (localstream.getAudioVideoStream() && localstream.getAudioVideoStream().clone && typeof localstream.getAudioVideoStream().clone == 'function') {
+                        sentStream = localstream.getAudioVideoStream().clone();
                     } else {
-                        sentStream=localstream.getAudioVideoStream();
+                        sentStream = localstream.getAudioVideoStream();
                     }
                     if (isAudioMute) _muteAudio();
                     if (isVideoMute) _muteVideo();
 
                     pc.addStream(sentStream);
-                    for (var i=0;i<localStreams.length;i++) {
-                        console.log("(webcomSDK::webrtc::_initlocalStream)stackId="+stackId+ " rendering local AudioVideo to "+localStreams[i].id);
-                        attachMediaStream(localStreams[i],localstream.getAudioVideoStream());
+                    for (var i = 0; i < localStreams.length; i++) {
+                        console.log("(webcomSDK::webrtc::_initlocalStream)stackId=" + stackId + " rendering local AudioVideo to " + localStreams[i].id);
+                        attachMediaStream(localStreams[i], localstream.getAudioVideoStream());
                     }
 
                     if (callback && typeof callback == "function") {
                         callback();
                     }
-
 
 
                 };
@@ -548,20 +599,20 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
                     localstream.addAudioVideoListener(initlocalStream);
                     localstream.initAudioVideo();
                 }
-            } else if (actionType==ACTION_TYPE_SCREEN_SHARING) {
-                initlocalStream = function() {
+            } else if (actionType == actions.ACTION_TYPE_SCREEN_SHARING) {
+                initlocalStream = function () {
                     console.log("(webcomSDK::webrtc::_initlocalStream)initlocalStream_screen_sharing");
-                    if (localstream.getScreenSharingStream()&&localstream.getScreenSharingStream().clone && typeof localstream.getScreenSharingStream().clone == 'function') {
-                        sentStream=localstream.getScreenSharingStream().clone();
+                    if (localstream.getScreenSharingStream() && localstream.getScreenSharingStream().clone && typeof localstream.getScreenSharingStream().clone == 'function') {
+                        sentStream = localstream.getScreenSharingStream().clone();
                     } else {
-                        sentStream=localstream.getScreenSharingStream();
+                        sentStream = localstream.getScreenSharingStream();
                     }
                     if (isAudioMute) _muteAudio();
                     if (isVideoMute) _muteVideo();
                     pc.addStream(sentStream);
-                    for (var i=0;i<localStreams.length;i++) {
-                        console.log("(webcomSDK::webrtc::_initlocalStream)stackId="+stackId+ " rendering local Screensharing to "+localStreams[i].id);
-                        attachMediaStream(localStreams[i],localstream.getScreenSharingStream());
+                    for (var i = 0; i < localStreams.length; i++) {
+                        console.log("(webcomSDK::webrtc::_initlocalStream)stackId=" + stackId + " rendering local Screensharing to " + localStreams[i].id);
+                        attachMediaStream(localStreams[i], localstream.getScreenSharingStream());
                     }
 
                     if (callback && typeof callback == "function") {
@@ -587,15 +638,15 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
      * If there is no publishing, local description will be defined.
      */
     function _initSdpCallbacks() {
-        console.debug("(webcomSDK::webrtc::_initSdpCallbacks)stackId="+stackId);
+        console.debug("(webcomSDK::webrtc::_initSdpCallbacks)stackId=" + stackId);
         if (isPublish) {
             if (sdpOfferCb) remoteDataRef.off("child_added", sdpOfferCb);
-            sdpAnswerCb= function(snapshot) {
+            sdpAnswerCb = function (snapshot) {
                 if (!isClosed && snapshot.name() === "sdpAnswer") {
                     var data = snapshot.val();
-                    console.debug("(webcomSDK::webrtc::sdpAnswerCb)stackId="+stackId + "-" + 'received sdpAnswer: ' + JSON.stringify(data));
-                    pc.setRemoteDescription(new myRTCSessionDescription(data), function() {
-                        console.debug("(webcomSDK::webrtc::sdpAnswerCb)stackId="+stackId + "-" + "remote description set");
+                    console.debug("(webcomSDK::webrtc::sdpAnswerCb)stackId=" + stackId + "-" + 'received sdpAnswer: ' + JSON.stringify(data));
+                    pc.setRemoteDescription(new myRTCSessionDescription(data), function () {
+                        console.debug("(webcomSDK::webrtc::sdpAnswerCb)stackId=" + stackId + "-" + "remote description set");
                         // remove sdpAnswer from webcom
                         //snapshot.ref().remove();
                         startListeningToRemoteIceCandidate();
@@ -606,15 +657,15 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
             remoteDataRef.on("child_added", sdpAnswerCb);
         } else {
             if (sdpAnswerCb) remoteDataRef.off("child_added", sdpAnswerCb);
-            sdpOfferCb = function(snapshot) {
+            sdpOfferCb = function (snapshot) {
                 if (!isClosed && snapshot.name() === "sdpOffer") {
                     var data = snapshot.val();
-                    console.debug("(webcomSDK::webrtc::sdpOfferCb)stackId="+stackId + "-" + 'received sdpOffer: ' + JSON.stringify(data));
-                    pc.setRemoteDescription(new myRTCSessionDescription(data), function() {
-                        pc.createAnswer(function(description) {
-                            console.log("(webcomSDK::webrtc::sdpOfferCb)stackId="+stackId + "-" + 'sending answer');
-                            pc.setLocalDescription(description, function() {
-                                console.debug("(webcomSDK::webrtc::sdpOfferCb)stackId="+stackId + "-" + "set sdpAnswer in base : " + JSON.stringify(description));
+                    console.debug("(webcomSDK::webrtc::sdpOfferCb)stackId=" + stackId + "-" + 'received sdpOffer: ' + JSON.stringify(data));
+                    pc.setRemoteDescription(new myRTCSessionDescription(data), function () {
+                        pc.createAnswer(function (description) {
+                            console.log("(webcomSDK::webrtc::sdpOfferCb)stackId=" + stackId + "-" + 'sending answer');
+                            pc.setLocalDescription(description, function () {
+                                console.debug("(webcomSDK::webrtc::sdpOfferCb)stackId=" + stackId + "-" + "set sdpAnswer in base : " + JSON.stringify(description));
                                 localDataRef.child("sdpAnswer").set(JSON.parse(JSON.stringify(description))); // decoding/encoding because of Firefox bug
                                 // remove sdpOffer from webcom
                                 //snapshot.ref().remove();
@@ -652,10 +703,10 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
         // ------------------------------------------------------------------
         // publie l'offre initiale
         // ------------------------------------------------------------------
-        console.log('(webrtc::sendOffer)stackid='+stackId + "-" + 'creating sdpOffer');
-        pc.createOffer(function(description) {
-            pc.setLocalDescription(description, function() {
-                console.debug("(webcomSDK::webrtc::createOffer)stackId="+stackId + "-" + "set sdpOffer in base : " + JSON.stringify(description));
+        console.log('(webrtc::sendOffer)stackid=' + stackId + "-" + 'creating sdpOffer');
+        pc.createOffer(function (description) {
+            pc.setLocalDescription(description, function () {
+                console.debug("(webcomSDK::webrtc::createOffer)stackId=" + stackId + "-" + "set sdpOffer in base : " + JSON.stringify(description));
                 localDataRef.child("sdpOffer").set(JSON.parse(JSON.stringify(description))); // decoding/encoding because of Firefox bug
             }, onError);
         }, onError, publisherMediaConstraints);
@@ -668,9 +719,9 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
     function _close(callback) {
 
         if (!closeInProgress && !isClosed) {
-            closeInProgress=true;
-            onCloseCb2=callback;
-            console.debug("(webcomSDK::webrtc::_close)stackId="+stackId + "-" + 'closing webrtc stack');
+            closeInProgress = true;
+            onCloseCb2 = callback;
+            console.debug("(webcomSDK::webrtc::_close)stackId=" + stackId + "-" + 'closing webrtc stack');
             if (pc) {
                 pc.close();
 
@@ -683,7 +734,7 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
             }
 
             if (iceCandidatesListCb) {
-                stopListeningToRemoteIceCandidate ();
+                stopListeningToRemoteIceCandidate();
                 iceCandidatesListCb = null;
             }
             _closeSdpCallbacks();
@@ -694,56 +745,55 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
             //remoteDataRef.remove();
 
             // stop video
-            for (var i=0;i<localStreams.length;i++) {
+            for (var i = 0; i < localStreams.length; i++) {
                 if (localStreams[i]) {
                     //localStreams[i].src=""; not supported by Firefox
                     detachMediaStream(localStreams[i]);
                     //localStreams[i].removeAttribute("src");
-                    console.debug("(webcomSDK::webrtc::_close)stackId="+stackId + "-" +"stopping local video to "+localStreams[i].id);
+                    console.debug("(webcomSDK::webrtc::_close)stackId=" + stackId + "-" + "stopping local video to " + localStreams[i].id);
                 }
             }
-            for (var j=0;j<remoteStreams.length;j++) {
+            for (var j = 0; j < remoteStreams.length; j++) {
                 if (remoteStreams[j]) {
                     //remoteStreams[j].src=""; not supported by Firefox
                     detachMediaStream(remoteStreams[j]);
                     //remoteStreams[j].removeAttribute("src");
-                    console.debug("(webcomSDK::webrtc::_close)stackId="+stackId + "-" +"stopping remote vid to "+remoteStreams[j].id);
+                    console.debug("(webcomSDK::webrtc::_close)stackId=" + stackId + "-" + "stopping remote vid to " + remoteStreams[j].id);
                 }
             }
 
 
-
-            isClosed=true;
-            console.debug("(webcomSDK::webrtc::_close)stackId="+stackId + "-" + 'closing webrtc stack -> waiting for ICE_CONNECTION_STATE_DISCONNECTED');
-            if (isClosed &&  (iceConnectionState==ICE_CONNECTION_STATE_DISCONNECTED || iceConnectionState==ICE_CONNECTION_STATE_CLOSED || iceConnectionState==ICE_CONNECTION_STATE_FAILED)) {
-                console.debug("(webcomSDK::webrtc::_close)stackId="+stackId + "-" + 'closed webrtc stack complete');
+            isClosed = true;
+            console.debug("(webcomSDK::webrtc::_close)stackId=" + stackId + "-" + 'closing webrtc stack -> waiting for ICE_CONNECTION_STATE_DISCONNECTED');
+            if (isClosed && (iceConnectionState == ICE_CONNECTION_STATE_DISCONNECTED || iceConnectionState == ICE_CONNECTION_STATE_CLOSED || iceConnectionState == ICE_CONNECTION_STATE_FAILED)) {
+                console.debug("(webcomSDK::webrtc::_close)stackId=" + stackId + "-" + 'closed webrtc stack complete');
                 pc = null;
-                closeInProgress=false;
+                closeInProgress = false;
                 webrtcmngr.clearWebrtcStacks(webrtcStackId);
                 if (onCloseCb2 && typeof onCloseCb2 == "function") {
                     onCloseCb2();
                 }
             }
         } else {
-            console.debug("(webcomSDK::webrtc::_close)stackId="+stackId + "-" + 'closing webrtc stack already in progress');
+            console.debug("(webcomSDK::webrtc::_close)stackId=" + stackId + "-" + 'closing webrtc stack already in progress');
         }
     }
 
     function _muteAudio() {
-        console.log("(webcomSDK::webrtc::_muteAudio)stackId="+stackId);
-        isAudioMute=true;
+        console.log("(webcomSDK::webrtc::_muteAudio)stackId=" + stackId);
+        isAudioMute = true;
         var audioTracks;
         if (isPublish && sentStream) {
             audioTracks = sentStream.getAudioTracks();
-            if (audioTracks && audioTracks.length>0) {
-                for (var i = 0; i<audioTracks.length; i++) {
+            if (audioTracks && audioTracks.length > 0) {
+                for (var i = 0; i < audioTracks.length; i++) {
                     if (audioTracks[i]) audioTracks[i].enabled = false;
                 }
             }
-        } else if  (!isPublish && receivedStream) {
+        } else if (!isPublish && receivedStream) {
             audioTracks = receivedStream.getAudioTracks();
-            if (audioTracks && audioTracks.length>0) {
-                for (var j = 0; j<audioTracks.length; j++) {
+            if (audioTracks && audioTracks.length > 0) {
+                for (var j = 0; j < audioTracks.length; j++) {
                     if (audioTracks[j]) audioTracks[j].enabled = false;
                 }
             }
@@ -751,20 +801,20 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
     }
 
     function _unmuteAudio() {
-        console.log("(webcomSDK::webrtc::_unmuteAudio)stackId="+stackId);
-        isAudioMute=false;
+        console.log("(webcomSDK::webrtc::_unmuteAudio)stackId=" + stackId);
+        isAudioMute = false;
         var audioTracks;
         if (isPublish && sentStream) {
             audioTracks = sentStream.getAudioTracks();
-            if (audioTracks && audioTracks.length>0) {
-                for (var i = 0; i<audioTracks.length; i++) {
+            if (audioTracks && audioTracks.length > 0) {
+                for (var i = 0; i < audioTracks.length; i++) {
                     if (audioTracks[i]) audioTracks[i].enabled = true;
                 }
             }
-        } else if  (!isPublish && receivedStream) {
+        } else if (!isPublish && receivedStream) {
             audioTracks = receivedStream.getAudioTracks();
-            if (audioTracks && audioTracks.length>0) {
-                for (var j = 0; j<audioTracks.length; j++) {
+            if (audioTracks && audioTracks.length > 0) {
+                for (var j = 0; j < audioTracks.length; j++) {
                     if (audioTracks[j]) audioTracks[j].enabled = true;
                 }
             }
@@ -772,20 +822,20 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
     }
 
     function _muteVideo() {
-        console.log("(webcomSDK::webrtc::_muteVideo)stackId="+stackId);
-        isVideoMute=true;
+        console.log("(webcomSDK::webrtc::_muteVideo)stackId=" + stackId);
+        isVideoMute = true;
         var videoTracks;
         if (isPublish && sentStream) {
             videoTracks = sentStream.getVideoTracks();
-            if (videoTracks && videoTracks.length>0) {
-                for (var i = 0; i<videoTracks.length; i++) {
+            if (videoTracks && videoTracks.length > 0) {
+                for (var i = 0; i < videoTracks.length; i++) {
                     if (videoTracks[i]) videoTracks[i].enabled = false;
                 }
             }
-        } else if  (!isPublish && receivedStream) {
+        } else if (!isPublish && receivedStream) {
             videoTracks = receivedStream.getVideoTracks();
-            if (videoTracks && videoTracks.length>0) {
-                for (var j = 0; j<videoTracks.length; j++) {
+            if (videoTracks && videoTracks.length > 0) {
+                for (var j = 0; j < videoTracks.length; j++) {
                     if (videoTracks[j]) videoTracks[j].enabled = false;
                 }
             }
@@ -793,20 +843,20 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
     }
 
     function _unmuteVideo() {
-        console.log("(webcomSDK::webrtc::_unmuteVideo)stackId="+stackId);
-        isVideoMute=false;
+        console.log("(webcomSDK::webrtc::_unmuteVideo)stackId=" + stackId);
+        isVideoMute = false;
         var videoTracks;
         if (isPublish && sentStream) {
             videoTracks = sentStream.getVideoTracks();
-            if (videoTracks && videoTracks.length>0) {
-                for (var i = 0; i<videoTracks.length; i++) {
+            if (videoTracks && videoTracks.length > 0) {
+                for (var i = 0; i < videoTracks.length; i++) {
                     if (videoTracks[i]) videoTracks[i].enabled = true;
                 }
             }
-        } else if  (!isPublish && receivedStream) {
+        } else if (!isPublish && receivedStream) {
             videoTracks = receivedStream.getVideoTracks();
-            if (videoTracks && videoTracks.length>0) {
-                for (var j = 0; j<videoTracks.length; j++) {
+            if (videoTracks && videoTracks.length > 0) {
+                for (var j = 0; j < videoTracks.length; j++) {
                     if (videoTracks[j]) videoTracks[j].enabled = true;
                 }
             }
@@ -814,41 +864,39 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
     }
 
 
-    function _connectLocalStream(videoElt,getStreamCb) {
+    function _connectLocalStream(videoElt, getStreamCb) {
         if (actionType) {
-            if (actionType==ACTION_TYPE_VIDEO) {
-                localstream.connectLocalVideoStream(videoElt,getStreamCb);
-            } else if (actionType==ACTION_TYPE_AUDIO) {
-                localstream.connectLocalAudioStream(videoElt,getStreamCb);
-            }else if (actionType==ACTION_TYPE_AUDIO_VIDEO) {
-                localstream.connectLocalAudioVideoStream(videoElt,getStreamCb);
+            if (actionType == actions.ACTION_TYPE_VIDEO) {
+                localstream.connectLocalVideoStream(videoElt, getStreamCb);
+            } else if (actionType == actions.ACTION_TYPE_AUDIO) {
+                localstream.connectLocalAudioStream(videoElt, getStreamCb);
+            } else if (actionType == actions.ACTION_TYPE_AUDIO_VIDEO) {
+                localstream.connectLocalAudioVideoStream(videoElt, getStreamCb);
             }
         }
     }
 
 
-
-
-    function _connectRemoteStream(videoElt,getStreamCb) {
+    function _connectRemoteStream(videoElt, getStreamCb) {
         if (videoElt) {
             if (receivedStream) {
-                attachMediaStream(videoElt,receivedStream);
-                if (getStreamCb && typeof getStreamCb=='function') {
+                attachMediaStream(videoElt, receivedStream);
+                if (getStreamCb && typeof getStreamCb == 'function') {
                     getStreamCb(receivedStream);
                 }
             } else {
                 remoteStreams.push(videoElt);
-                if (getStreamCb && typeof getStreamCb=='function') {
+                if (getStreamCb && typeof getStreamCb == 'function') {
                     remoteStreamsCb.push(getStreamCb)
                 }
             }
         } else {
             if (receivedStream) {
-                if (getStreamCb && typeof getStreamCb=='function') {
+                if (getStreamCb && typeof getStreamCb == 'function') {
                     getStreamCb(receivedStream);
                 }
             } else {
-                if (getStreamCb && typeof getStreamCb=='function') {
+                if (getStreamCb && typeof getStreamCb == 'function') {
                     remoteStreamsCb.push(getStreamCb)
                 }
             }
@@ -863,15 +911,15 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
          * Defines the callback to trigger so as to close the communication
          * @param {function} cb - The callback to trigger
          */
-        setOnClose: function(cb) {
+        setOnClose: function (cb) {
             onCloseCb = cb;
         },
         /**
          * Closes a callback
          * @param {function} cb - The callback to close
          */
-        close: function(cb) {
-            console.debug("(webcomSDK::webrtc::_close)stackId="+stackId + "-close requested");
+        close: function (cb) {
+            console.debug("(webcomSDK::webrtc::_close)stackId=" + stackId + "-close requested");
             _close(cb);
         },
         /**
@@ -879,8 +927,8 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
          * @param videoElt - The video element
          * @param getStreamCb - a callback function to retrieve the mediastream object
          */
-        connectLocalStream: function(videoElt,getStreamCb) {
-            _connectLocalStream(videoElt,getStreamCb);
+        connectLocalStream: function (videoElt, getStreamCb) {
+            _connectLocalStream(videoElt, getStreamCb);
 
         },
         /**
@@ -888,32 +936,34 @@ var webrtc = function(p_isPublish, p_localDataRef, p_remoteDataRef, p_webrtcStac
          * @param videoElt - The video element
          * @param getStreamCb - a callback function to retrieve the mediastream object
          */
-        connectRemoteStream: function(videoElt,getStreamCb) {
-            _connectRemoteStream(videoElt,getStreamCb);
+        connectRemoteStream: function (videoElt, getStreamCb) {
+            _connectRemoteStream(videoElt, getStreamCb);
         },
         /**
          * mute Audio
          */
-        muteAudio : function() {
+        muteAudio: function () {
             _muteAudio();
         },
         /**
          * unmute Audio
          */
-        unmuteAudio : function() {
+        unmuteAudio: function () {
             _unmuteAudio();
         },
         /**
          * mute Video
          */
-        muteVideo : function() {
+        muteVideo: function () {
             _muteVideo();
         },
         /**
          * unmute Video
          */
-        unmuteVideo : function() {
+        unmuteVideo: function () {
             _unmuteVideo();
         }
     };
 };
+
+export default webrtc;

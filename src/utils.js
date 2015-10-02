@@ -2,53 +2,6 @@
 /**
  * @file utils.js - JS file for utils methods.
  * @author Webcom
- * @copyright Orange Labs (C) 2013 - 2014
- * @licence Orange
- *
- * Version doc : 1.2.0
- *
- * Available elements
- <ul>
- <li>
- queryString()
- </li>
- <li>
- parseQueryString(query)
- </li>
- <li>
- guid()
- </li>
- <li>
- host()
- </li>
- <li>
- appInstanceId()
- </li>
- <li>
- getDataFromTS(timestamp)
- </li>
- <li>
- escapeHtml(string)
- </li>
- <li>
- toHHMMSS(seconds)
- </li>
- <li>
- getTabColor(index)
- </li>
- <li>
- arraySize(obj)
- </li>
- <li>
- convertLineBreaks(elem)
- </li>
- <li>
- getStream()
- </li>
- <li>
- setStream(s)
- </li>
- </ul>
  */
 
 
@@ -265,3 +218,5 @@ var utils = function() {
 
     };
 }();
+
+export default utils;

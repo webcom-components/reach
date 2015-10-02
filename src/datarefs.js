@@ -1,68 +1,14 @@
 /**
  * @file datarefs.js - JS file modelizing a dataref, i.e. a pointer to the Webcom xwith dedicated nodes for rooms, reach service and WebRTC communications.
  * @author Webcom
- * @copyright Orange Labs (C) 2013 - 2014
- * @licence Orange
- *
- * Version doc : 1.4.0
- *
- * Available elements:
- <ul>
- <li>
- datastore
- </li>
- <li>
- rooms
- </li>
- <li>
- reach
- </li>
- <li>
- webrtc
- </li>
- <li>
- sipPhoneNumbers
- </li>
- <li>
- authUrl
- </li>
- <li>
- setWebcomBaseUrl(p_webcombase_url)
- </li>
- <li>
- setDatastore(datastore)
- </li>
- <li>
- getDatastore()
- </li>
- <li>
- setAuthUrl(p_auth_url)
- </li>
- <li>
- setRooms(room)
- </li>
- <li>
- getRooms()
- </li>
- <li>
- setReach(reach)
- </li>
- <li>
- getReach()
- </li>
- <li>
- setWebrtc(webrtc)
- </li>
- <li>
- getWebrtc()
- </li>
- <li>
- setSipPhoneNumbers(sipPhoneNumbers)
- </li>
- <li>
- getSipPhoneNumbers()
- </li>
  */
+
+/**
+ * The default Webcombase's URL
+ * @constant
+ * @type {string}
+ */
+const DEFAULT_WEBCOMBASE_URL = 'https://webcom.orange.com/base/sandbox';
 
 /**
  * Represents a dataref with several nodes in it which are pointing to some locations in the database.
@@ -76,10 +22,9 @@
  *       - webrtc
  *       - sipPhoneNumbers
  *       - datastore, i.e. the Webcom object
- *       - authUrl
  * @constructor
  */
-var datarefs = (function() {
+export default function(WEBCOMBASE_URL) {
 
     /**
      * @description The datastore in the main object which can be considered has the root node of the base.
@@ -108,30 +53,13 @@ var datarefs = (function() {
      * In the database, this node is identified by "sipPhoneNumbers".
      */
     var _sipPhoneNumbers = null;
-    /**
-     * @description The authentifcation server's URL which is optional
-     */
-    var _authUrl = null;
-
 
     /**
      * The initialization function which instantiates the Webcom stored in the data store.
      * All the children nodesnare defines here.
      */
     function _init() {
-
-        // WEBCOM-BASE
-        if (typeof WEBCOMBASE_URL !== 'undefined') {
-            _datastore = new Webcom(WEBCOMBASE_URL);
-        } else {
-            _datastore = new Webcom(DEFAULT_WEBCOMBASE_URL);
-        }
-
-        if (typeof AUTH_URL !== 'undefined') {
-            _authUrl = AUTH_URL;
-        } else {
-            _authUrl = DEFAULT_AUTH_URL;
-        }
+        _datastore = new Webcom(WEBCOMBASE_URL || DEFAULT_WEBCOMBASE_URL);
         _initChildren();
     }
 
@@ -183,21 +111,6 @@ var datarefs = (function() {
         return _datastore;
     }
 
-    /**
-     * Defines the authentication URL
-     * @param {string} p_auth_url - The authentication URL to use
-     */
-    function _setAuthUrl(p_auth_url) {
-        _authUrl=p_auth_url;
-    }
-
-    /**
-     * Returns the authentication URL
-     * @param {string} - The authentication URL
-     */
-    function _getAuthUrl() {
-        return _authUrl;
-    }
 
     /**
      * Defines a new rooms node
@@ -297,20 +210,6 @@ var datarefs = (function() {
             return _getDatastore();
         },
         /**
-         * Defines the authentication URL
-         * @param {string} p_auth_url - The authentication URL to use
-         */
-        setAuthUrl : function(p_auth_url) {
-            return _setAuthUrl(p_auth_url);
-        },
-        /**
-         * Returns the authentication URL
-         * @param {string} - The authentication URL
-         */
-        getAuthUrl : function() {
-            return _getAuthUrl();
-        },
-        /**
          * Defines a new rooms node
          * @param p_rooms - A node containing all the rooms
          */
@@ -367,4 +266,4 @@ var datarefs = (function() {
             return _getSipPhoneNumbers();
         }
     };
-})();
+}

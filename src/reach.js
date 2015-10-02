@@ -1,61 +1,65 @@
 /**
  * @file reach.js - JS file to use for the reach service. This service allows to create a dedicated room for users so as to provide them a communication suite.
  * @author Webcom
- * @copyright Orange Labs (C) 2013 - 2014
- * @licence Orange
- *
- * Version doc  : 1.5.0
- *
- * Available elements:
- <ul>
- <li>
- getMe()
- </li>
- <li>
- isConnected(p_userId,p_cb)
- </li>
-
- <li>
- setOnUserAdded(p_cb)
- </li>
- <li>
- setOnUserChanged(p_cb)
- </li>
- <li>
- setOnUserRemoved(p_cb)
- </li>
- <li>
- inviteToRoom(p_roomId, p_guestIds, p_topic,p_statusChangedCb)
- </li>
- <li>
- setOnNewRoomInvitation(p_onNewRoomInviteCb)
- </li>
- <li>
- setOnRoomInvitationChanged(p_onRoomInviteChangedCb)
- </li>
- <li>
- setNewRoomInvitationTimeout(p_timeout,p_reason)
- </li>
- <li>
- archiveMyInvitations(p_cb)
- </li>
- <li>
- acceptInvitation(p_invitationData)
- </li>
- <li>
- rejectInvitation(p_invitationData,p_reason)
- </li>
- <li>
- cancelInvitation(p_roomId, p_guestIds)
- </li>
- <li>
- close()
- </li>
- <li>
- on(p_evt, p_cb)
- </li>
- </ul>
  */
+
+import utils from './utils';
+
+/**
+ * INVITE status : ongoing status
+ * @constant
+ * @type {string}
+ */
+const INVITATION_ONGOING = 'ONGOING';
+
+/**
+ * INVITE status : accepted status
+ * @constant
+ * @type {string}
+ */
+const INVITATION_ACCEPTED = 'ACCEPTED';
+
+/**
+ * INVITE status : refused status
+ * @constant
+ * @type {string}
+ */
+const INVITATION_REJECTED = 'REJECTED';
+
+/**
+ * INVITE status : canceled status
+ * @constant
+ * @type {string}
+ */
+const INVITATION_CANCELED = 'CANCELED';
+
+/**
+ * DEVICE_STATUS_CONNETED status : connected status
+ * @constant
+ * @type {string}
+ */
+const DEVICE_STATUS_CONNECTED = 'CONNECTED';
+
+/**
+ * DEVICE_STATUS_SLEEPING status : connected status
+ * @constant
+ * @type {string}
+ */
+const DEVICE_STATUS_SLEEPING = 'SLEEPING';
+
+/**
+ * ROOM_STATUS_OPEN status : room is open / active
+ * @constant
+ * @type {string}
+ */
+const ROOM_STATUS_OPEN = 'OPEN';
+
+/**
+ * ROOM_STATUS_CLOSE status : room is CLOSE / inactive
+ * @constant
+ * @type {string}
+ */
+const ROOM_STATUS_CLOSE = 'CLOSE';
 
 /**
  * @constructor
@@ -64,7 +68,7 @@
  * the Invite are handled here.
  * @param {string} p_me - The user identifier
  */
-var reach = function (p_me) {
+var reach = function (p_me, datarefs) {
 
     /**
      * @description The user identifier. This identifier will be use to create a dedicated node in the database for this user.
@@ -1066,6 +1070,8 @@ var reach = function (p_me) {
          */
         close: function() {
             return _close();
-        },
+        }
     };
 };
+
+export default reach;

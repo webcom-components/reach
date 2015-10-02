@@ -1,26 +1,33 @@
 // Polyfills for WebRTC
 
-// TODO 19k minified, we can do less maybe
 
-import vars from './vars';
+// TODO 19k minified, we can do less maybe
 import adapterjs from 'adapterjs';
+
+import actions from './actions';
 import datarefs from './datarefs';
-import utils from './utils';
-import localstream from './localstream';
 import reach from './reach';
 import room from './room';
-import webrtcmngr from './webrtcmngr';
-import webrtc from './webrtc';
 
+const SDK_VERSION = '0.0.1';
 
-export default {
-
-
-    hello: () => {
-        console.log('hello world 2');
+export default class ComSDK {
+    constructor(url) {
+        this.datarefs = datarefs(url);
     }
-/*
-    datarefs: datarefs,
-    constants: constants
-*/
+
+    Room(...args) {
+        return room(...args, this.datarefs);
+    }
+
+    Reach(...args) {
+        return reach(...args, this.datarefs);
+    }
+
+    static get SDK_VERSION() {
+        return SDK_VERSION;
+    }
+    static get actions() {
+        return actions;
+    }
 }

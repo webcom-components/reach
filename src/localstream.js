@@ -3,65 +3,6 @@
  * @description Provides data structures to store and handle video, audio and video-and-audio streams. The audio and video streams are managed too.
  * Initialization methods are provided, stream connections and listeners too.
  * @author Webcom
- * @copyright Orange Labs (C) 2013 - 2014
- * @licence Orange
- *
- * Version doc : 1.4.0
- *
- * Available features:
- <ul>
- <li>
- getVideoStream()
- </li>
- <li>
- addVideoListener(cb)
- </li>
- <li>
- initVideo(cb)
- </li>
- <li>
- connectLocalVideoStream(videoElt,getLocalStreamCb)
- </li>
- <li>
- getAudioStream()
- </li>
- <li>
- addAudioListener(cb)
- </li>
- <li>
- initAudio(cb)
- </li>
- <li>
- connectLocalAudioStream(AudioElt,getLocalStreamCb)
- </li>
- <li>
- getAudioVideoStream()
- </li>
- <li>
- addAudioVideoListener(cb)
- </li>
- <li>
- initAudioVideo()
- </li>
- <li>
- connectLocalAudioVideoStream(AudioVideoElt,getLocalStreamCb)
- </li>
- <li>
- getScreenSharingStream()
- </li>
- <li>
- addScreenSharingListener(cb)
- </li>
- <li>
- initScreenSharing(cb)
- </li>
- <li>
- connectLocalScreenSharingStream(ScreenSharingElt,getLocalStreamCb)
- </li>
- <li>
- close(cb)
- </li>
- </ul>
  */
 
 
@@ -688,3 +629,5 @@ var localstream = (function() {
     };
 
 })();
+
+export default localstream;

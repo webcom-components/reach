@@ -1,25 +1,9 @@
 /**
  * @file webrtcmngr.js - JS file for a WebRTC manager
  * @author Webcom
- * @copyright Orange Labs (C) 2013 - 2014
- * @licence Orange
- *
- * Version doc : 1.2.0
- *
- *
- * Available elements:
- <ul>
- <li>
- createWebrtc(p_Vid, p_remoteAppInstId, p_onCloseCb, p_isPublish, p_actionType)
- </li>
- <li>
- closeWebrtc(id, p_isUnPublish, callback)
- </li>
- <li>
- clearWebrtcStacks(webrtcStackId)
- </li>
- </ul>
  */
+
+import utils from './utils';
 
 /**
  * @constructor
@@ -325,7 +309,7 @@ var webrtcmngr = (function() {
         unmuteVideoWebrtcStack: function(virtualWebrtcStackId) {
             return _unmuteVideoWebrtcStack(virtualWebrtcStackId);
         }
-
-
     };
 })();
+
+export default webrtcmngr;
