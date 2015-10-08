@@ -34,6 +34,14 @@ export default {
         return `${distFolder}/${options.config}/coverage/${type}`;
     },
 
+	/**
+	 * Get checkstyle directory
+	 * @returns {string}
+	 */
+	get checkstyleDir(){
+		return `${distFolder}/checkstyle`;
+	},
+
     /**
      * Browser Sync configuration
      */

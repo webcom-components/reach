@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 import ComSDK from '../../src/index';
 import {createNamespace, removeNamespace} from '../util/provisioning';
@@ -42,7 +42,7 @@ describe("ComSDK Tests", () => {
         expect(ComSDK.SDK_VERSION).toEqual(jasmine.any(String));
     });
 
-    it('Validating room data schema', (done) => {
+    it('should Validate room data schema', (done) => {
         let sdk = new ComSDK(config.namespaceUrl);
         sdk.Room('Paul', 'room1');
         ref.once('value', (snap) => {
