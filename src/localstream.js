@@ -5,7 +5,6 @@
  * @author Webcom
  */
 
-import {detachMediaStream} from './rtcAdapter';
 
 /**
  * @constructor
@@ -80,7 +79,7 @@ var localstream = (function() {
 	 * A video element will be created, and pushed to the local streams objects. The catched video and audio stream will be attached to the created HTML element.
 	 * Listeners will also be called.
 	 */
-	function initVideo(){
+	function initVideo(callback){
 		console.log('(webcomSDK::localstream::initVideo)');
 		if (! initVideoProgress) {
 			initVideoProgress=true;
@@ -104,11 +103,18 @@ var localstream = (function() {
 						listenersVideo = [];
 						initVideoProgress=false;
 
+						if (callback) {
+							callback();
+						}
 					},
 					function(error) {
 						console.error('Error on webrtcLocalStream - webkitGetUserMedia : error=');
 						console.dir(error);
 						initVideoProgress=false;
+
+						if (callback) {
+							callback(error);
+						}
 					}
 				);
 			} else {
@@ -131,7 +137,7 @@ var localstream = (function() {
 	 * A video element will be created, and pushed to the local streams objects. The catched audio stream will be attached to the created HTML element.
 	 * Listeners will also be called.
 	 */
-	function initAudio() {
+	function initAudio(callback) {
 		console.log('(webcomSDK::localstream::initAudio)');
 		if (! initAudioProgress) {
 			initAudioProgress=true;
@@ -155,11 +161,18 @@ var localstream = (function() {
 						listenersAudio = [];
 						initAudioProgress=false;
 
+						if (callback) {
+							callback();
+						}
 					},
 					function(error) {
 						console.error('Error on webrtcLocalStream - webkitGetUserMedia :error=');
 						console.dir(error);
 						initAudioProgress=false;
+
+						if (callback) {
+							callback(error);
+						}
 					}
 				);
 			} else {
@@ -182,7 +195,7 @@ var localstream = (function() {
 	 * A video element will be created, and pushed to the local streams objects. The catched audio stream will be attached to the created HTML element.
 	 * Listeners will also be called.
 	 */
-	function initAudioVideo() {
+	function initAudioVideo(callback) {
 		console.log('(webcomSDK::localstream::initAudioVideo)');
 		if (!initAudioVideoProgress) {
 			initAudioVideoProgress=true;
@@ -194,32 +207,39 @@ var localstream = (function() {
 
 			if(streamAudioVideo === null){
 				navigator.getMedia({audio : true,video : true},
-					function(s) {
+					(s) => {
 
 						streamAudioVideo = s;
-						for (var i = 0; i < localAudioVideoStreams.length; i++) {
+						for (let i = 0; i < localAudioVideoStreams.length; i++) {
 							attachMediaStream(localAudioVideoStreams[i],streamAudioVideo);
 						}
 						localAudioVideoStreams = [];
-						for (var j=0;j<listenersAudioVideo.length;j++) {
+						for (let j=0;j<listenersAudioVideo.length;j++) {
 							listenersAudioVideo[j](streamAudioVideo);
 						}
 						listenersAudioVideo = [];
 						initAudioVideoProgress=false;
 
+						if (callback) {
+							callback();
+						}
 					},
-					function(error) {
+					(error) => {
 						console.error('(webcomSDK::localstream::initAudioVideo::Error on webrtcLocalStream - webkitGetUserMedia : error=');
 						console.dir(error);
 						initAudioVideoProgress=false;
+
+						if (callback) {
+							callback(error);
+						}
 					}
 				);
 			} else {
-				for (var i = 0; i < localAudioVideoStreams.length; i++) {
+				for (let i = 0; i < localAudioVideoStreams.length; i++) {
 					attachMediaStream(localAudioVideoStreams[i],streamAudioVideo);
 				}
 				localAudioVideoStreams = [];
-				for (var j=0;j<listenersAudioVideo.length;j++) {
+				for (let j=0;j<listenersAudioVideo.length;j++) {
 					listenersAudioVideo[j](streamAudioVideo);
 				}
 				listenersAudioVideo = [];
@@ -302,7 +322,7 @@ var localstream = (function() {
 		 * @param videoElt - The video element where place the connected local video stream. if null, a new one will be created.
 		 * @param getLocalStreamCb - a callback function to retrieve the mediastream object
 		 */
-		connectLocalVideoStream:function (videoElt,getLocalStreamCb) {
+		connectLocalVideoStream:function (videoElt, publishStreamCb, getLocalStreamCb) {
 			if (videoElt) {
 				videoElt.muted=true;
 				if (streamVideo) {
@@ -316,14 +336,14 @@ var localstream = (function() {
 					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
 						listenersVideo.push(getLocalStreamCb);
 					}
-					initVideo();
+					initVideo(publishStreamCb);
 				}
 			} else {
 				if (!streamVideo) {
 					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
 						listenersVideo.push(getLocalStreamCb);
 					}
-					initVideo();
+					initVideo(publishStreamCb);
 				} else {
 					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
 						getLocalStreamCb(streamVideo);
@@ -360,7 +380,7 @@ var localstream = (function() {
 		 * @param AudioElt - The audio element in use possessing the attached local audio stream
 		 * @param getLocalStreamCb - a callback function to retrieve the mediastream object
 		 */
-		connectLocalAudioStream:function (AudioElt,getLocalStreamCb) {
+		connectLocalAudioStream:function (AudioElt, publishStreamCb, getLocalStreamCb) {
 			if (AudioElt) {
 				AudioElt.muted=true;
 				if (streamAudio) {
@@ -374,14 +394,14 @@ var localstream = (function() {
 					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
 						listenersAudio.push(getLocalStreamCb);
 					}
-					initAudio();
+					initAudio(publishStreamCb);
 				}
 			} else {
 				if (!streamAudio) {
 					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
 						listenersAudio.push(getLocalStreamCb);
 					}
-					initAudio();
+					initAudio(publishStreamCb);
 				} else {
 					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
 						getLocalStreamCb(streamAudio);
@@ -418,30 +438,30 @@ var localstream = (function() {
 		 * @param AudioVideoElt - The element where to place the audio and video local streams
 		 * @param getLocalStreamCb - a callback function to retrieve the mediastream object
 		 */
-		connectLocalAudioVideoStream:function (AudioVideoElt,getLocalStreamCb) {
+		connectLocalAudioVideoStream:function (AudioVideoElt, publishStreamCb, getLocalStreamCb) {
 			if (AudioVideoElt) {
 				AudioVideoElt.muted=true;
 				if (streamAudioVideo) {
 					console.log('(webcomSDK::localstream::connectLocalAudioVideoStream)use existing streamAudioVideo');
 					attachMediaStream(AudioVideoElt,streamAudioVideo);
-					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
+					if (getLocalStreamCb) {
 						getLocalStreamCb(streamAudioVideo);
 					}
 				} else {
 					localAudioVideoStreams.push(AudioVideoElt);
-					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
+					if (getLocalStreamCb && typeof getLocalStreamCb == 'function') {
 						listenersAudioVideo.push(getLocalStreamCb);
 					}
-					initAudioVideo();
+					initAudioVideo(publishStreamCb);
 				}
 			} else {
 				if (!streamAudioVideo) {
-					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
+					if (getLocalStreamCb && typeof getLocalStreamCb == 'function') {
 						listenersAudioVideo.push(getLocalStreamCb);
 					}
-					initAudioVideo();
+					initAudioVideo(publishStreamCb);
 				} else {
-					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
+					if (getLocalStreamCb) {
 						getLocalStreamCb(streamAudioVideo);
 					}
 				}

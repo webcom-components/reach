@@ -4,13 +4,6 @@
  */
 
 /**
- * The default Webcombase's URL
- * @constant
- * @type {string}
- */
-const DEFAULT_WEBCOMBASE_URL = 'https://webcom.orange.com/base/sandbox';
-
-/**
  * Represents a dataref with several nodes in it which are pointing to some locations in the database.
  * The datarefs can be considered as a Webcom object pointing to a base URL. This node contains children nodes for
  * reach service, rooms and WebRTC communications.
@@ -28,7 +21,7 @@ export default function(WEBCOMBASE_URL) {
 
 	/**
 	 * @description The datastore in the main object which can be considered has the root node of the base.
-	 * It contains the instanciated Webcom defined by a WEBCOMBASE_URL or DEFAULT_WEBCOMBASE_URL.
+	 * It contains the instanciated Webcom defined by a WEBCOMBASE_URL
 	 * The main nodes containing the rooms, the SIP phone numbers and the reach and WebRTC data are children of this node.
 	 */
 	var _datastore = null;
@@ -59,7 +52,7 @@ export default function(WEBCOMBASE_URL) {
 	 * All the children nodesnare defines here.
 	 */
 	function _init() {
-		_datastore = new Webcom(WEBCOMBASE_URL || DEFAULT_WEBCOMBASE_URL);
+		_datastore = new Webcom(WEBCOMBASE_URL);
 		_initChildren();
 	}
 

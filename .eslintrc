@@ -1,10 +1,13 @@
 parser: babel-eslint
 
+root: true
+
 globals:
   RTCPeerConnection: true
   attachMediaStream: true
   Webcom: false
   getUserMedia: true
+  detachMediaStream: true
 
 ecmaFeatures:
   modules: true
@@ -33,7 +36,7 @@ rules:
     - 3
   max-len:
     - 2
-    - 100
+    - 120
     - 4
     - ignoreComments: true
   max-params:

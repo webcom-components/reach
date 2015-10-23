@@ -5,7 +5,6 @@
 
 import actions from './actions';
 import localstream from './localstream';
-import {detachMediaStream} from './rtcAdapter';
 import vars from './actions';
 
 /**
@@ -64,6 +63,7 @@ const ICE_CONNECTION_STATE_OTHER= 'other';
  * @constant
  * @type {json}
  */
+
 const DEFAULT_ICE_CONFIG = {
 	iceServers: [
 		{
@@ -83,6 +83,7 @@ const DEFAULT_ICE_CONFIG = {
 		}
 	]
 };
+
 
 /**
  * @constructor

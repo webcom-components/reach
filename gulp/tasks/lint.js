@@ -10,14 +10,14 @@ gulp.task('lint', () => {
 		.pipe(eslint())
 		.pipe(eslint.format())
 		.pipe(eslint.format('html', (content) => {
-			let str = new stream.Readable;
+			const str = new stream.Readable;
 			str.push(content);
 			str.push(null);
 			str.pipe(source('report.html'))
 				.pipe(gulp.dest(config.checkstyleDir));
 		}))
 		.pipe(eslint.format('checkstyle', (content) => {
-			let str = new stream.Readable;
+			const str = new stream.Readable;
 			str.push(content);
 			str.push(null);
 			str.pipe(source('checkstyle.xml'))

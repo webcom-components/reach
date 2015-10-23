@@ -5,7 +5,6 @@
 
 import utils from './utils';
 import webrtc from './webrtc';
-import {detachMediaStream} from './rtcAdapter';
 
 /**
  * @constructor

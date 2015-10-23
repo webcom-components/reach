@@ -1,0 +1,54 @@
+html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background-color: #eee;
+    font-family: Arial,sans-serif;
+    width: 100%;
+    height: 100%;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+}
+
+.fullScreen {
+    width: 100%;
+    height: 100%;
+}
+
+video {
+    object-fit: cover;
+}
+
+.smallVideo {
+    position: absolute;
+    max-width: 15%;
+    max-height: 15%;
+    bottom: 2em;
+    left: 2em;
+    z-index: 1;
+    border:1px solid #eeeeee;
+}
+
+.partipantsPanel {
+    margin-top: 3em;
+}
+
+.topButtons {
+    position: absolute;
+    right: 2em;
+    top: 2em;
+    z-index: 3;
+}
+
+.cmdButtons {
+    position: absolute;
+    right: 2em;
+    bottom: 2em;
+    z-index: 2;
+}

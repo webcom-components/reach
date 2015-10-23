@@ -271,84 +271,81 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			console.error('(webcomSDK::reach::inviteToRoom)parameter streamId is incorrect. Expecting non empty string');
 			return;
 		}
-		var localDataRef = dataref.child('publishedMediaList').child(streamId);
-		var remoteDataRef = localDataRef.child('subscribersList');
+		const localDataRef = dataref.child('publishedMediaList').child(streamId);
+		const remoteDataRef = localDataRef.child('subscribersList');
+
+		function pubAndSubscribe() {
+			// publish the stream
+			localDataRef.set({from: me, appInstanceId: utils.appInstanceId, actionType: actionType});
+			localDataRef.onDisconnect().remove();
+
+
+			// subscribe to stream updates for add
+			var addSubscribersListCb = function (snapshot) {
+				var remoteAppInstanceId = snapshot.name();
+				var data = snapshot.val();
+				var subscriberId = data.userId;
+				var _peercoId = data.peercoId;
+				var _peercoRef = data.peercoRef;
+				console.log('(webcomSDK::room[' + roomId + ']::publishStream::addSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' added ' + JSON.stringify(data));
+				if (!roomWebrtcStacks[streamId + '_pub']) {
+					roomWebrtcStacks[streamId + '_pub'] = [];
+				}
+				var isAudioMute = false;
+				var isVideoMute = false;
+				if (mMutedStreams[streamId] && mMutedStreams[streamId].audio) isAudioMute = true;
+				if (mMutedStreams[streamId] && mMutedStreams[streamId].video) isVideoMute = true;
+				var mStackId = webrtcmngr.createWebrtc(null, remoteAppInstanceId, function () {
+					console.log('(webcomSDK::room[' + roomId + ']::publishStream::addSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' connection lost');
+//				onUnPublishedStream(localVid, remoteVid);
+				}, true, actionType, _peercoId, _peercoRef, isAudioMute, isVideoMute);
+
+				roomWebrtcStacks[streamId + '_pub'].push({
+					stackId: mStackId,
+					subscriberId: subscriberId,
+					isPublish: true,
+					peercoId: _peercoId,
+					peercoRef: _peercoRef
+				});
+				//delete roomWebrtcStacks[streamId+"_pub"];
+				//$("div#videoButton_"+roomId+".videoButton, div#micButton_"+roomId+".micButton").removeClass("disabled");
+			};
+			// subscribe to stream updates for remove
+			var removeSubscribersListCb = function (snapshot) {
+				var subscriberId = snapshot.name();
+				if (subscriberId) {
+					console.log('(webcomSDK::room[' + roomId + ']::publishStream::removeSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' removed');
+					if (roomWebrtcStacks[streamId + '_pub'] && roomWebrtcStacks[streamId + '_pub'].length > 0) {
+						for (let i = roomWebrtcStacks[streamId + '_pub'].length - 1; i >= 0; i--) {
+							if (roomWebrtcStacks[streamId + '_pub'][i].subscriberId === subscriberId) {
+								webrtcmngr.closeWebrtc(roomWebrtcStacks[streamId + '_pub'][i].stackId, true);
+							}
+						}
+						delete roomWebrtcStacks[streamId + '_pub'];
+					}
+				}
+			};
+
+
+			mStreams[streamId] = {
+				addSubscribersListCb,
+				removeSubscribersListCb
+			};
+
+			remoteDataRef.on('child_added', addSubscribersListCb);
+			remoteDataRef.on('child_removed', removeSubscribersListCb);
+		}
 
 		//init local stream
 		if (actionType) {
 			if (actionType === actions.ACTION_TYPE_VIDEO) {
-				localstream.connectLocalVideoStream(localVid, getLocalStreamCb);
+				localstream.connectLocalVideoStream(localVid, pubAndSubscribe, getLocalStreamCb);
 			} else if (actionType === actions.ACTION_TYPE_AUDIO) {
-				localstream.connectLocalAudioStream(localVid, getLocalStreamCb);
+				localstream.connectLocalAudioStream(localVid, pubAndSubscribe, getLocalStreamCb);
 			} else if (actionType === actions.ACTION_TYPE_AUDIO_VIDEO) {
-				localstream.connectLocalAudioVideoStream(localVid, getLocalStreamCb);
-			} else if (actionType === actions.ACTION_TYPE_SCREEN_SHARING) {
-				localstream.connectLocalScreenSharingStream(localVid, getLocalStreamCb);
+				localstream.connectLocalAudioVideoStream(localVid, pubAndSubscribe, getLocalStreamCb);
 			}
 		}
-
-
-		// publish the stream
-		localDataRef.set({from: me, appInstanceId: utils.appInstanceId, actionType: actionType});
-		localDataRef.onDisconnect().remove();
-
-
-		// subscribe to stream updates for add
-		var addSubscribersListCb = function (snapshot) {
-			var remoteAppInstanceId = snapshot.name();
-			var data = snapshot.val();
-			var subscriberId = data.userId;
-			var _peercoId = data.peercoId;
-			var _peercoRef = data.peercoRef;
-			console.log('(webcomSDK::room[' + roomId + ']::publishStream::addSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' added ' + JSON.stringify(data));
-			if (!roomWebrtcStacks[streamId + '_pub']) {
-				roomWebrtcStacks[streamId + '_pub'] = [];
-			}
-			var isAudioMute = false;
-			var isVideoMute = false;
-			if (mMutedStreams[streamId] && mMutedStreams[streamId].audio) isAudioMute = true;
-			if (mMutedStreams[streamId] && mMutedStreams[streamId].video) isVideoMute = true;
-			var mStackId = webrtcmngr.createWebrtc(null, remoteAppInstanceId, function () {
-				console.log('(webcomSDK::room[' + roomId + ']::publishStream::addSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' connection lost');
-//				onUnPublishedStream(localVid, remoteVid);
-			}, true, actionType, _peercoId, _peercoRef, isAudioMute, isVideoMute);
-
-			roomWebrtcStacks[streamId + '_pub'].push({
-				stackId: mStackId,
-				subscriberId: subscriberId,
-				isPublish: true,
-				peercoId: _peercoId,
-				peercoRef: _peercoRef
-			});
-			//delete roomWebrtcStacks[streamId+"_pub"];
-			//$("div#videoButton_"+roomId+".videoButton, div#micButton_"+roomId+".micButton").removeClass("disabled");
-		};
-		// subscribe to stream updates for remove
-		var removeSubscribersListCb = function (snapshot) {
-			var subscriberId = snapshot.name();
-			if (subscriberId) {
-				console.log('(webcomSDK::room[' + roomId + ']::publishStream::removeSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' removed');
-				if (roomWebrtcStacks[streamId + '_pub'] && roomWebrtcStacks[streamId + '_pub'].length > 0) {
-					for (let i = roomWebrtcStacks[streamId + '_pub'].length - 1; i >= 0; i--) {
-						if (roomWebrtcStacks[streamId + '_pub'][i].subscriberId === subscriberId) {
-							webrtcmngr.closeWebrtc(roomWebrtcStacks[streamId + '_pub'][i].stackId, true);
-						}
-					}
-					delete roomWebrtcStacks[streamId + '_pub'];
-				}
-			}
-
-
-		};
-
-
-		mStreams[streamId] = {
-			addSubscribersListCb: addSubscribersListCb,
-			removeSubscribersListCb: removeSubscribersListCb
-		};
-
-		remoteDataRef.on('child_added', addSubscribersListCb);
-		remoteDataRef.on('child_removed', removeSubscribersListCb);
 	}
 
 	/**

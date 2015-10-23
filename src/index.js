@@ -3,7 +3,8 @@
 
 // TODO 19k minified, we can do less maybe
 /*eslint-disable no-unused-vars*/
-import adapterjs from 'adapterjs';
+//import adapterjs from 'adapterjs';
+import adapterjs from './adapter';
 /*eslint-enable no-unused-vars*/
 
 import actions from './actions';
@@ -15,7 +16,7 @@ import webrtcmngr from './webrtcmngr.js';
 const SDK_VERSION = '0.0.1';
 
 export default class ComSDK {
-	constructor(url) {
+	constructor(url= 'http://webcom.orange.com/base/webrtc') {
 		this.datarefs = datarefs(url);
 		this.webrtcmngr = webrtcmngr(this.datarefs);
 	}
@@ -28,7 +29,7 @@ export default class ComSDK {
 		return reach(...args, this.datarefs);
 	}
 
-	static get SDK_VERSION() {
+	static get version() {
 		return SDK_VERSION;
 	}
 	static get actions() {
