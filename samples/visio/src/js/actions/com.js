@@ -12,6 +12,10 @@ export const INVITATION_ANSWERED = 'INVITATION_ANSWERED';
 export const STREAM_PUBLISHED = 'STREAM_PUBLISHED';
 export const ROOM_LEFT = 'ROOM_LEFT';
 export const STREAM_SUBSCRIBED = 'STREAM_SUBSCRIBED';
+export const VIDEO_MUTED = 'VIDEO_MUTED';
+export const VIDEO_UNMUTED = 'VIDEO_UNMUTED';
+export const AUDIO_MUTED = 'AUDIO_MUTED';
+export const AUDIO_UNMUTED = 'AUDIO_UNMUTED';
 
 export function addParticipant(username, data) {
 	return {
@@ -117,11 +121,16 @@ export function receiveRemoteStream(username, roomname, streamData, remoteVideoT
 }
 
 export function listenToStreams(username, roomname, videoTag) {
-	return dispatch => {
+	return (dispatch, getState) => {
 		const room = getRoom(username, roomname);
 
 		room.on('publishedStream', (data) => {
 			dispatch(receiveRemoteStream(username, roomname, data, videoTag));
+		});
+
+		room.on('unPublishedStream', (data) => {
+			const streamId = Object.keys(data)[0];
+			//getState().app.room;
 		});
 	};
 }
@@ -181,6 +190,48 @@ export function quitRoom(username, roomObj) {
 				data: room
 			});
 		});
+	};
+}
+
+export function toggleAudio(username, roomObj) {
+	const {
+		name: roomname,
+		localAudioMuted: muted,
+		localStreamId: streamId
+	} = roomObj;
+
+	const room = getRoom(username, roomname);
+
+	if (muted) {
+		room.unmuteAudioStream(streamId);
+	} else {
+		room.muteAudioStream(streamId);
+	}
+
+	return {
+		type: muted ?  AUDIO_UNMUTED : AUDIO_MUTED,
+		data: streamId
+	};
+}
+
+export function toggleVideo(username, roomObj) {
+	const {
+		name: roomname,
+		localVideoMuted: muted,
+		localStreamId: streamId
+		} = roomObj;
+
+	const room = getRoom(username, roomname);
+
+	if (muted) {
+		room.unmuteVideoStream(streamId);
+	} else {
+		room.muteVideoStream(streamId);
+	}
+
+	return {
+		type: muted ? VIDEO_UNMUTED : VIDEO_MUTED,
+		data: streamId
 	};
 }
 

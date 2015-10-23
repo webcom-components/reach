@@ -12,6 +12,9 @@ function getUrl() {
 	if (typeof __DEVTOOLS__ !== 'undefined' && __DEVTOOLS__) {
 		url = `${/http(?:s)?:\/\/[^:]*/.exec(url)[0]}:8000`;
 	}
+	if (typeof __WEBCOM_SERVER__ !== 'undefined') {
+		url = __WEBCOM_SERVER__;
+	}
 
 	return url;
 }

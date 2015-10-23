@@ -9,7 +9,11 @@ import {
 	RECEIVE_INVITATION,
 	INVITATION_ANSWERED,
 	STREAM_PUBLISHED,
-	STREAM_SUBSCRIBED
+	STREAM_SUBSCRIBED,
+	VIDEO_MUTED,
+	VIDEO_UNMUTED,
+	AUDIO_MUTED,
+	AUDIO_UNMUTED
 } from '../actions/com';
 
 const initialState = {
@@ -90,6 +94,38 @@ export default function main(state = initialState, action = {}) {
 			room: {
 				...state.room,
 				remoteStreams: (state.room.remoteStreams || []).push(action.data)
+			}
+		};
+	case VIDEO_MUTED:
+		return {
+			...state,
+			room: {
+				...state.room,
+				localVideoMuted: true
+			}
+		};
+	case VIDEO_UNMUTED:
+		return {
+			...state,
+			room: {
+				...state.room,
+				localVideoMuted: false
+			}
+		};
+	case AUDIO_MUTED:
+		return {
+			...state,
+			room: {
+				...state.room,
+				localAudioMuted: true
+			}
+		};
+	case AUDIO_UNMUTED:
+		return {
+			...state,
+			room: {
+				...state.room,
+				localAudioMuted: false
 			}
 		};
 	default:

@@ -27,6 +27,21 @@ gulp.task('build', (callback) => {
 	});
 });
 
+gulp.task('build:kermit', (callback) => {
+	process.env.NODE_ENV = 'production';
+
+	runSequence('copyAssets', () => {
+		webpack(config.webpack({
+			output: true,
+			release: true,
+			wsServerUrl: 'https://base3.webcom.orange-labs.fr'
+		}), (err, stats) => {
+			console.log(stats.toString());
+			callback();
+		});
+	});
+});
+
 gulp.task('serve', ['build'], (done) => {
 	const bs = browserSync.create();
 	bs.init(config.browserSyncDist, () => {

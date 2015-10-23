@@ -48,7 +48,8 @@ const config = {
 	webpack: (options={
 		release:false,
 		debug: false,
-		devServer: false
+		devServer: false,
+		wsServerUrl: null
 	}) => {
 		const config = getDefaultWebpackConfig();
 
@@ -63,6 +64,12 @@ const config = {
 			'webcom': 'webcom'
 		}));
 
+		if (options.wsServerUrl) {
+			config.plugins.push(new webpack.DefinePlugin({
+				'__WEBCOM_SERVER__': `'${options.wsServerUrl}'`
+			}));
+		}
+
 		if (options.release) {
 			config.entry = './src/js/index.js';
 
@@ -72,6 +79,7 @@ const config = {
 				//new webpack.optimize.AggressiveMergingPlugin(),
 				new webpack.optimize.UglifyJsPlugin({minimize: true})
 			]);
+
 			config.resolve.alias.comsdk = '../../../../dist/comsdk.js';
 		}
 
