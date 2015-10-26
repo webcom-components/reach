@@ -16,6 +16,10 @@ export default class Participants extends Component {
 		}
 	}
 
+	logout() {
+		this.props.logout();
+	}
+
 	render() {
 		const createParticipant = (p) => {
 			const status = p.info.connectedList ? 'list-group-item-success' : 'list-group-item-danger';
@@ -54,6 +58,11 @@ export default class Participants extends Component {
 
 		return (
 			<div className="container">
+				<div className='logout'>
+					<button type='button' className='btn btn-default' onClick={this.logout.bind(this)}>
+						<span className='glyphicon glyphicon-log-out' aria-hidden='true'></span>
+					</button>
+				</div>
 				<div className="row">
 					<div className="col-md-6 col-md-offset-3">
 						<div className="panel panel-default partipantsPanel">

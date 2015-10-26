@@ -1,10 +1,16 @@
 import { combineReducers } from 'redux';
-import mainReducers from './main';
+import user from './user';
+import room from './room';
+import participants from './participants';
 import { reducer as formReducer } from 'redux-form';
+import { routerStateReducer as router } from 'redux-router';
 
 const rootReducer = combineReducers({
-	app: mainReducers,
-	form: formReducer
+	user,
+	room,
+	participants,
+	form: formReducer,
+	router
 });
 
 

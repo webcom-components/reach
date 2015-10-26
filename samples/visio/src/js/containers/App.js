@@ -2,17 +2,17 @@ import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Invitation from '../components/invitation';
-import * as comsdkActions from '../actions/com';
+import * as reachActions from '../actions/reach';
 
 let ConnectedInvitation = connect(state => {
 	return {
-		invitation: state.app.invitation
+		invitation: state.user.invitation
 	};
 }, dispatch => {
-	return bindActionCreators(comsdkActions, dispatch);
+	return bindActionCreators(reachActions, dispatch);
 })(Invitation);
 
-class Main extends Component {
+export default class Main extends Component {
 	static propTypes = {
 		children: PropTypes.any.isRequired
 	}
@@ -27,10 +27,3 @@ class Main extends Component {
 		);
 	}
 }
-
-function mapStateToProps(/* state */) {
-	return {};
-}
-
-
-export default connect(mapStateToProps)(Main);

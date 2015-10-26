@@ -1,18 +1,18 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Participants from '../components/participants';
-import * as comsdkActions from '../actions/com';
+import * as reachActions from '../actions/reach';
 
 function mapStateToProps(state) {
 	return {
-		username: state.app.username,
-		participants: state.app.participants,
-		logged: state.app.logged
+		username: state.user.username,
+		participants: state.participants,
+		logged: state.user.logged
 	};
 }
 
 function mapDispatchToProps(dispatch) {
-	return bindActionCreators(comsdkActions, dispatch);
+	return bindActionCreators(reachActions, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Participants);

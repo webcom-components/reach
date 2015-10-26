@@ -1,6 +1,6 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as comsdkActions from '../actions/com';
+import * as roomActions from '../actions/room';
 import React, { Component, PropTypes } from 'react';
 import history from '../history';
 import ReactDom from 'react-dom';
@@ -87,14 +87,14 @@ class Visio extends Component {
 					</button>
 				</div>
 				<div className='cmdButtons'>
-					<button type='button' className='btn btn-default'>
-						<span className="glyphicon glyphicon-facetime-video" style={getVideoStyles.bind(this)()} aria-hidden="true" onClick={this.toggleVideo.bind(this)}></span>
+					<button type='button' className='btn btn-default' onClick={this.toggleVideo.bind(this)}>
+						<span className="glyphicon glyphicon-facetime-video" style={getVideoStyles.bind(this)()} aria-hidden='true'></span>
 					</button>
-					<button type='button' className='btn btn-default'>
-						<span className={getVolumeClass.bind(this)()} aria-hidden="true" onClick={this.toggleAudio.bind(this)}></span>
+					<button type='button' className='btn btn-default' onClick={this.toggleAudio.bind(this)}>
+						<span className={getVolumeClass.bind(this)()} aria-hidden='true'></span>
 					</button>
-					<button type='button' className='btn btn-default'>
-						<span className="glyphicon glyphicon-fullscreen" aria-hidden="true" onClick={this.toggleFullScreen.bind(this)}></span>
+					<button type='button' className='btn btn-default' onClick={this.toggleFullScreen.bind(this)}>
+						<span className="glyphicon glyphicon-fullscreen" aria-hidden='true'></span>
 					</button>
 
 				</div>
@@ -107,14 +107,14 @@ class Visio extends Component {
 
 function mapStateToProps(state) {
 	return {
-		logged: state.app.logged,
-		username: state.app.username,
-		room: state.app.room
+		logged: state.user.logged,
+		username: state.user.username,
+		room: state.room
 	};
 }
 
 function mapDispatchToProps(dispatch) {
-	return bindActionCreators(comsdkActions, dispatch);
+	return bindActionCreators(roomActions, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Visio);

@@ -4,6 +4,11 @@ import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise';
 import rootReducer from '../reducers';
 import createLogger from 'redux-logger';
+import { reduxReactRouter } from 'redux-router';
+import routes from '../routes';
+import history from '../history';
+
+//import { createHistory } from 'history';
 
 
 const loggerMiddleware = createLogger({
@@ -11,19 +16,26 @@ const loggerMiddleware = createLogger({
 	collapsed: true
 });
 
+
 let createStoreWithMiddleware;
 
+
 if (typeof __DEVTOOLS__ !== 'undefined' && __DEVTOOLS__) {
-	const { devTools, persistState } = require('redux-devtools');
+	const DevTools = require('../containers/DevTools');
+
 	createStoreWithMiddleware = compose(
 		applyMiddleware(thunkMiddleware, promiseMiddleware, loggerMiddleware),
-		devTools(),
-		persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
+		reduxReactRouter({routes, history}),
+		DevTools.instrument()
+		//persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
 	)(createStore);
 } else {
-	createStoreWithMiddleware = applyMiddleware(
-		thunkMiddleware,
-		promiseMiddleware
+	createStoreWithMiddleware = compose(
+		applyMiddleware(
+			thunkMiddleware,
+			promiseMiddleware),
+		reduxReactRouter({routes, history})
+
 	)(createStore);
 }
 

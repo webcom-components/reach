@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Login from '../components/login';
-import * as comsdkActions from '../actions/com';
+import * as reachActions from '../actions/reach';
 import {connectReduxForm} from 'redux-form';
 
 const LoginForm = connectReduxForm({
@@ -10,14 +10,12 @@ const LoginForm = connectReduxForm({
 })(Login);
 
 
-function mapStateToProps(state) {
-	return {
-		//counter: state.counter
-	};
+function mapStateToProps() {
+	return {};
 }
 
 function mapDispatchToProps(dispatch) {
-	return bindActionCreators(comsdkActions, dispatch);
+	return bindActionCreators(reachActions, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);
