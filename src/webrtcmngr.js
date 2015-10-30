@@ -5,6 +5,7 @@
 
 import utils from './utils';
 import webrtc from './webrtc';
+import localstream from './localstream';
 
 /**
  * @constructor
@@ -116,10 +117,6 @@ var webrtcmngr = function(datarefs) {
 			}
 			return false;
 		}
-		// disconnect the video streams
-		if (virtualWebrtcStacks[id].localVid) { detachMediaStream(virtualWebrtcStacks[id].localVid); }
-		if (virtualWebrtcStacks[id].remoteVid) { detachMediaStream(virtualWebrtcStacks[id].remoteVid);}
-
 
 		var webrtcStackId = virtualWebrtcStacks[id].webRtcStackId;
 		if (webrtcStackId && webrtcStacks[webrtcStackId]  ) {
@@ -145,6 +142,13 @@ var webrtcmngr = function(datarefs) {
 			}
 			console.warn('webcomSDK::webrtcmngr::closeWebrtc cannot found real stack');
 		}
+
+		if (virtualWebrtcStacks[id].localVid) {
+			localstream.close();
+			detachMediaStream(virtualWebrtcStacks[id].localVid);
+		}
+		if (virtualWebrtcStacks[id].remoteVid) { detachMediaStream(virtualWebrtcStacks[id].remoteVid);}
+
 		return true;
 	}
 
@@ -260,7 +264,7 @@ var webrtcmngr = function(datarefs) {
 		 * @param p_peercoId - The PeerConnection Id in the webrtc node
 		 */
 		createWebrtc: function(p_Vid, p_remoteAppInstId, p_onCloseCb,p_isPublish,p_actionType,p_peercoId,p_mutedAudio,p_muteVideo,p_getStreamCb) {
-			return  _createWebrtc(p_Vid, p_remoteAppInstId, p_onCloseCb,p_isPublish,p_actionType,p_peercoId,p_mutedAudio,p_muteVideo,p_getStreamCb);
+			return  _createWebrtc.bind(this)(p_Vid, p_remoteAppInstId, p_onCloseCb,p_isPublish,p_actionType,p_peercoId,p_mutedAudio,p_muteVideo,p_getStreamCb);
 		},
 
 		/**

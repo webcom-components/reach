@@ -561,7 +561,8 @@ var webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteDataRe
 					if (isVideoMute) _muteVideo();
 
 					pc.addStream(sentStream);
-					for (var i = 0; i < localStreams.length; i++) {
+
+					for (let i = 0; i < localStreams.length; i++) {
 						console.log('(webcomSDK::webrtc::_initlocalStream)stackId=' + stackId + ' rendering local AudioVideo to ' + localStreams[i].id);
 						attachMediaStream(localStreams[i], localstream.getAudioVideoStream());
 					}
@@ -577,32 +578,6 @@ var webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteDataRe
 				} else {
 					localstream.addAudioVideoListener(initlocalStream);
 					localstream.initAudioVideo();
-				}
-			} else if (actionType === actions.ACTION_TYPE_SCREEN_SHARING) {
-				initlocalStream = function () {
-					console.log('(webcomSDK::webrtc::_initlocalStream)initlocalStream_screen_sharing');
-					if (localstream.getScreenSharingStream() && localstream.getScreenSharingStream().clone && typeof localstream.getScreenSharingStream().clone == 'function') {
-						sentStream = localstream.getScreenSharingStream().clone();
-					} else {
-						sentStream = localstream.getScreenSharingStream();
-					}
-					if (isAudioMute) _muteAudio();
-					if (isVideoMute) _muteVideo();
-					pc.addStream(sentStream);
-					for (var i = 0; i < localStreams.length; i++) {
-						console.log('(webcomSDK::webrtc::_initlocalStream)stackId=' + stackId + ' rendering local Screensharing to ' + localStreams[i].id);
-						attachMediaStream(localStreams[i], localstream.getScreenSharingStream());
-					}
-
-					if (callback && typeof callback == 'function') {
-						callback();
-					}
-				};
-				if (localstream.getScreenSharingStream()) {
-					initlocalStream();
-				} else {
-					localstream.addScreenSharingListener(initlocalStream);
-					localstream.initScreenSharing();
 				}
 			}
 		} else {
@@ -884,6 +859,7 @@ var webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteDataRe
 	}
 
 	init();
+
 	return {
 
 		/**
@@ -901,6 +877,7 @@ var webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteDataRe
 			console.debug('(webcomSDK::webrtc::_close)stackId=' + stackId + '-close requested');
 			_close(cb);
 		},
+
 		/**
 		 * Connect a local stream to an element according to the action type in use (ACTION_TYPE_VIDEO, ACTION_TYPE_AUDIO, ACTION_TYPE_AUDIO_VIDEO)
 		 * @param videoElt - The video element

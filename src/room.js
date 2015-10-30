@@ -295,7 +295,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 				var isVideoMute = false;
 				if (mMutedStreams[streamId] && mMutedStreams[streamId].audio) isAudioMute = true;
 				if (mMutedStreams[streamId] && mMutedStreams[streamId].video) isVideoMute = true;
-				var mStackId = webrtcmngr.createWebrtc(null, remoteAppInstanceId, function () {
+				var mStackId = webrtcmngr.createWebrtc(localVid, remoteAppInstanceId, function () {
 					console.log('(webcomSDK::room[' + roomId + ']::publishStream::addSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' connection lost');
 //				onUnPublishedStream(localVid, remoteVid);
 				}, true, actionType, _peercoId, _peercoRef, isAudioMute, isVideoMute);
@@ -472,8 +472,14 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			_peercoId = roomWebrtcStacks[streamId + '_sub'][0].peercoId;
 		}
 
+		// Returns a random integer between min (included) and max (included)
+		// Using Math.round() will give you a non-uniform distribution!
+		function getRandomIntInclusive(min, max) {
+			return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+
 		if (!_peercoId) {
-			_peercoId = Math.floor(Date.now() / 1000).toString();
+			_peercoId = Math.floor(Date.now()).toString() + getRandomIntInclusive(0, 1000000);
 		}
 
 		_peercoRef = datarefs.getWebrtc().push().name();
@@ -528,7 +534,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 		console.log('(webcomSDK::room[' + roomId + ']::unSubscribeFromStream)streamId ' + streamId);
 		var localDataRef = dataref.child('publishedMediaList').child(streamId);
 		var remoteDataRef = localDataRef.child('subscribersList');
-		remoteDataRef.child(me).remove();
+		remoteDataRef.child(utils.appInstanceId).remove();
 
 		if (roomWebrtcStacks[streamId + '_sub']) {
 			var i = 0;
