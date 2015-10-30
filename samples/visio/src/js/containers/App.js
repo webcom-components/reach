@@ -6,7 +6,8 @@ import * as reachActions from '../actions/reach';
 
 let ConnectedInvitation = connect(state => {
 	return {
-		invitation: state.user.invitation
+		invitation: state.user.invitation,
+		username: state.user.username
 	};
 }, dispatch => {
 	return bindActionCreators(reachActions, dispatch);
@@ -15,6 +16,10 @@ let ConnectedInvitation = connect(state => {
 export default class Main extends Component {
 	static propTypes = {
 		children: PropTypes.any.isRequired
+	}
+
+	static contextTypes = {
+		store: PropTypes.object
 	}
 
 	render() {

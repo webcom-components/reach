@@ -1,5 +1,6 @@
 import history from '../history';
 import {initComSDK, getReach } from '../utils/com';
+import { enterRoom } from './room';
 
 export const ADD_PARTICIPANT = 'ADD_PARTICIPANT';
 export const UPDATE_PARTICIPANT = 'UPDATE_PARTICIPANT';
@@ -8,6 +9,7 @@ export const LOGOUT = 'LOGOUT';
 export const RECEIVE_INVITATION = 'RECEIVE_INVITATION';
 export const INVITATION_SENT = 'INVITATION_SENT';
 export const INVITATION_ANSWERED = 'INVITATION_ANSWERED';
+export const INVITATION_ARCHIVED = 'INVITATION_ARCHIVED';
 
 export function addParticipant(username, data) {
 	return {
@@ -50,15 +52,24 @@ export function invitationSent(invitee) {
 	};
 }
 
-export function invitationAnswered(accept, roomname, owner) {
-	return {
-		type: INVITATION_ANSWERED,
-		data: {
-			accept,
-			roomname,
-			owner
+export function invitationAnswered(accept, roomname, owner, username) {
+	return (dispatch, getState) => {
+		const alreadyInRoom = getState().room && getState().room.name;
+
+		if ( accept && !alreadyInRoom ) {
+			dispatch(enterRoom(roomname, owner, username));
 		}
-	};
+
+		dispatch({
+			type: INVITATION_ANSWERED,
+			data: {
+				accept,
+				roomname,
+				owner,
+				username
+			}
+		});
+	}
 }
 
 export function logout() {
@@ -96,14 +107,14 @@ export function login(username) {
 	};
 }
 
-export function sendInvitation(me, invitee) {
+export function sendInvitation(me, invitee, roomname) {
 	return dispatch => {
 		const reach = getReach();
 
 		dispatch(invitationSent(invitee));
 
-		reach.inviteToRoom(`${me}-${invitee}`, [invitee], 'test', (rId, invitee, status, info) => {
-			dispatch(invitationAnswered(status === 'ACCEPTED', rId, me));
+		reach.inviteToRoom(roomname, [invitee], 'test', (rId, invitee, status, info) => {
+			dispatch(invitationAnswered(status === 'ACCEPTED', rId, me, me));
 			if (status === 'ACCEPTED') {
 				history.replaceState(null, '/visio');
 			}
@@ -111,7 +122,7 @@ export function sendInvitation(me, invitee) {
 	};
 }
 
-export function respondToInvitation(accept, data, reason) {
+export function respondToInvitation(username, accept, data, reason) {
 	return dispatch => {
 		const reach = getReach();
 
@@ -120,7 +131,7 @@ export function respondToInvitation(accept, data, reason) {
 			const roomname = data[invitname].room;
 			const owner = data[invitname].from;
 			reach.acceptInvitation(data);
-			dispatch(invitationAnswered(accept,roomname, owner));
+			dispatch(invitationAnswered(accept,roomname, owner, username));
 			history.replaceState(null, '/visio');
 		}
 		else {
@@ -128,5 +139,17 @@ export function respondToInvitation(accept, data, reason) {
 			dispatch(invitationAnswered(accept));
 		}
 
+	};
+}
+
+export function archiveInvitations() {
+	return dispatch => {
+		const reach = getReach();
+		reach.archiveMyInvitations(() => {
+			dispatch({
+				type: INVITATION_ARCHIVED,
+				data: null
+			});
+		});
 	};
 }

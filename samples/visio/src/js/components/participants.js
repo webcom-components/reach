@@ -7,20 +7,23 @@ export default class Participants extends Component {
 		participants: PropTypes.array.isRequired,
 		username: PropTypes.string.isRequired,
 		logged: PropTypes.bool.isRequired,
+		invitSent: PropTypes.bool.isRequired,
 		sendInvitation: PropTypes.func.isRequired
-	}
-
-	componentWillMount() {
-		if (!this.props.logged) {
-			history.replaceState(null, '/');
-		}
 	}
 
 	logout() {
 		this.props.logout();
 	}
 
+	archiveInvitation() {
+		this.props.archiveInvitations();
+	}
+
+	componentDidMount() {
+	}
+
 	render() {
+
 		const createParticipant = (p) => {
 			const status = p.info.connectedList ? 'list-group-item-success' : 'list-group-item-danger';
 
@@ -32,9 +35,22 @@ export default class Participants extends Component {
 				disabled={!p.info.connectedList}
 				className={`list-group-item ${status}`}
 				key={`user_${p.username}`}
-				onClick={this.props.sendInvitation.bind(this, this.props.username, p.username)}>
+				onClick={this.props.sendInvitation.bind(this,
+					this.props.username,
+					p.username,
+					`${this.props.username}-${p.username}`)}>
 				{p.username + (p.invitSent ? ' (invit sent)' : '') }
 			</button>;
+		}
+
+		const getArchiveInvitationBtn = () => {
+			//if (this.props.invitSent) {
+				return <input 	className="btn btn-default"
+								type="button"
+								value="Archive invitation"
+								style={{marginBottom:'1em'}}
+								onClick={this.archiveInvitation.bind(this)}/>;
+			//}
 		}
 
 		const getContent = () => {
@@ -46,7 +62,8 @@ export default class Participants extends Component {
 				return (
 					<div id="partipantsBox">
 						<h2>Available participants</h2>
-						<div className="list-group" id="participantList">
+						{getArchiveInvitationBtn.bind(this)()}
+						<div className="list-group" id="participantList" style={{maxHeight:'288px', overflow:'auto'}}>
 											{this.props.participants.map((p) => {
 												return createParticipant.bind(this)(p);
 											})}

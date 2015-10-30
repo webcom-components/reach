@@ -6,13 +6,16 @@ import {
 	LOGGED,
 	LOGOUT,
 	RECEIVE_INVITATION,
-	INVITATION_ANSWERED
+	INVITATION_ANSWERED,
+	INVITATION_SENT,
+	INVITATION_ARCHIVED
 } from '../actions/reach';
 
 const initialState = {
 	logged: false,
 	username: '',
-	invitation: null
+	invitation: null,
+	invitationSent: false
 }
 
 export default function main(state = initialState, action = {}) {
@@ -31,7 +34,18 @@ export default function main(state = initialState, action = {}) {
 	case INVITATION_ANSWERED:
 		return {
 			...state,
-			invitation: null
+			invitation: null,
+			invitationSent: false
+		};
+	case INVITATION_SENT:
+		return {
+			...state,
+			invitationSent: true
+		};
+	case INVITATION_ARCHIVED:
+		return {
+			...state,
+			invitationSent: false
 		};
 	case LOGOUT:
 		return {

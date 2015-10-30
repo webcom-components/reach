@@ -6,7 +6,8 @@ import ReactDom from 'react-dom';
 export default class Invitation extends Component {
 
 	static propTypes = {
-		invitation: PropTypes.object
+		invitation: PropTypes.object,
+		username: PropTypes.string
 	}
 
 	showModal() {
@@ -27,11 +28,11 @@ export default class Invitation extends Component {
 	}
 
 	acceptInvitation() {
-		this.props.respondToInvitation(true, this.props.invitation);
+		this.props.respondToInvitation(this.props.username, true, this.props.invitation);
 	}
 
 	rejectInvitation() {
-		this.props.respondToInvitation(false, this.props.invitation, 'don\'t know ...');
+		this.props.respondToInvitation(this.props.username, false, this.props.invitation, 'don\'t know ...');
 	}
 
 	render() {

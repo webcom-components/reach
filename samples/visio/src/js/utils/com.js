@@ -34,3 +34,7 @@ export function getRoom(username, roomname) {
 	}
 	return rooms[roomname];
 }
+
+export function deleteRoom(roomname) {
+	delete rooms[roomname];
+}

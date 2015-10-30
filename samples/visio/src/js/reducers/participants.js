@@ -3,7 +3,8 @@ import {
 	ADD_PARTICIPANT,
 	UPDATE_PARTICIPANT,
 	INVITATION_SENT,
-	INVITATION_ANSWERED
+	INVITATION_ANSWERED,
+	INVITATION_ARCHIVED
 } from '../actions/reach';
 
 const initialState = [];
@@ -31,6 +32,13 @@ export default function participants(state = initialState, action = {}) {
 				p;
 		});
 	case INVITATION_ANSWERED:
+		return state.map(p => {
+			if (p.invitSent) {
+				return Object.assign({}, p, {invitSent: undefined});
+			}
+			return p;
+		});
+	case INVITATION_ARCHIVED:
 		return state.map(p => {
 			if (p.invitSent) {
 				return Object.assign({}, p, {invitSent: undefined});

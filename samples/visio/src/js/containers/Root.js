@@ -12,6 +12,14 @@ export default class Root extends Component {
 	static propTypes = {
 	};
 
+	static childContextTypes = {
+		store: PropTypes.object
+	}
+
+	getChildContext() {
+		return { store };
+	}
+
 	render() {
 		function getToolsIfDev() {
 			if (typeof __DEVTOOLS__ !== 'undefined' && __DEVTOOLS__) {

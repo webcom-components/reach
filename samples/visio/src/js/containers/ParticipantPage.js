@@ -6,6 +6,7 @@ import * as reachActions from '../actions/reach';
 function mapStateToProps(state) {
 	return {
 		username: state.user.username,
+		invitSent: state.user.invitationSent,
 		participants: state.participants,
 		logged: state.user.logged
 	};

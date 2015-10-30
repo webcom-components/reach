@@ -1,5 +1,6 @@
 /* global ComSDK, $ */
 
+require('babel/polyfill');
 require('!style!css!bootstrap.css')
 require('bootstrap');
 require('!style!css!../style.css');
