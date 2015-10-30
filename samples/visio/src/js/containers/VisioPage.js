@@ -7,8 +7,9 @@ import * as reachActions from '../actions/reach';
 import React, { Component, PropTypes } from 'react';
 import history from '../history';
 import ReactDom from 'react-dom';
-import { toggleFullscreen } from '../utils';
 import AddPopin from '../components/AddPopin';
+import TopButtons from '../components/topButtons';
+import CmdButtons from '../components/cmdButtons';
 
 
 class Visio extends Component {
@@ -49,6 +50,19 @@ class Visio extends Component {
 		}
 	}
 
+	addVideoTag(videos, user, streamId) {
+		videos.append(`
+			<div class='${this.getVideoClass(streamId)}' id='${streamId}'>
+				<span class='videoName'>${user.name}</span>
+				<video id='video-${streamId}'></video>
+			</div>`
+		);
+		const video = videos.find(`#${streamId}`);
+		video.click(() => {
+			this.focus(streamId);
+		});
+	}
+
 	componentDidUpdate() {
 		const users = this.props.room.users.filter(u => u.streamData);
 		const videos = $(ReactDom.findDOMNode(this.refs.otherVideos));
@@ -58,25 +72,15 @@ class Visio extends Component {
 		// Add or update published streams
 		users.forEach(u => {
 			const streamId = Object.keys(u.streamData)[0];
-			let video = videos.find(`#${streamId}`);
+			const video = videos.find(`#${streamId}`);
 			const videoClass = this.getVideoClass(streamId);
 
 			if (!video.length) {
-				videos.append(`
-					<div class='${this.getVideoClass(streamId)}' id='${streamId}'>
-						<span class='videoName'>${u.name}</span>
-						<video id='video-${streamId}'></video>
-					</div>`
-				);
-				video = videos.find(`#${streamId}`);
-				video.click(() => {
-					this.focus(streamId);
-				});
+				this.addVideoTag(videos, u, streamId);
 			}
-			else {
-				if (!video.hasClass(videoClass)) {
-					video.removeClass().addClass(videoClass);
-				}
+			// otherwise update video tag
+			else if (!video.hasClass(videoClass)) {
+				video.removeClass().addClass(videoClass);
 			}
 
 			const videoTag = videos.find(`#video-${streamId}`)[0];
@@ -88,41 +92,6 @@ class Visio extends Component {
 					u.streamData, videoTag);
 			}
 		}, this);
-	}
-
-	toggleFullScreen() {
-		toggleFullscreen();
-	}
-
-	toggleAudio() {
-		this.props.toggleAudio(
-			this.props.username,
-			this.props.room
-		);
-	}
-
-	toggleVideo() {
-		this.props.toggleVideo(
-			this.props.username,
-			this.props.room
-		);
-	}
-
-
-	exit() {
-		this.props.quitRoom(
-			this.props.username,
-			this.props.room);
-	}
-
-	close() {
-		this.props.closeRoom(
-			this.props.username,
-			this.props.room);
-	}
-
-	addParticipantToRoom() {
-		this.props.history.replaceState(null, '/visio/add');
 	}
 
 	inviteParticipant(userToInvite) {
@@ -144,81 +113,37 @@ class Visio extends Component {
 		return ref === 'localVideo' ? 'smallLocalVideo' : 'smallRemoteVideo';
 	}
 
-
+	getOtherVideos() {
+		const users = this.props.room.users.filter(u => u.streamData);
+		return users.length ?
+			<div className='videoContainer' ref='otherVideos'></div> : undefined;
+	}
 
 	render() {
-
-		function getVolumeClass() {
-			return this.props.room.localAudioMuted ? 'glyphicon glyphicon-volume-off' : 'glyphicon glyphicon-volume-up';
-		}
-
-		function getVideoStyles() {
-			return this.props.room.localVideoMuted ? {color: 'red'} : {} ;
-		}
-
-		function getOtherVideos() {
-			const users = this.props.room.users.filter(u => u.streamData);
-
-			if (users.length) {
-				return (
-					<div className='videoContainer' ref='otherVideos'>
-
-					</div>
-				);
-			}
-		}
-
 		return (
 			<div ref='container'>
-
 				{this.props.children &&
-				 this.props.children.props &&
-				 this.props.children.props.children &&
-				 React.cloneElement(this.props.children.props.children, {
-						participants: this.props.participants,
-						username: this.props.username,
-					 	room: this.props.room,
-					 	inviteParticipant: this.inviteParticipant.bind(this)
+				 React.cloneElement(this.props.children, {
+					participants: this.props.participants,
+					username: this.props.username,
+					room: this.props.room,
+					inviteParticipant: this.inviteParticipant.bind(this)
 				})}
-				<div className='topButtons'>
-					<button type='button'
-							className='btn btn-default'
-							onClick={this.addParticipantToRoom.bind(this)}
-							style={{marginRight:'1em'}}>
-						<span className="glyphicon glyphicon-plus" aria-hidden="true"></span>
-					</button>
-					<button type='button'
-							className='btn btn-default'
-							onClick={this.close.bind(this)}
-							style={{marginRight:'1em'}}>
-						close room
-					</button>
-					<button type='button' className='btn btn-default' onClick={this.exit.bind(this)}>
-						<span className="glyphicon glyphicon-remove" aria-hidden="true"></span>
-					</button>
-				</div>
-				<div className='cmdButtons'>
-					<button type='button' className='btn btn-default' onClick={this.toggleVideo.bind(this)}>
-						<span className="glyphicon glyphicon-facetime-video" style={getVideoStyles.bind(this)()} aria-hidden='true'></span>
-					</button>
-					<button type='button' className='btn btn-default' onClick={this.toggleAudio.bind(this)}>
-						<span className={getVolumeClass.bind(this)()} aria-hidden='true'></span>
-					</button>
-					<button type='button' className='btn btn-default' onClick={this.toggleFullScreen.bind(this)}>
-						<span className="glyphicon glyphicon-fullscreen" aria-hidden='true'></span>
-					</button>
-
-				</div>
+				<TopButtons username={this.props.username}
+							room={this.props.room}
+							closeRoom={this.props.closeRoom}
+							quitRoom={this.props.quitRoom} />
+				<CmdButtons username={this.props.username}
+							room={this.props.room}
+							toggleVideo={this.props.toggleVideo}
+							toggleAudio={this.props.toggleAudio} />
 				<video className={this.getVideoClass('localVideo')} ref="localVideo" onClick={this.focus.bind(this, 'localVideo')}></video>
-				{getOtherVideos.bind(this)()}
+				{this.getOtherVideos.bind(this)()}
 			</div>
 		);
 	}
 }
-/*
- <video className='fullScreen' ref="largeVideo"></video>
- <video className='smallVideo' ref="smallVideo"></video>
- */
+
 function mapStateToProps(state) {
 	return {
 		logged: state.user.logged,

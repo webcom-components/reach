@@ -5,17 +5,17 @@ import { getRoom, deleteRoom } from '../utils/com';
 
 
 export const ROOM_ENTER = 'ROOM_ENTER';
-export const STREAM_PUBLISHED = 'STREAM_PUBLISHED';
 export const ROOM_LEFT = 'ROOM_LEFT';
+export const STREAM_RECEIVED = 'STREAM_RECEIVED';
 export const STREAM_SUBSCRIBED = 'STREAM_SUBSCRIBED';
 export const STREAM_UNSUBSCRIBED = 'STREAM_UNSUBSCRIBED';
+export const STREAM_PUBLISHED = 'STREAM_PUBLISHED';
 export const STREAM_UNPUBLISHED = 'STREAM_UNPUBLISHED';
 export const VIDEO_MUTED = 'VIDEO_MUTED';
 export const VIDEO_UNMUTED = 'VIDEO_UNMUTED';
 export const AUDIO_MUTED = 'AUDIO_MUTED';
 export const AUDIO_UNMUTED = 'AUDIO_UNMUTED';
 export const ROOM_CLOSED = 'ROOM_CLOSED';
-export const STREAM_RECEIVED = 'STREAM_RECEIVED';
 export const PARTICIPANT_JOIN = 'PARTICIPANT_JOIN';
 export const PARTICIPANT_LEFT = 'PARTICIPANT_LEFT';
 export const VIDEO_FOCUS = 'VIDEO_FOCUS';

@@ -6,14 +6,15 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as roomActions from '../actions/room';
 import history from '../history';
+import { PropTypes as PropTypesRouter} from 'react-router'
 
 export default class AddPopin extends Component {
 
 	static propTypes = {
-		username: PropTypes.string.isRequired,
-		participants: PropTypes.array.isRequired,
-		room: PropTypes.object.isRequired,
-		inviteParticipant: PropTypes.func.isRequired
+		username: PropTypes.string,
+		participants: PropTypes.array,
+		room: PropTypes.object,
+		inviteParticipant: PropTypes.func
 	}
 
 	showModal() {

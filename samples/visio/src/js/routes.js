@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Redirect } from 'react-router';
+import { Route, Redirect, IndexRoute } from 'react-router';
 //import App from './containers/App';
 import * as containers from './containers';
 import AddPopin from './components/AddPopin';
@@ -23,13 +23,13 @@ export default function({dispatch, getState}) {
 	}
 
 	return (
-		<Route component={App}>
-			<Route path="/participants" component={ParticipantPage} onEnter={requireAuth} />
-			<Route path="/visio" component={VisioPage} onEnter={requireAuth} >
+		<Route path='/' component={App}>
+			<IndexRoute component={LoginPage} />
+			<Route path="participants" component={ParticipantPage} onEnter={requireAuth} />
+			<Route path="visio" component={VisioPage} onEnter={requireAuth} >
 				<Route path="add" component={AddPopin} />
  			</Route>
-			<Route path="/" component={LoginPage} />
-			<Redirect from="*" to="/" />
+			<Redirect from="**" to="/" />
 		</Route>
 	);
 }

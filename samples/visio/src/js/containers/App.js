@@ -3,6 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Invitation from '../components/invitation';
 import * as reachActions from '../actions/reach';
+import { RoutingContext } from 'react-router';
 
 let ConnectedInvitation = connect(state => {
 	return {
@@ -14,10 +15,6 @@ let ConnectedInvitation = connect(state => {
 })(Invitation);
 
 export default class Main extends Component {
-	static propTypes = {
-		children: PropTypes.any.isRequired
-	}
-
 	static contextTypes = {
 		store: PropTypes.object
 	}
@@ -26,7 +23,7 @@ export default class Main extends Component {
 		return (
 			<div className='fullScreen'>
 				{/* this will render the child routes */}
-				{React.cloneElement(this.props.children, this.props)}
+				{this.props.children}
 				<ConnectedInvitation />
 			</div>
 		);
