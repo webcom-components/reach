@@ -72,14 +72,14 @@ const DEFAULT_ICE_CONFIG = {
 			'credential': 'webcom1234'
 		},
 		{
-			'url': 'turn:turn1.webcom.orange.com:3478',
-			'username': 'admin',
-			'credential': 'webcom1234'
+			"url": "turn:turn2.webcom.orange.com:443",
+			"username": "admin",
+			"credential": "webcom1234"
 		},
 		{
-			'url': 'turns:webcom1.orange-labs.fr:443',
-			'username': 'admin',
-			'credential': 'webcom1234'
+			"url": "turns:turn3.webcom.orange.com:443",
+			"username": "admin",
+			"credential": "webcom1234"
 		}
 	]
 };
