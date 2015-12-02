@@ -1,10 +1,16 @@
 {
-  "name": "webcom-comsdk-js",
-  "version": "0.0.1",
+  "name": "reach",
   "description": "Create apps using WebRTC with Webcom",
-  "main": "index.js",
+  "main": "dist/reach.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prebuild": "rm -rf dist && mkdir -p dist",
+    "lint": "echo \"Fix lint errors\"",
+    "test:unit": "echo \"Fix unit tests\"",
+    "test:coverage": "echo \"Fix coverage tests\"",
+    "build": "gulp build:debug && build:release",
+    "prepublish-dist": "npm run build",
+    "publish-dist": "npm run build && publish-dist --author-name \"Webcom\" --author-email \"webcom.ops@orange.com\"",
+    "semantic-release": "semantic-release pre && npm run publish-dist && npm publish && semantic-release post"
   },
   "keywords": [
     "signaling",
@@ -12,8 +18,15 @@
     "realtime",
     "webrtc"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webcom-components/reach.git"
+  },
   "author": "Webcom <webcom.ops@orange.com>",
   "license": "MIT",
+  "dependencies": {
+    "webcom": "~0.2.2"
+  },
   "devDependencies": {
     "adapterjs": "^0.12.1",
     "babel": "^5.8.23",
@@ -25,6 +38,8 @@
     "browser-sync": "^2.9.7",
     "browserify": "^11.2.0",
     "bundle-collapser": "^1.2.1",
+    "cz-conventional-changelog": "^1.1.4",
+    "ghooks": "^1.0.1",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-data": "^1.2.0",
@@ -49,12 +64,25 @@
     "lodash": "^3.10.1",
     "merge-stream": "^1.0.0",
     "minimist": "^1.2.0",
+    "publish-dist": "^1.0.8",
     "require-dir": "^0.3.0",
     "selenium-grid-status": "^0.2.0",
+    "semantic-release": "^4.3.5",
     "swig": "^1.4.2",
+    "validate-commit-msg": "^1.0.0",
     "vinyl": "^1.0.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "webpack": "^1.12.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "pre-commit": "npm run lint",
+      "commit-msg": "validate-commit-msg",
+      "pre-push": "npm run test:unit -- --ci"
+    }
   }
 }

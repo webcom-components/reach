@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+  - "5"
+before_script:
+  - npm prune
+script:
+  - npm test:coverage
+after_success:
+  - npm run semantic-release
+branches:
+  except:
+    # Ignore Git tags created by semantic-release, like "v1.2.3"
+    - /^v\d+\.\d+\.\d+$/
+addons:
+  artifacts:
+    paths:
+    - $(ls ./dist/* | tr "\n" ":")
+    - $(find coverage | tr "\n" ":")

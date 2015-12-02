@@ -1,18 +1,24 @@
 {
-  "name": "webcom-comsdk-js",
+  "name": "reach",
   "version": "0.0.0",
   "authors": [
-    "Paul Musso <paul.musso@orange.com>"
+    "Webcom <webcom.ops@orange.com>",
+    "Paul Musso <paul.musso@orange.com>",
+    "Julien Delage <julien.delage@orange.com>"
   ],
   "license": "MIT",
+  "main": "dist/reach.js",
   "ignore": [
     "**/.*",
+    "gulp",
+    "gulpfile.js",
+    "package.json",
     "node_modules",
     "bower_components",
     "test",
     "tests"
   ],
-  "devDependencies": {
+  "dependencies": {
     "webcom": "~0.2.2"
   }
 }

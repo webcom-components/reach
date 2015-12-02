@@ -1,0 +1,14 @@
+languages:
+  JavaScript: true
+ratings:
+  paths:
+  - "src/**/*.js"
+  - "test/**/*.js"
+engines:
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+exclude_paths:
+- "gulp/**/*"
+- "gulpfile.js"
