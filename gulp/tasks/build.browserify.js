@@ -30,7 +30,7 @@ function getLicense() {
 
 
 /**
- * Build ComSDK library (debug mode)
+ * Build Reach library (debug mode)
  */
 function build() {
     let babelOptions = {};

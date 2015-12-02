@@ -5,9 +5,9 @@ const distFolder = './dist',
 			config: 'development'
 		}
 	}),
-	libName = 'ComSDK',
-	devOutputName = 'comsdk-debug.js',
-	releaseOutputName = 'comsdk.js',
+	libName = 'Reach',
+	devOutputName = 'reach-debug.js',
+	releaseOutputName = 'reach.js',
 	webpack = require('webpack');
 
 

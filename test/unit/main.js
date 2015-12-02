@@ -1,9 +1,9 @@
 'use strict';
 
-import ComSDK from '../../src/index';
+import Reach from '../../src/index';
 import {createNamespace, removeNamespace} from '../util/provisioning';
 
-describe('ComSDK Tests', () => {
+describe('Reach Tests', () => {
 	let ref;
 
 	beforeAll((done) => {
@@ -39,11 +39,11 @@ describe('ComSDK Tests', () => {
 	});
 
 	it('Should return SDK version', () => {
-		expect(ComSDK.SDK_VERSION).toEqual(jasmine.any(String));
+		expect(Reach.SDK_VERSION).toEqual(jasmine.any(String));
 	});
 
 	it('should Validate room data schema', (done) => {
-		const sdk = new ComSDK(config.namespaceUrl);
+		const sdk = new Reach(config.namespaceUrl);
 		sdk.Room('Paul', 'room1');
 		ref.once('value', (snap) => {
 			const val = snap.val();
@@ -64,11 +64,11 @@ describe('ComSDK Tests', () => {
 	});
 
 	it('Publish video stream', (done) => {
-		const sdk = new ComSDK(config.namespaceUrl);
+		const sdk = new Reach(config.namespaceUrl);
 		const room = sdk.Room('Paul', 'room1');
 		room.publishStream('video',
 			document.createElement('div'),
-			ComSDK.actions.ACTION_TYPE_VIDEO,
+			Reach.actions.ACTION_TYPE_VIDEO,
 			(stream) => {
 				ref.child('roomsList/room1/publishedMediaList').once('value', (snap) => {
 					const val = snap.val().video;

@@ -15,7 +15,7 @@ import webrtcmngr from './webrtcmngr.js';
 
 const SDK_VERSION = '0.0.1';
 
-export default class ComSDK {
+export default class Reach {
 	constructor(url= 'http://webcom.orange.com/base/webrtc') {
 		this.datarefs = datarefs(url);
 		this.webrtcmngr = webrtcmngr(this.datarefs);

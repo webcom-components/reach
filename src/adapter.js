@@ -77,7 +77,7 @@ function fixIceServer(iceServer) {
 	if (iceServer.hasOwnProperty('url') &&
 		iceServer.url.toLowerCase().startsWith('turns') &&
 		navigator.mozGetUserMedia) {
-		console.warn('(webcomSDK::maybeFixConfiguration) ' +
+		console.warn('(ReachSDK::maybeFixConfiguration) ' +
 		'turns detected on firefox -> ignore this entry');
 	}
 }
@@ -246,13 +246,13 @@ if (navigator.mozGetUserMedia) {
 				if (element.play && typeof element.play == 'function') {
 					element.play();
 				} else {
-					console.warn('(webcomSDK::attachMediaStream)element.play not available');
+					console.warn('(ReachSDK::attachMediaStream)element.play not available');
 				}
 			} else {
-				console.error('webcomSDK::attachMediaStream->parameters not valid');
+				console.error('ReachSDK::attachMediaStream->parameters not valid');
 			}
 		} catch (e) {
-			console.error(`(webcomSDK::attachMediaStream)Exception=${e}`);
+			console.error(`(ReachSDK::attachMediaStream)Exception=${e}`);
 		}
 
 
@@ -269,7 +269,7 @@ if (navigator.mozGetUserMedia) {
 			to.mozSrcObject = from.mozSrcObject;
 			to.play();
 		} else {
-			console.error('webcomSDK::reattachMediaStream->parameters not valid');
+			console.error('ReachSDK::reattachMediaStream->parameters not valid');
 		}
 	};
 
@@ -387,10 +387,10 @@ if (navigator.mozGetUserMedia) {
 				element.src = URL.createObjectURL(stream);
 				element.autoplay = true;
 			} else {
-				console.error('webcomSDK::attachMediaStream ->parameters not valid');
+				console.error('ReachSDK::attachMediaStream ->parameters not valid');
 			}
 		} catch (e) {
-			console.error(`(webcomSDK::attachMediaStream)Exception=${e}`);
+			console.error(`(ReachSDK::attachMediaStream)Exception=${e}`);
 		}
 	};
 
@@ -423,7 +423,7 @@ if (navigator.mozGetUserMedia) {
 		if (to && from) {
 			to.src = from.src;
 		} else {
-			console.error('webcomSDK::reattachMediaStream media stream->parameters not valid');
+			console.error('ReachSDK::reattachMediaStream media stream->parameters not valid');
 		}
 	};
 

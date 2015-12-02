@@ -119,7 +119,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 
 		if (!publishedMediaListCbForAvailableStream) {
 			publishedMediaListCbForAvailableStream = function (snapshot) {
-				console.log('(webcomSDK::room[' + roomId + ']::onPublishedStreamForAvailableStream)stream=' + JSON.stringify(snapshot.val()));
+				console.log('(ReachSDK::room[' + roomId + ']::onPublishedStreamForAvailableStream)stream=' + JSON.stringify(snapshot.val()));
 				var obj = {};
 				obj[snapshot.name()] = snapshot.val();
 				obj[snapshot.name()].roomId = roomId;
@@ -131,7 +131,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 		if (!unPublishedMediaListCbForAvailableStream) {
 			unPublishedMediaListCbForAvailableStream = function (snapshot) {
 				var streamId = snapshot.name();
-				console.log('(webcomSDK::room[' + roomId + ']::onUnPublishedStreamForAvailableStream)stream=' + streamId);
+				console.log('(ReachSDK::room[' + roomId + ']::onUnPublishedStreamForAvailableStream)stream=' + streamId);
 				_removeAvailableStream(streamId);
 			};
 			dataref.child('publishedMediaList').on('child_removed', unPublishedMediaListCbForAvailableStream);
@@ -175,7 +175,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			participantListJoinAddedCb = function (snapshot) {
 				var user = snapshot.name();
 				if (snapshot.val() && snapshot.val().connected && snapshot.val().wasInsideRoom) {
-					console.log('(webcomSDK::room[' + roomId + ']::_setOnParticipantJoin) user has joined: ' + user);
+					console.log('(ReachSDK::room[' + roomId + ']::_setOnParticipantJoin) user has joined: ' + user);
 					p_cb(user);
 				}
 			};
@@ -184,13 +184,13 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			participantListJoinChangedCb = function (snapshot) {
 				var user = snapshot.name();
 				if (snapshot.val() && (snapshot.val().connected && snapshot.val().wasInsideRoom)) {
-					console.log('(webcomSDK::room[' + roomId + ']::_setOnParticipantJoin) user has joined: ' + user);
+					console.log('(ReachSDK::room[' + roomId + ']::_setOnParticipantJoin) user has joined: ' + user);
 					p_cb(user);
 				}
 			};
 			dataref.child('participantList').on('child_changed', participantListJoinChangedCb);
 		} else {
-			console.error('(webcomSDK::room[' + roomId + ']::_setOnParticipantJoin)parameter incorrect. Expected function');
+			console.error('(ReachSDK::room[' + roomId + ']::_setOnParticipantJoin)parameter incorrect. Expected function');
 		}
 	}
 
@@ -209,13 +209,13 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			participantListLeaveCb = function (snapshot) {
 				var user = snapshot.name();
 				if (snapshot.val() && (!snapshot.val().connected && snapshot.val().wasInsideRoom)) {
-					console.log('(webcomSDK::room[' + roomId + ']::_setOnParticipantLeave) user has left: ' + user);
+					console.log('(ReachSDK::room[' + roomId + ']::_setOnParticipantLeave) user has left: ' + user);
 					p_cb(user);
 				}
 			};
 			dataref.child('participantList').on('child_changed', participantListLeaveCb);
 		} else {
-			console.error('(webcomSDK::room[' + roomId + ']::_setOnParticipantLeave)parameter incorrect. Expected function');
+			console.error('(ReachSDK::room[' + roomId + ']::_setOnParticipantLeave)parameter incorrect. Expected function');
 		}
 	}
 
@@ -225,7 +225,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 */
 	function _sendInstantMessage(message) {
 		if (message !== '') {
-			console.log('(webcomSDK::room[' + roomId + ']::sendInstantMessage)message=' + message);
+			console.log('(ReachSDK::room[' + roomId + ']::sendInstantMessage)message=' + message);
 			dataref.child('instantMessageList').push({
 				from: me,
 				message: message,
@@ -248,12 +248,12 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 		if (p_cb && typeof p_cb == 'function') {
 			instantMessageListCb = function (snapshot) {
 				var obj = snapshot.val();
-				console.log('(webcomSDK::room[' + roomId + ']::_setOnInstantMessage)receive InstantMessage=' + JSON.stringify(obj));
+				console.log('(ReachSDK::room[' + roomId + ']::_setOnInstantMessage)receive InstantMessage=' + JSON.stringify(obj));
 				p_cb(obj);
 			};
 			dataref.child('instantMessageList').on('child_added', instantMessageListCb);
 		} else {
-			console.error('(webcomSDK::room[' + roomId + ']::_setOnInstantMessage)parameter incorrect. Expected function');
+			console.error('(ReachSDK::room[' + roomId + ']::_setOnInstantMessage)parameter incorrect. Expected function');
 		}
 	}
 
@@ -266,9 +266,9 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 * @param getLocalStreamCb - a callback function to retrieve the mediastream object
 	 */
 	function _publishStream(streamId, localVid, actionType, getLocalStreamCb) {
-		console.log('(webcomSDK::room[' + roomId + ']::publishStream)roomId=' + roomId + ',streamId=' + streamId + ',me=' + me + ',actionType=' + actionType);
+		console.log('(ReachSDK::room[' + roomId + ']::publishStream)roomId=' + roomId + ',streamId=' + streamId + ',me=' + me + ',actionType=' + actionType);
 		if (!(streamId && typeof streamId == 'string')) {
-			console.error('(webcomSDK::reach::inviteToRoom)parameter streamId is incorrect. Expecting non empty string');
+			console.error('(ReachSDK::reach::inviteToRoom)parameter streamId is incorrect. Expecting non empty string');
 			return;
 		}
 		const localDataRef = dataref.child('publishedMediaList').child(streamId);
@@ -287,7 +287,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 				var subscriberId = data.userId;
 				var _peercoId = data.peercoId;
 				var _peercoRef = data.peercoRef;
-				console.log('(webcomSDK::room[' + roomId + ']::publishStream::addSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' added ' + JSON.stringify(data));
+				console.log('(ReachSDK::room[' + roomId + ']::publishStream::addSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' added ' + JSON.stringify(data));
 				if (!roomWebrtcStacks[streamId + '_pub']) {
 					roomWebrtcStacks[streamId + '_pub'] = [];
 				}
@@ -296,7 +296,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 				if (mMutedStreams[streamId] && mMutedStreams[streamId].audio) isAudioMute = true;
 				if (mMutedStreams[streamId] && mMutedStreams[streamId].video) isVideoMute = true;
 				var mStackId = webrtcmngr.createWebrtc(localVid, remoteAppInstanceId, function () {
-					console.log('(webcomSDK::room[' + roomId + ']::publishStream::addSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' connection lost');
+					console.log('(ReachSDK::room[' + roomId + ']::publishStream::addSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' connection lost');
 //				onUnPublishedStream(localVid, remoteVid);
 				}, true, actionType, _peercoId, _peercoRef, isAudioMute, isVideoMute);
 
@@ -314,7 +314,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			var removeSubscribersListCb = function (snapshot) {
 				var subscriberId = snapshot.name();
 				if (subscriberId) {
-					console.log('(webcomSDK::room[' + roomId + ']::publishStream::removeSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' removed');
+					console.log('(ReachSDK::room[' + roomId + ']::publishStream::removeSubscribersListCb)subscriber ' + subscriberId + ' to stream ' + streamId + ' removed');
 					if (roomWebrtcStacks[streamId + '_pub'] && roomWebrtcStacks[streamId + '_pub'].length > 0) {
 						for (let i = roomWebrtcStacks[streamId + '_pub'].length - 1; i >= 0; i--) {
 							if (roomWebrtcStacks[streamId + '_pub'][i].subscriberId === subscriberId) {
@@ -368,7 +368,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			};
 			dataref.child('publishedMediaList').on('child_added', publishedMediaListCb);
 		} else {
-			console.error('(webcomSDK::room[' + roomId + ']::_setOnPublishedStream)parameter incorrect. Expected function');
+			console.error('(ReachSDK::room[' + roomId + ']::_setOnPublishedStream)parameter incorrect. Expected function');
 		}
 	}
 
@@ -378,7 +378,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 * @param {function} callback - The callback to trigger
 	 */
 	function _unPublishStream(streamId, callback) {
-		console.log('(webcomSDK::room[' + roomId + ']::unPublishStream)streamId ' + streamId);
+		console.log('(ReachSDK::room[' + roomId + ']::unPublishStream)streamId ' + streamId);
 		var localDataRef = dataref.child('publishedMediaList').child(streamId);
 		var remoteDataRef = localDataRef.child('subscribersList');
 		if (mStreams[streamId] && mStreams[streamId].addSubscribersListCb) {
@@ -430,7 +430,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			};
 			dataref.child('publishedMediaList').on('child_removed', unPublishedMediaListCb);
 		} else {
-			console.error('(webcomSDK::room[' + roomId + ']::_setOnUnPublishedStream)parameter incorrect. Expected function');
+			console.error('(ReachSDK::room[' + roomId + ']::_setOnUnPublishedStream)parameter incorrect. Expected function');
 		}
 	}
 
@@ -443,7 +443,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	function _subscribeToStream(streamData, remoteVid, getRemoteStreamCb) {
 		var streamId = Object.keys(streamData)[0];
 		var actionType = streamData[streamId].actionType;
-		console.log('(webcomSDK::room[' + roomId + ']::subscribeToStream)streamId ' + streamId);
+		console.log('(ReachSDK::room[' + roomId + ']::subscribeToStream)streamId ' + streamId);
 		//test if stream is not our
 		if (mStreams && mStreams[streamId]) {
 			//it is our stream -> subscribe to localStream
@@ -531,7 +531,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 * @param streamId - The stream identifier from which the unsubscription have to be done
 	 */
 	function _unSubscribeFromStream(streamId) {
-		console.log('(webcomSDK::room[' + roomId + ']::unSubscribeFromStream)streamId ' + streamId);
+		console.log('(ReachSDK::room[' + roomId + ']::unSubscribeFromStream)streamId ' + streamId);
 		var localDataRef = dataref.child('publishedMediaList').child(streamId);
 		var remoteDataRef = localDataRef.child('subscribersList');
 		remoteDataRef.child(utils.appInstanceId).remove();
@@ -554,7 +554,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 * @return {array}
 	 */
 	function _getAvailableStreams() {
-		console.log('(webcomSDK::room[' + roomId + ']::_getAvailableStreams)');
+		console.log('(ReachSDK::room[' + roomId + ']::_getAvailableStreams)');
 		return mAvailableStreams;
 	}
 
@@ -564,7 +564,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 * @return - A stream
 	 */
 	function _getAvailableStream(streamId) {
-		console.log('(webcomSDK::room[' + roomId + ']::_getAvailableStream)streamId=' + streamId);
+		console.log('(ReachSDK::room[' + roomId + ']::_getAvailableStream)streamId=' + streamId);
 		if (mAvailableStreams && streamId) {
 			for (var i = mAvailableStreams.length - 1; i >= 0; i--) {
 				if (mAvailableStreams[i] && Object.keys(mAvailableStreams[i])[0] && Object.keys(mAvailableStreams[i])[0] === streamId) {
@@ -580,7 +580,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 * @param data - The stream to add
 	 */
 	function _addAvailableStream(data) {
-		console.log('(webcomSDK::room[' + roomId + ']::_addAvailableStream)data=' + JSON.stringify(data));
+		console.log('(ReachSDK::room[' + roomId + ']::_addAvailableStream)data=' + JSON.stringify(data));
 		mAvailableStreams.push(data);
 	}
 
@@ -589,7 +589,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 * @param stream - The streamId to remove
 	 */
 	function _removeAvailableStream(streamId) {
-		console.log('(webcomSDK::room[' + roomId + ']::_removeAvailableStream)streamId=' + streamId);
+		console.log('(ReachSDK::room[' + roomId + ']::_removeAvailableStream)streamId=' + streamId);
 		if (mAvailableStreams && streamId) {
 			for (let i = mAvailableStreams.length - 1; i >= 0; i--) {
 				if (mAvailableStreams[i] && Object.keys(mAvailableStreams[i])[0] && Object.keys(mAvailableStreams[i])[0] === streamId) {
@@ -603,7 +603,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 * Removes all the streams by deleting the array containing them without triggerring callbacks
 	 */
 	function _removeAllAvailableStreams() {
-		console.log('(webcomSDK::room[' + roomId + ']::_removeAllAvailableStreams');
+		console.log('(ReachSDK::room[' + roomId + ']::_removeAllAvailableStreams');
 		mAvailableStreams = [];
 	}
 
@@ -613,10 +613,10 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 */
 	function _muteAudioStream(streamId) {
 		if (!(streamId && typeof streamId == 'string')) {
-			console.error('(webcomSDK::room[' + roomId + ']::_muteAudioStream)parameter streamId is incorrect. Expecting non empty string');
+			console.error('(ReachSDK::room[' + roomId + ']::_muteAudioStream)parameter streamId is incorrect. Expecting non empty string');
 			return;
 		}
-		console.log('(webcomSDK::room[' + roomId + ']::_muteAudioStream)streamId=' + streamId);
+		console.log('(ReachSDK::room[' + roomId + ']::_muteAudioStream)streamId=' + streamId);
 		if (!mMutedStreams[streamId]) mMutedStreams[streamId] = {};
 		mMutedStreams[streamId].audio = true;
 		if (roomWebrtcStacks && roomWebrtcStacks[streamId + '_pub'] && roomWebrtcStacks[streamId + '_pub'].length > 0) {
@@ -639,11 +639,11 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 */
 	function _unmuteAudioStream(streamId) {
 		if (!(streamId && typeof streamId == 'string')) {
-			console.error('(webcomSDK::room[' + roomId + ']::_unmuteAudioStream)parameter streamId is incorrect. Expecting non empty string');
+			console.error('(ReachSDK::room[' + roomId + ']::_unmuteAudioStream)parameter streamId is incorrect. Expecting non empty string');
 			return;
 		}
 		if (mMutedStreams[streamId] && mMutedStreams[streamId].audio) mMutedStreams[streamId].audio = false;
-		console.log('(webcomSDK::room[' + roomId + ']::_unmuteAudioStream)streamId=' + streamId);
+		console.log('(ReachSDK::room[' + roomId + ']::_unmuteAudioStream)streamId=' + streamId);
 		if (roomWebrtcStacks && roomWebrtcStacks[streamId + '_pub'] && roomWebrtcStacks[streamId + '_pub'].length > 0) {
 			for (let i = roomWebrtcStacks[streamId + '_pub'].length - 1; i >= 0; i--) {
 				webrtcmngr.unmuteAudioWebrtcStack(roomWebrtcStacks[streamId + '_pub'][i].stackId);
@@ -663,10 +663,10 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 */
 	function _muteVideoStream(streamId) {
 		if (!(streamId && typeof streamId == 'string')) {
-			console.error('(webcomSDK::room[' + roomId + ']::_muteVideoStream)parameter streamId is incorrect. Expecting non empty string');
+			console.error('(ReachSDK::room[' + roomId + ']::_muteVideoStream)parameter streamId is incorrect. Expecting non empty string');
 			return;
 		}
-		console.log('(webcomSDK::room[' + roomId + ']::_muteVideoStream)streamId=' + streamId);
+		console.log('(ReachSDK::room[' + roomId + ']::_muteVideoStream)streamId=' + streamId);
 		if (!mMutedStreams[streamId]) mMutedStreams[streamId] = {};
 		mMutedStreams[streamId].video = true;
 		if (roomWebrtcStacks && roomWebrtcStacks[streamId + '_pub'] && roomWebrtcStacks[streamId + '_pub'].length > 0) {
@@ -689,11 +689,11 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 */
 	function _unmuteVideoStream(streamId) {
 		if (!(streamId && typeof streamId == 'string')) {
-			console.error('(webcomSDK::room[' + roomId + ']::_unmuteVideoStream)parameter streamId is incorrect. Expecting non empty string');
+			console.error('(ReachSDK::room[' + roomId + ']::_unmuteVideoStream)parameter streamId is incorrect. Expecting non empty string');
 			return;
 		}
 		if (mMutedStreams[streamId] && mMutedStreams[streamId].video) mMutedStreams[streamId].video = false;
-		console.log('(webcomSDK::room[' + roomId + ']::_unmuteVideoStream)streamId=' + streamId);
+		console.log('(ReachSDK::room[' + roomId + ']::_unmuteVideoStream)streamId=' + streamId);
 		if (roomWebrtcStacks && roomWebrtcStacks[streamId + '_pub'] && roomWebrtcStacks[streamId + '_pub'].length > 0) {
 			for (let i = roomWebrtcStacks[streamId + '_pub'].length - 1; i >= 0; i--) {
 				webrtcmngr.unmuteVideoWebrtcStack(roomWebrtcStacks[streamId + '_pub'][i].stackId);
@@ -714,7 +714,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	 * @param updateRoomStatusToClose - true if the room should be marked as closed
 	 */
 	function _close(updateRoomStatusToClose) {
-		console.log('(webcomSDK::room[' + roomId + ']::_close)room ' + roomId + ', detroyRoom=' + updateRoomStatusToClose);
+		console.log('(ReachSDK::room[' + roomId + ']::_close)room ' + roomId + ', detroyRoom=' + updateRoomStatusToClose);
 		// mark as disconnected when the room is left
 		dataref.child('participantList').child(me).child('connected').set(false);
 		// remove webcom callbacks
@@ -960,7 +960,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 				_setOnParticipantLeave(p_cb);
 				break;
 			default:
-				console.err('(webcomSDK::room[' + roomId + ']::on)unsupported ' + evt + ' event');
+				console.err('(ReachSDK::room[' + roomId + ']::on)unsupported ' + evt + ' event');
 				break;
 			}
 		}

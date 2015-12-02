@@ -80,7 +80,7 @@ var localstream = (function() {
 	 * Listeners will also be called.
 	 */
 	function initVideo(callback){
-		console.log('(webcomSDK::localstream::initVideo)');
+		console.log('(ReachSDK::localstream::initVideo)');
 		if (! initVideoProgress) {
 			initVideoProgress=true;
 
@@ -138,7 +138,7 @@ var localstream = (function() {
 	 * Listeners will also be called.
 	 */
 	function initAudio(callback) {
-		console.log('(webcomSDK::localstream::initAudio)');
+		console.log('(ReachSDK::localstream::initAudio)');
 		if (! initAudioProgress) {
 			initAudioProgress=true;
 
@@ -196,7 +196,7 @@ var localstream = (function() {
 	 * Listeners will also be called.
 	 */
 	function initAudioVideo(callback) {
-		console.log('(webcomSDK::localstream::initAudioVideo)');
+		console.log('(ReachSDK::localstream::initAudioVideo)');
 		if (!initAudioVideoProgress) {
 			initAudioVideoProgress=true;
 
@@ -225,7 +225,7 @@ var localstream = (function() {
 						}
 					},
 					(error) => {
-						console.error('(webcomSDK::localstream::initAudioVideo::Error on webrtcLocalStream - webkitGetUserMedia : error=');
+						console.error('(ReachSDK::localstream::initAudioVideo::Error on webrtcLocalStream - webkitGetUserMedia : error=');
 						console.dir(error);
 						initAudioVideoProgress=false;
 
@@ -254,7 +254,7 @@ var localstream = (function() {
 	 * Set all the initProgress flags to false, detach all the streams after stopping them.
 	 */
 	function close() {
-		console.log('(webcomSDK::localstream::close)');
+		console.log('(ReachSDK::localstream::close)');
 		if (mLocalStreamVideo) {
 			detachMediaStream(mLocalStreamVideo);
 			mLocalStreamVideo=null;
@@ -326,7 +326,7 @@ var localstream = (function() {
 			if (videoElt) {
 				videoElt.muted=true;
 				if (streamVideo) {
-					console.log('(webcomSDK::localstream::connectLocalVideoStream)use existing streamVideo');
+					console.log('(ReachSDK::localstream::connectLocalVideoStream)use existing streamVideo');
 					attachMediaStream(videoElt,streamVideo);
 					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
 						getLocalStreamCb(streamVideo);
@@ -384,7 +384,7 @@ var localstream = (function() {
 			if (AudioElt) {
 				AudioElt.muted=true;
 				if (streamAudio) {
-					console.log('(webcomSDK::localstream::connectLocalAudioStream)use existing streamAudio');
+					console.log('(ReachSDK::localstream::connectLocalAudioStream)use existing streamAudio');
 					attachMediaStream(AudioElt,streamAudio);
 					if (getLocalStreamCb && typeof getLocalStreamCb=='function') {
 						getLocalStreamCb(streamAudio);
@@ -442,7 +442,7 @@ var localstream = (function() {
 			if (AudioVideoElt) {
 				AudioVideoElt.muted=true;
 				if (streamAudioVideo) {
-					console.log('(webcomSDK::localstream::connectLocalAudioVideoStream)use existing streamAudioVideo');
+					console.log('(ReachSDK::localstream::connectLocalAudioVideoStream)use existing streamAudioVideo');
 					attachMediaStream(AudioVideoElt,streamAudioVideo);
 					if (getLocalStreamCb) {
 						getLocalStreamCb(streamAudioVideo);

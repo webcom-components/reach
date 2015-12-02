@@ -62,7 +62,7 @@ var webrtcmngr = function(datarefs) {
 
 		// create the real webrtcstack if it does not already exist
 		if (!webrtcStacks[webrtcStackId]) {
-			console.debug('webcomSDK::webrtcmngr::createWebrtc->create a new real webrtcStack');
+			console.debug('ReachSDK::webrtcmngr::createWebrtc->create a new real webrtcStack');
 			// create the real webrtcstack
 			var webRtcStack;
 			webRtcStack = webrtc(this, p_isPublish, localDataRef, remoteDataRef,webrtcStackId,p_actionType,p_mutedAudio,p_muteVideo);
@@ -86,7 +86,7 @@ var webrtcmngr = function(datarefs) {
 
 
 		} else {
-			console.debug('webcomSDK::webrtcmngr::createWebrtc->use existing real webrtcStack');
+			console.debug('ReachSDK::webrtcmngr::createWebrtc->use existing real webrtcStack');
 			// increment ref counter
 			if (p_isPublish) {
 				webrtcStacks[webrtcStackId].isPublished++;
@@ -98,7 +98,7 @@ var webrtcmngr = function(datarefs) {
 
 
 		}
-		console.debug('webcomSDK::webrtcmngr::createWebrtc->webrtcStack:'+webrtcStackId+ ' new isPublished count ='+webrtcStacks[webrtcStackId].isPublished+' new isSubscribed count ='+webrtcStacks[webrtcStackId].isSubscribed);
+		console.debug('ReachSDK::webrtcmngr::createWebrtc->webrtcStack:'+webrtcStackId+ ' new isPublished count ='+webrtcStacks[webrtcStackId].isPublished+' new isSubscribed count ='+webrtcStacks[webrtcStackId].isSubscribed);
 		return id;
 	}
 
@@ -109,9 +109,9 @@ var webrtcmngr = function(datarefs) {
 	 * @param callback -
 	 */
 	function _closeWebrtc(id,p_isUnPublish,callback) {
-		console.debug('webcomSDK::webrtcmngr::closeWebrtc->id='+id);
+		console.debug('ReachSDK::webrtcmngr::closeWebrtc->id='+id);
 		if (!virtualWebrtcStacks[id]) {
-			console.warn('webcomSDK::webrtcmngr::closeWebrtc: virtualstack '+id+' not found');
+			console.warn('ReachSDK::webrtcmngr::closeWebrtc: virtualstack '+id+' not found');
 			if (callback && typeof callback == 'function') {
 				callback();
 			}
@@ -126,12 +126,12 @@ var webrtcmngr = function(datarefs) {
 				webrtcStacks[webrtcStackId].isSubscribed--;
 			}
 			if (webrtcStacks[webrtcStackId].isPublished<1 && webrtcStacks[webrtcStackId].isSubscribed<1) {
-				console.debug('webcomSDK::webrtcmngr::closeWebrtc->destroy  real webrtcStack:'+webrtcStackId);
+				console.debug('ReachSDK::webrtcmngr::closeWebrtc->destroy  real webrtcStack:'+webrtcStackId);
 				// destroy the stack
 				webrtcStacks[webrtcStackId].stack.close(callback);
 				webrtcStacks[webrtcStackId] = null;
 			} else {
-				console.debug('webcomSDK::webrtcmngr::closeWebrtc->decrement  real webrtcStack:'+webrtcStackId+ ' new isPublished count ='+webrtcStacks[webrtcStackId].isPublished+' new isSubscribed count ='+webrtcStacks[webrtcStackId].isSubscribed);
+				console.debug('ReachSDK::webrtcmngr::closeWebrtc->decrement  real webrtcStack:'+webrtcStackId+ ' new isPublished count ='+webrtcStacks[webrtcStackId].isPublished+' new isSubscribed count ='+webrtcStacks[webrtcStackId].isSubscribed);
 				if (callback && typeof callback == 'function') {
 					callback();
 				}
@@ -140,7 +140,7 @@ var webrtcmngr = function(datarefs) {
 			if (callback && typeof callback == 'function') {
 				callback();
 			}
-			console.warn('webcomSDK::webrtcmngr::closeWebrtc cannot found real stack');
+			console.warn('ReachSDK::webrtcmngr::closeWebrtc cannot found real stack');
 		}
 
 		if (virtualWebrtcStacks[id].localVid) {
@@ -157,7 +157,7 @@ var webrtcmngr = function(datarefs) {
 	 * @param webrtcStackId - The WebRTC stack ID to clear
 	 */
 	function _clearWebrtcStacks(webrtcStackId) {
-		console.debug('webcomSDK::webrtcmngr::clearWebrtcStacks id='+webrtcStackId);
+		console.debug('ReachSDK::webrtcmngr::clearWebrtcStacks id='+webrtcStackId);
 		if (webrtcStackId && webrtcStacks && webrtcStacks[webrtcStackId]) {
 			webrtcStacks[webrtcStackId] = null;
 		}
@@ -169,18 +169,18 @@ var webrtcmngr = function(datarefs) {
 	 * @param virtualWebrtcStackId - The WebRTC stack ID to mute
 	 */
 	function _muteAudioWebrtcStack(virtualWebrtcStackId) {
-		console.log('(webcomSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
+		console.log('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
 
 		if (virtualWebrtcStacks && virtualWebrtcStacks[virtualWebrtcStackId] && virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId) {
 			var webRtcStackId=virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
-			console.log('(webcomSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'webRtcStackId='+webRtcStackId);
+			console.log('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'webRtcStackId='+webRtcStackId);
 			if (webrtcStacks && webrtcStacks[webRtcStackId] && webrtcStacks[webRtcStackId].stack) {
 				webrtcStacks[webRtcStackId].stack.muteAudio();
 			}  else {
-				console.warn('(webcomSDK::webrtcmngr::muteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
+				console.warn('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
 			}
 		} else {
-			console.warn('(webcomSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
+			console.warn('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
 		}
 
 
@@ -191,18 +191,18 @@ var webrtcmngr = function(datarefs) {
 	 * @param webrtcStackId - The WebRTC stack ID to unmute
 	 */
 	function  _unmuteAudioWebrtcStack (virtualWebrtcStackId) {
-		console.log('(webcomSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
+		console.log('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
 
 		if (virtualWebrtcStacks && virtualWebrtcStacks[virtualWebrtcStackId] && virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId) {
 			var webRtcStackId=virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
-			console.log('(webcomSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ ',webRtcStackId='+webRtcStackId);
+			console.log('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ ',webRtcStackId='+webRtcStackId);
 			if (webrtcStacks && webrtcStacks[webRtcStackId] && webrtcStacks[webRtcStackId].stack) {
 				webrtcStacks[webRtcStackId].stack.unmuteAudio();
 			}  else {
-				console.warn('(webcomSDK::webrtcmngr::_unmuteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
+				console.warn('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
 			}
 		} else {
-			console.warn('(webcomSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
+			console.warn('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
 		}
 
 	}
@@ -213,18 +213,18 @@ var webrtcmngr = function(datarefs) {
 	 * @param virtualWebrtcStackId - The WebRTC stack ID to mute
 	 */
 	function _muteVideoWebrtcStack(virtualWebrtcStackId) {
-		console.log('(webcomSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
+		console.log('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
 
 		if (virtualWebrtcStacks && virtualWebrtcStacks[virtualWebrtcStackId] && virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId) {
 			var webRtcStackId=virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
-			console.log('(webcomSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'webRtcStackId='+webRtcStackId);
+			console.log('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'webRtcStackId='+webRtcStackId);
 			if (webrtcStacks && webrtcStacks[webRtcStackId] && webrtcStacks[webRtcStackId].stack) {
 				webrtcStacks[webRtcStackId].stack.muteVideo();
 			}  else {
-				console.warn('(webcomSDK::webrtcmngr::muteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
+				console.warn('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
 			}
 		} else {
-			console.warn('(webcomSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
+			console.warn('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
 		}
 
 
@@ -235,18 +235,18 @@ var webrtcmngr = function(datarefs) {
 	 * @param webrtcStackId - The WebRTC stack ID to unmute
 	 */
 	function  _unmuteVideoWebrtcStack (virtualWebrtcStackId) {
-		console.log('(webcomSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
+		console.log('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
 
 		if (virtualWebrtcStacks && virtualWebrtcStacks[virtualWebrtcStackId] && virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId) {
 			var webRtcStackId=virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
-			console.log('(webcomSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ ',webRtcStackId='+webRtcStackId);
+			console.log('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ ',webRtcStackId='+webRtcStackId);
 			if (webrtcStacks && webrtcStacks[webRtcStackId] && webrtcStacks[webRtcStackId].stack) {
 				webrtcStacks[webRtcStackId].stack.unmuteVideo();
 			}  else {
-				console.warn('(webcomSDK::webrtcmngr::_unmuteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
+				console.warn('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
 			}
 		} else {
-			console.warn('(webcomSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
+			console.warn('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
 		}
 
 	}
