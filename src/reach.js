@@ -3,6 +3,8 @@
  * @author Webcom
  */
 
+/*eslint complexity:1, max-statements: 1, max-len: 1*/
+
 import utils from './utils';
 
 /**
@@ -56,92 +58,104 @@ const ROOM_STATUS_OPEN = 'OPEN';
  * the Invite are handled here.
  * @param {string} p_me - The user identifier
  */
-var reach = function (p_me, datarefs) {
+const reach = function (p_me, datarefs) {
 
 	/**
 	 * @description The user identifier. This identifier will be use to create a dedicated node in the database for this user.
 	 */
-	var me = p_me;
+	const me = p_me;
 	/**
 	 * @description The data ref pointer for the reach part. It can be considered as a pointer to the database to use to navigate into it and modify its content.
 	 */
-	var dataref = datarefs.getReach();
+	const dataref = datarefs.getReach();
 	/**
 	 * @description Callback handling the user adding
 	 */
-	var onUserAddedCb = null;
+	let onUserAddedCb = null;
 	/**
 	 * @description Callback handling the user changes
 	 */
-	var onUserChangedCb = null;
+	let onUserChangedCb = null;
 	/**
 	 * @description Callback handling the user removal
 	 */
-	var onUserRemovedCb = null;
+	let onUserRemovedCb = null;
 	/**
 	 * @description Callback for new Invite received
 	 */
-	var newInviteCb = null;
+	let newInviteCb = null;
 	/**
 	 * @description Callback for Invite received changes
 	 */
-	var onRoomInviteChangedCb = null;
+	let onRoomInviteChangedCb = null;
 
 	/**
 	 * @description An array containing all outgoing Invite
 	 */
-	var mOutgoingInvites = [];
+	let mOutgoingInvites = [];
 	/**
 	 * @description An array containing all incoming Invitation
 	 */
-	var mIncomingInvitation = [];
+	let mIncomingInvitation = [];
 	/**
 	 * @description the timeout to reject automatically the Invite
 	 */
-	var automaticRejectTimeOut = null;
+	let automaticRejectTimeOut = null;
 
 	/**
 	 * @description the reason to reject automatically the Invite
 	 */
-	var automaticRejectReason = null;
+	let automaticRejectReason = null;
 
 	/**
 	 * @description the current device Id
 	 */
-	var mDeviceId = null;
+	let mDeviceId = null;
 
 	/**
-	* Initialisation fonction. Updates the dataref about the user identifier in the user list :
+	* Initialisation function. Updates the dataref about the user identifier in the user list :
 	* it will disconnect and reconnect it.
 	*/
 	function init() {
-		mDeviceId = dataref.child('userList').child(me).child('connectedList').child(utils.appInstanceId);
+		mDeviceId = dataref.child(`userList/${me}/connectedList/${utils.appInstanceId}`);
 		mDeviceId.onDisconnect().remove();
 		mDeviceId.child('status').set(DEVICE_STATUS_CONNECTED);
 		try {
-			if (utils.appInstanceId) mDeviceId.child('description').child('appInstanceId').set(utils.appInstanceId);
-			if (navigator.appCodeName) mDeviceId.child('description').child('navigator').child('appCodeName').set(navigator.appCodeName);
-			if (navigator.appName) mDeviceId.child('description').child('navigator').child('appName').set(navigator.appName);
-			if (navigator.appVersion) mDeviceId.child('description').child('navigator').child('appVersion').set(navigator.appVersion);
-			if (navigator.buildID) mDeviceId.child('description').child('navigator').child('buildID').set(navigator.buildID);
-			if (navigator.cookieEnabled) mDeviceId.child('description').child('navigator').child('cookieEnabled').set(navigator.cookieEnabled);
-//			if (navigator.geolocation) mDeviceId.child("description").child("navigator").child("geolocation").set(navigator.geolocation);
-			if (navigator.language) mDeviceId.child('description').child('navigator').child('language').set(navigator.language);
-//			if (navigator.mimeTypes) mDeviceId.child("description").child("navigator").child("mimeTypes").set(navigator.mimeTypes.toString());
-			if (navigator.onLine) mDeviceId.child('description').child('navigator').child('onLine').set(navigator.onLine);
-			if (navigator.oscpu) mDeviceId.child('description').child('navigator').child('onLine').set(navigator.oscpu);
-			if (navigator.platform) mDeviceId.child('description').child('navigator').child('platform').set(navigator.platform);
-//			if (navigator.cookieEnabled) mDeviceId.child("description").child("navigator").child("plugins").set(navigator.plugins.toString());
-			if (navigator.product) mDeviceId.child('description').child('navigator').child('product').set(navigator.product);
-			if (navigator.productSub) mDeviceId.child('description').child('navigator').child('productSub').set(navigator.productSub);
-			if (navigator.securityPolicy) mDeviceId.child('description').child('navigator').child('securityPolicy').set(navigator.securityPolicy);
-			if (navigator.userAgent) mDeviceId.child('description').child('navigator').child('userAgent').set(navigator.userAgent);
-			if (navigator.vendor) mDeviceId.child('description').child('navigator').child('vendor').set(navigator.vendor);
-			if (navigator.vendorSub) mDeviceId.child('description').child('navigator').child('vendorSub').set(navigator.vendorSub);
+			const description = mDeviceId.child('description');
+			if (utils.appInstanceId) {
+				description.child('appInstanceId').set(utils.appInstanceId);
+			}
+
+			const
+				navigatorData = {},
+				properties = [
+					'appCodeName',
+					'appName',
+					'appVersion',
+					'buildID',
+					'cookieEnabled',
+					'language',
+					'onLine',
+					'oscpu',
+					'platform',
+					'product',
+					'productSub',
+					'securityPolicy',
+					'userAgent',
+					'vendor',
+					'vendorSub'
+				];
+			properties.forEach((property) => {
+				if(navigator[property]) {
+					navigatorData[property] = navigator[property];
+				}
+			});
+			description.child('navigator').set(navigatorData);
+
 		} catch (e) {
-			console.error('(ReachSDK::reach::init)failed to get information about device. error='+e);
+			console.error(`(ReachSDK::reach::init)failed to get information about device. error=${e}`);
 		}
-		dataref.child('userList').child(me).child('wasInsideReach').set(true);
+		dataref.child(`userList/${me}/wasInsideReach`).set(true);
 	}
 
 	/**
@@ -150,12 +164,13 @@ var reach = function (p_me, datarefs) {
 	 * @param {function} p_cb - the callback triggers to return the result. The result will be passed in parameter as boolean : true = connected / false = not connected
 	 */
 	function _isConnected(p_userId,p_cb) {
-		console.log('(ReachSDK::reach::_isConnected)userId'+p_userId);
-		var onUserConnectedCb = function(snapshot) {
-			var connected = (snapshot.val() !== null);
-			if (p_cb && typeof p_cb == 'function') p_cb(connected);
-		};
-		dataref.child('userList').child(p_userId).child('connectedList').once('value',onUserConnectedCb);
+		console.log(`(ReachSDK::reach::_isConnected)userId: ${p_userId}`);
+		dataref.child(`userList/${p_userId}/connectedList`).once('value', (snapshot) => {
+			// onUserConnectedCb. User is connected if snapshot value is not null
+			if (p_cb && typeof p_cb == 'function') {
+				p_cb(snapshot.val() !== null);
+			}
+		});
 	}
 
 	/**
@@ -164,14 +179,13 @@ var reach = function (p_me, datarefs) {
 	 * @param {function} p_cb - the callback triggers to return the result. The result will be passed in parameter as boolean : true = registered / false = not registered
 	 */
 	function _isRegistered(p_userId,p_cb) {
-		console.log('(ReachSDK::reach::_isRegistered)userId'+p_userId);
-		var onUserRegisteredCb = function(snapshot) {
-			var registered = (snapshot.val() !== null);
+		console.log(`(ReachSDK::reach::_isRegistered)userId: ${p_userId}`);
+		dataref.child(`userList/${p_userId}/wasInsideReach`).once('value', (snapshot) => {
+			// onUserRegisteredCb. User is registered if snapshot value is not null
 			if (p_cb && typeof p_cb == 'function') {
-				p_cb(registered);
+				p_cb(snapshot.val() !== null);
 			}
-		};
-		dataref.child('userList').child(p_userId).child('wasInsideReach').once('value',onUserRegisteredCb);
+		});
 	}
 
 	/**
@@ -179,7 +193,9 @@ var reach = function (p_me, datarefs) {
 	 * @param {string} p_status - the new status
 	 */
 	function _setConnectedStatus(p_status) {
-		if (mDeviceId) mDeviceId.child('status').set(p_status);
+		if (mDeviceId) {
+			mDeviceId.child('status').set(p_status);
+		}
 	}
 
 	/**
@@ -188,17 +204,17 @@ var reach = function (p_me, datarefs) {
 	 */
 	function _setOnUserAdded(p_cb) {
 		if (onUserAddedCb) {
-			dataref.child('userList').off('child_added',onUserAddedCb);
-			onUserAddedCb=null;
+			dataref.child('userList').off('child_added', onUserAddedCb);
+			onUserAddedCb = null;
 		}
 		if (p_cb && typeof p_cb == 'function') {
 			onUserAddedCb = function(snapshot) {
-				console.log('(ReachSDK::reach::onUserAddedCb)'+snapshot.name()+'='+JSON.stringify(snapshot.val()));
-				var obj = {};
-				obj[snapshot.name()]=snapshot.val();
+				console.log(`(ReachSDK::reach::onUserAddedCb) ${snapshot.name()}=${JSON.stringify(snapshot.val())}`);
+				const obj = {};
+				obj[snapshot.name()] = snapshot.val();
 				p_cb(obj);
 			};
-			dataref.child('userList').on('child_added',onUserAddedCb);
+			dataref.child('userList').on('child_added', onUserAddedCb);
 		}
 	}
 	/**
@@ -207,17 +223,17 @@ var reach = function (p_me, datarefs) {
 	 */
 	function _setOnUserChanged(p_cb) {
 		if (onUserChangedCb) {
-			dataref.child('userList').off('child_changed',onUserChangedCb);
-			onUserChangedCb=null;
+			dataref.child('userList').off('child_changed', onUserChangedCb);
+			onUserChangedCb = null;
 		}
 		if (p_cb && typeof p_cb == 'function') {
 			onUserChangedCb = function(snapshot) {
-				console.log('(ReachSDK::reach::onUserChangedCb)'+snapshot.name()+'='+JSON.stringify(snapshot.val()));
-				var obj = {};
+				console.log(`(ReachSDK::reach::onUserChangedCb) ${snapshot.name()}=${JSON.stringify(snapshot.val())}`);
+				const obj = {};
 				obj[snapshot.name()]=snapshot.val();
 				p_cb(obj);
 			};
-			dataref.child('userList').on('child_changed',onUserChangedCb);
+			dataref.child('userList').on('child_changed', onUserChangedCb);
 		}
 
 	}
@@ -228,12 +244,12 @@ var reach = function (p_me, datarefs) {
 	function _setOnUserRemoved(p_cb) {
 		if (onUserRemovedCb) {
 			dataref.child('userList').off('child_removed',onUserRemovedCb);
-			onUserRemovedCb=null;
+			onUserRemovedCb = null;
 		}
 		if (p_cb && typeof p_cb == 'function') {
 			onUserRemovedCb = function(snapshot) {
-				console.log('(ReachSDK::reach::onUserRemovedCb)'+snapshot.name()+'='+JSON.stringify(snapshot.val()));
-				var obj = {};
+				console.log(`(ReachSDK::reach::onUserRemovedCb) ${snapshot.name()}=${JSON.stringify(snapshot.val())}`);
+				const obj = {};
 				obj[snapshot.name()]=snapshot.val();
 				p_cb(obj);
 			};
@@ -250,15 +266,18 @@ var reach = function (p_me, datarefs) {
 	function _setOnNewRoomInvitation(p_onNewRoomInviteCb) {
 
 		if (newInviteCb) {
-			dataref.child('invitationList').child(me).off('child_added',newInviteCb);
-			newInviteCb=null;
+			dataref.child(`invitationList/${me}`).off('child_added',newInviteCb);
+			newInviteCb = null;
 		}
+
 		if (p_onNewRoomInviteCb && typeof p_onNewRoomInviteCb == 'function') {
-			newInviteCb = function(snapshot) {
+			newInviteCb = (snapshot) => {
 				if (snapshot.val().status=== INVITATION_ONGOING) {
-					console.log('(ReachSDK::reach::_setOnNewRoomInvitation)new Invite received,id)'+snapshot.name()+',content='+JSON.stringify(snapshot.val()));
-					var invitationId=snapshot.name();
-					if (!mIncomingInvitation) mIncomingInvitation=[];
+					console.log(`(ReachSDK::reach::_setOnNewRoomInvitation)new Invite received,id) ${snapshot.name()},content=${JSON.stringify(snapshot.val())}`);
+					const invitationId = snapshot.name();
+					if (!mIncomingInvitation) {
+						mIncomingInvitation = [];
+					}
 					if (mIncomingInvitation[invitationId]) {
 						if (mIncomingInvitation[invitationId].timeout) {
 							clearTimeout(mIncomingInvitation[invitationId].timeout);
@@ -267,45 +286,46 @@ var reach = function (p_me, datarefs) {
 					}
 					mIncomingInvitation[invitationId]={};
 
-					var obj={};
-					obj[invitationId]=snapshot.val();
+					const obj = {};
+					obj[invitationId] = snapshot.val();
 					p_onNewRoomInviteCb(obj);
 
+					const invitationRef = dataref.child(`invitationList/${me}/${invitationId}`);
+
 					if (automaticRejectTimeOut) {
-						var mTimeout_action=setTimeout(function() {
+						mIncomingInvitation[invitationId].timeout = setTimeout(() => {
 							if (automaticRejectTimeOut) {
-								console.log('(ReachSDK::reach::_setOnNewRoomInvitation)automatic reject of Invite received='+JSON.stringify(snapshot.val()));
-								dataref.child('invitationList').child(me).child(invitationId).onDisconnect().cancel();
+								console.log(`(ReachSDK::reach::_setOnNewRoomInvitation)automatic reject of Invite received=${JSON.stringify(snapshot.val())}`);
+								invitationRef.onDisconnect().cancel();
 								if (automaticRejectReason) {
-									dataref.child('invitationList').child(me).child(invitationId).update({
-										timestamp_end:Webcom.ServerValue.TIMESTAMP,
-										status:INVITATION_REJECTED,
-										status_info:automaticRejectReason
+									invitationRef.update({
+										timestamp_end: Webcom.ServerValue.TIMESTAMP,
+										status: INVITATION_REJECTED,
+										status_info: automaticRejectReason
 									});
 								} else {
-									dataref.child('invitationList').child(me).child(invitationId).update({
-										timestamp_end:Webcom.ServerValue.TIMESTAMP,
-										status:INVITATION_REJECTED
+									invitationRef.update({
+										timestamp_end: Webcom.ServerValue.TIMESTAMP,
+										status: INVITATION_REJECTED
 									});
 								}
 							}
-						},automaticRejectTimeOut);
-						mIncomingInvitation[invitationId].timeout=mTimeout_action;
+						}, automaticRejectTimeOut);
 					}
 
-					var onInvitationChangeCb = function(snapshot) {
-						if(snapshot && snapshot.name()==='status') {
-							snapshot.ref().parent().once('value',function(snapshot2) {
-								var cb_invitationId,cb_obj_content;
+					invitationRef.once('child_changed', (snapshot) => {
+						if(snapshot && snapshot.name() === 'status') {
+							snapshot.ref().parent().once('value', (snapshot2) => {
+								let cb_invitationId,cb_obj_content;
 								if (snapshot2) {
 									cb_invitationId = snapshot.ref().parent().name();
 									cb_obj_content= snapshot2.val();
-									var cb_obj={};
-									cb_obj[cb_invitationId]=cb_obj_content;
-									if (mIncomingInvitation && mIncomingInvitation[cb_invitationId]&& mIncomingInvitation[cb_invitationId].timeout) {
+									const cb_obj = {};
+									cb_obj[cb_invitationId] = cb_obj_content;
+									if (mIncomingInvitation && mIncomingInvitation[cb_invitationId] && mIncomingInvitation[cb_invitationId].timeout) {
 										clearTimeout(mIncomingInvitation[cb_invitationId].timeout);
 									}
-									console.log('(ReachSDK::reach::_setOnNewRoomInvitation)Invite changed,id=)'+cb_invitationId,'\'new content='+JSON.stringify(cb_obj_content));
+									console.log(`(ReachSDK::reach::_setOnNewRoomInvitation)Invite changed,id=) ${cb_invitationId}, new content=${JSON.stringify(cb_obj_content)}`);
 									if (cb_obj && onRoomInviteChangedCb ) {
 										onRoomInviteChangedCb(cb_obj);
 									}
@@ -313,12 +333,11 @@ var reach = function (p_me, datarefs) {
 								}
 							});
 						}
-					};
-					dataref.child('invitationList').child(me).child(invitationId).once('child_changed',onInvitationChangeCb);
+					});
 
 				}
 			};
-			dataref.child('invitationList').child(me).on('child_added',newInviteCb);
+			dataref.child(`invitationList/${me}`).on('child_added', newInviteCb);
 		}
 	}
 
@@ -330,11 +349,11 @@ var reach = function (p_me, datarefs) {
 	function _setOnRoomInvitationChanged(p_onRoomInviteChangedCb) {
 
 		if (onRoomInviteChangedCb) {
-			onRoomInviteChangedCb=null;
+			onRoomInviteChangedCb = null;
 		}
 
 		if (p_onRoomInviteChangedCb && typeof p_onRoomInviteChangedCb == 'function') {
-			onRoomInviteChangedCb=p_onRoomInviteChangedCb;
+			onRoomInviteChangedCb = p_onRoomInviteChangedCb;
 		}
 	}
 
@@ -345,14 +364,14 @@ var reach = function (p_me, datarefs) {
 	 */
 	function _setNewRoomInvitationTimeout(p_timeout,p_reason) {
 		if (automaticRejectTimeOut) {
-			automaticRejectTimeOut=null;
+			automaticRejectTimeOut = null;
 		}
 		if (automaticRejectReason) {
-			automaticRejectReason=null;
+			automaticRejectReason = null;
 		}
 
 		if (p_timeout	&& p_timeout === parseInt(p_timeout, 10) && p_timeout>0) {
-			console.log('(ReachSDK::reach::_setNewRoomInvitationTimeout)timeout='+p_timeout);
+			console.log(`(ReachSDK::reach::_setNewRoomInvitationTimeout)timeout=${p_timeout}`);
 			automaticRejectTimeOut=p_timeout;
 		}
 		if (p_reason) {
@@ -369,7 +388,7 @@ var reach = function (p_me, datarefs) {
 	 * @param {function} p_cb - the callback function to tigger to get the result. It will containts a parameter = true is already present, false either.
 	 */
 	function _isUserPresentInRoom(p_roomId,p_user,p_cb) {
-		console.log('(ReachSDK::reach::_isUserPresentInRoom)p_roomId='+p_roomId+' p_user='+p_user);
+		console.log(`(ReachSDK::reach::_isUserPresentInRoom)p_roomId=${p_roomId} p_user=${p_user}`);
 		if (!(p_roomId && typeof p_roomId == 'string')) {
 			console.error('(ReachSDK::reach::_isUserPresentInRoom)parameter p_roomid is incorrect. Expecting non empty string');
 			return;
@@ -382,13 +401,91 @@ var reach = function (p_me, datarefs) {
 			console.error('(ReachSDK::reach::_isUserPresentInRoom)parameter p_cb is incorrect. if defined, expecting a function');
 			return;
 		}
-		var isUserAlreadyPresentCB = function(snapshot) {
-			var wasPresent = (snapshot.val() !== null);
-			console.log('(ReachSDK::reach::_isUserPresentInRoom)p_roomId='+p_roomId+',p_user='+p_user+',result='+wasPresent);
-			p_cb(wasPresent,p_roomId,p_user);
-		};
-		datarefs.getRooms().child(p_roomId).child('participantList').child(p_user).child('wasInsideRoom').once('value',isUserAlreadyPresentCB);
+		datarefs.getRooms().child(`${p_roomId}/participantList/${p_user}/wasInsideRoom`).once('value', (snapshot) => {
+			const wasPresent = (snapshot.val() !== null);
+			console.log(`(ReachSDK::reach::_isUserPresentInRoom)p_roomId=${p_roomId},p_user=${p_user},result=${wasPresent}`);
+			p_cb(wasPresent, p_roomId, p_user);
+		});
 
+	}
+
+
+	/**
+	 * Cancels the Invite
+	 * @param {string} p_roomId - The room Id of the Invite
+	 * @param {array[sting]} p_guestIds - optional : An array possessing the identifiers of the invitees. (if undefined ,  all invitee will have their Invite canceled)
+	 * @param {string} inviteId - The invite identifier
+	 * @param {function} p_cb - The callback triggered when the operation is complete . this callback will containt as parameter the related guestId
+	 */
+	function _cancelInvitation(p_roomId, p_guestIds, p_cb) {
+		if (!(p_roomId && typeof p_roomId == 'string')) {
+			console.error('(ReachSDK::reach::_cancelInvitation)parameter p_roomid is incorrect. Expecting non empty string');
+			return;
+		}
+		if (p_guestIds && ! p_guestIds instanceof Array ) {
+			console.error('(ReachSDK::reach::_cancelInvitation)parameter p_guestIds is incorrect. Expecting an Array');
+			return;
+		}
+		console.log(` (ReachSDK::reach::_cancelInvitation)p_roomId=${p_roomId}, p_guestIds=${JSON.stringify(p_guestIds)}`);
+		if (mOutgoingInvites && mOutgoingInvites[p_roomId]) {
+			if (p_guestIds) {
+				p_guestIds.forEach((guestId, i) => {
+					if (!(guestId && typeof guestId == 'string')) {
+						console.error(`(ReachSDK::reach::inviteToRoom)parameter p_guestIds[${i}] is incorrect. Expecting non empty string`);
+					} else if (mOutgoingInvites[p_roomId][guestId]) {
+						if (mOutgoingInvites[p_roomId][guestId].InviteDataref) {
+							mOutgoingInvites[p_roomId][guestId].InviteDataref.onDisconnect().cancel();
+							if (mOutgoingInvites[p_roomId][guestId].InviteChangedCb && typeof mOutgoingInvites[p_roomId][guestId].InviteChangedCb == 'function') {
+								mOutgoingInvites[p_roomId][guestId].InviteDataref.off('child_changed', mOutgoingInvites[p_roomId][guestId].InviteChangedCb);
+							}
+
+							mOutgoingInvites[p_roomId][guestId].InviteDataref.once('value', (dataSnapshot) => {
+								let cb_status, cb_guestId, cb_roomId;
+								if (dataSnapshot && dataSnapshot.val()) {
+									cb_status= dataSnapshot.val().status;
+									cb_roomId= dataSnapshot.val().room;
+									cb_guestId= dataSnapshot.ref().parent().name();
+									if (cb_status && cb_status===INVITATION_ONGOING) {
+										mOutgoingInvites[cb_roomId][cb_guestId].InviteDataref.update({
+											timestamp_end: Webcom.ServerValue.TIMESTAMP,
+											status: INVITATION_CANCELED
+										});
+										if (mOutgoingInvites[cb_roomId][cb_guestId].statusChangedCb && typeof mOutgoingInvites[cb_roomId][cb_guestId].statusChangedCb == 'function') {
+											mOutgoingInvites[cb_roomId][cb_guestId].statusChangedCb(cb_roomId, cb_guestId, INVITATION_CANCELED);
+										}
+										console.log(`(ReachSDK::reach::_cancelInvitation)deleting Invite to room ${cb_roomId} for invitee ${cb_guestId}`);
+									} else {
+										console.warn(`(ReachSDK::reach::_cancelInvitation)cannot delete intivation to room ${cb_roomId} for guest ${cb_guestId} Invitation has been removed/rejected/accepted`);
+									}
+								}
+								delete mOutgoingInvites[p_roomId][guestId];
+								if (p_cb && typeof p_cb=='function') {
+									p_cb(guestId);
+								}
+							});
+
+						} else {
+							delete mOutgoingInvites[p_roomId][guestId];
+							if (p_cb && typeof p_cb=='function') {
+								p_cb(guestId);
+							}
+						}
+
+					} else {
+						if (p_cb && typeof p_cb=='function') {
+							p_cb(guestId);
+						}
+					}
+				});
+
+			} else {
+				Object.keys(mOutgoingInvites[p_roomId]).forEach((invitee) => {
+					_cancelInvitation(p_roomId, [invitee], p_cb);
+				});
+			}
+		} else {
+			console.warn(`(ReachSDK::reach::_cancelInvitation) Invite to room ${p_roomId} not found`);
+		}
 	}
 
 	/**
@@ -423,35 +520,35 @@ var reach = function (p_me, datarefs) {
 		});
 
 
-		var _isUserPresentInRoomCb=function(isAlreadyPresent,p_roomId2,p_guestId2) {
+		const _isUserPresentInRoomCb = (isAlreadyPresent, p_roomId2, p_guestId2) => {
 			if (!isAlreadyPresent) {
-				datarefs.getRooms().child(p_roomId2).child('participantList').child(p_guestId2).update({
+				datarefs.getRooms().child(`${p_roomId2}/participantList/${p_guestId2}`).update({
 					connected: false,
 					wasInsideRoom: false
 				});
 			}
 		};
 
-		var _InviteChangedCb= function(snapshot) {
+		const _InviteChangedCb = (snapshot) => {
 			console.log('(ReachSDK::reach::inviteToRoom::_InviteChangedCb)');
 			if(snapshot && snapshot.name()==='status') {
-				var cb_guestId2= snapshot.ref().parent().parent().name();
-				console.log('(ReachSDK::reach::inviteToRoom::_InviteChangedCb)cb_guestId2='+cb_guestId2);
-				if (mOutgoingInvites &&  mOutgoingInvites[p_roomId] && mOutgoingInvites[p_roomId][cb_guestId2] && mOutgoingInvites[p_roomId][cb_guestId2].InviteChangedCb ) {
-					mOutgoingInvites[p_roomId][cb_guestId2].InviteDataref.off('child_changed',mOutgoingInvites[p_roomId][cb_guestId2].InviteChangedCb);
+				const cb_guestId2 = snapshot.ref().parent().parent().name();
+				console.log(`(ReachSDK::reach::inviteToRoom::_InviteChangedCb)cb_guestId2=${cb_guestId2}`);
+				if (mOutgoingInvites && mOutgoingInvites[p_roomId] && mOutgoingInvites[p_roomId][cb_guestId2] && mOutgoingInvites[p_roomId][cb_guestId2].InviteChangedCb ) {
+					mOutgoingInvites[p_roomId][cb_guestId2].InviteDataref.off('child_changed', mOutgoingInvites[p_roomId][cb_guestId2].InviteChangedCb);
 				}
-				snapshot.ref().parent().once('value',function(snapshot2) {
-					var cb_status,cb_guestId,cb_roomId,cb_status_info;
+				snapshot.ref().parent().once('value',(snapshot2) => {
+					let cb_status, cb_guestId, cb_roomId, cb_status_info;
 					if (snapshot2) {
 						cb_status= snapshot2.val().status;
 						cb_roomId= snapshot2.val().room;
 						cb_status_info= snapshot2.val().status_info;
 						cb_guestId= snapshot2.ref().parent().name();
-						console.log('(ReachSDK::reach::inviteToRoom::_InviteChangedCb)roomId='+cb_roomId+' invitee='+cb_guestId+ ' new invitation status='+cb_status+ ' status info='+cb_status_info);
-						if (mOutgoingInvites&&  mOutgoingInvites[cb_roomId] && mOutgoingInvites[cb_roomId][cb_guestId] && mOutgoingInvites[cb_roomId][cb_guestId].InviteDataref) {
+						console.log(`(ReachSDK::reach::inviteToRoom::_InviteChangedCb)roomId=${cb_roomId} invitee=${cb_guestId} new invitation status=${cb_status} status info=${cb_status_info}`);
+						if (mOutgoingInvites && mOutgoingInvites[cb_roomId] && mOutgoingInvites[cb_roomId][cb_guestId] && mOutgoingInvites[cb_roomId][cb_guestId].InviteDataref) {
 							mOutgoingInvites[cb_roomId][cb_guestId].InviteDataref.onDisconnect().cancel();
-//   	                    	if (mOutgoingInvites[cb_roomId][cb_guestId].InviteRemoveCb)
-//   				         		mOutgoingInvites[cb_roomId][cb_guestId].InviteDataref.parent().off("child_removed",mOutgoingInvites[cb_roomId][cb_guestId].InviteRemoveCb);
+							//if (mOutgoingInvites[cb_roomId][cb_guestId].InviteRemoveCb)
+							//	mOutgoingInvites[cb_roomId][cb_guestId].InviteDataref.parent().off("child_removed",mOutgoingInvites[cb_roomId][cb_guestId].InviteRemoveCb);
 							if (mOutgoingInvites[cb_roomId][cb_guestId].statusChangedCb && typeof mOutgoingInvites[cb_roomId][cb_guestId].statusChangedCb == 'function') {
 								mOutgoingInvites[cb_roomId][cb_guestId].statusChangedCb(cb_roomId,cb_guestId,cb_status,cb_status_info);
 							} else {
@@ -468,139 +565,64 @@ var reach = function (p_me, datarefs) {
 			}
 		};
 
-		for (var i=0; i<p_guestIds.length; i++) {
-			var mGuestId=p_guestIds[i];
+		p_guestIds.forEach((mGuestId, i) => {
 			if (!(mGuestId && typeof mGuestId == 'string')) {
-				console.error('(ReachSDK::reach::inviteToRoom)parameter p_guestIds['+i+'] is incorrect. Expecting non empty string');
+				console.error(`(ReachSDK::reach::inviteToRoom)parameter p_guestIds[${i}] is incorrect. Expecting non empty string`);
 			} else {
-				console.log('(ReachSDK::reach::inviteToRoom)roomId='+p_roomId+' invitee='+mGuestId.toString());
+				console.log(`(ReachSDK::reach::inviteToRoom)roomId=${p_roomId} invitee=${mGuestId.toString()}`);
 
 				if (mOutgoingInvites[p_roomId] && mOutgoingInvites[p_roomId][mGuestId]) {
 					//invitation is already existing -> cancel it
 					//if (mOutgoingInvites[p_roomId][mGuestId].InviteDataref && mOutgoingInvites[p_roomId][mGuestId].InviteRemoveCb)  mOutgoingInvites[p_roomId][mGuestId].InviteDataref.off("child_removed",mOutgoingInvites[p_roomId][mGuestId].InviteRemoveCb);
 					//if (mOutgoingInvites[p_roomId][mGuestId].InviteDataref && mOutgoingInvites[p_roomId][mGuestId].InviteChangedCb) mOutgoingInvites[p_roomId][mGuestId].InviteDataref.off("child_changed",mOutgoingInvites[p_roomId][mGuestId].InviteChangedCb);
-					_cancelInvitation(p_roomId, [mGuestId],function(p_guestId){
-						if (p_guestId && p_guestId===mGuestId) {
+					_cancelInvitation(p_roomId, [mGuestId], (p_guestId) => {
+						if (p_guestId && p_guestId === mGuestId) {
 							_inviteToRoom(p_roomId, [p_guestId], p_topic,p_statusChangedCb);
 						}
 					});
 					return;
 				}
+
 				if (!mOutgoingInvites[p_roomId]) {
-					mOutgoingInvites[p_roomId]=[];
+					mOutgoingInvites[p_roomId] = [];
 				}
 				//if (!mOutgoingInvites[p_roomId][mGuestId]) {
-				mOutgoingInvites[p_roomId][mGuestId]={};
+				mOutgoingInvites[p_roomId][mGuestId] = {};
 				//}
 
-				_isUserPresentInRoom(p_roomId,mGuestId,_isUserPresentInRoomCb);
+				_isUserPresentInRoom(p_roomId, mGuestId, _isUserPresentInRoomCb);
 
-				mOutgoingInvites[p_roomId][mGuestId].InviteDataref  =  dataref.child('invitationList').child(mGuestId).push({
+				mOutgoingInvites[p_roomId][mGuestId].InviteDataref = dataref.child('invitationList').child(mGuestId).push({
 					from:me,
 					room:p_roomId,
 					timestamp_creation:Webcom.ServerValue.TIMESTAMP,
 					topic:p_topic,
 					status:INVITATION_ONGOING
 				});
-				console.log('(ReachSDK::reach::inviteToRoom)InviteDataref='+mOutgoingInvites[p_roomId][mGuestId].InviteDataref.toString());
+				console.log(`(ReachSDK::reach::inviteToRoom)InviteDataref=${mOutgoingInvites[p_roomId][mGuestId].InviteDataref.toString()}`);
 
-				//mOutgoingInvites[p_roomId][mGuestId].InviteRemoveCb=_InvitationRemoveCb;
-				mOutgoingInvites[p_roomId][mGuestId].InviteChangedCb=_InviteChangedCb;
-				mOutgoingInvites[p_roomId][mGuestId].InviteDataref.on('child_changed',mOutgoingInvites[p_roomId][mGuestId].InviteChangedCb);
+				//mOutgoingInvites[p_roomId][mGuestId].InviteRemoveCb = _InvitationRemoveCb;
+				mOutgoingInvites[p_roomId][mGuestId].InviteChangedCb = _InviteChangedCb;
+				mOutgoingInvites[p_roomId][mGuestId].InviteDataref.on('child_changed', mOutgoingInvites[p_roomId][mGuestId].InviteChangedCb);
 				//mOutgoingInvites[p_roomId][mGuestId].InviteDataref.parent().on("child_removed",mOutgoingInvites[p_roomId][mGuestId].InviteRemoveCb);
-				mOutgoingInvites[p_roomId][mGuestId].statusChangedCb=p_statusChangedCb;
+				mOutgoingInvites[p_roomId][mGuestId].statusChangedCb = p_statusChangedCb;
 
 				// canceled Invite on disconnection
 				mOutgoingInvites[p_roomId][mGuestId].InviteDataref.onDisconnect().update({
-					timestamp_end:Webcom.ServerValue.TIMESTAMP,
-					status:INVITATION_CANCELED
+					timestamp_end: Webcom.ServerValue.TIMESTAMP,
+					status: INVITATION_CANCELED
 				});
 			}
-		}
+		});
 	}
 
-	/**
-	 * Cancels the Invite
-	 * @param {string} p_roomId - The room Id of the Invite
-	 * @param {array[sting]} p_guestIds - optional : An array possessing the identifiers of the invitees. (if undefined ,  all invitee will have their Invite canceled)
-	 * @param {string} inviteId - The invite identifier
-	 * @param {function} p_cb - The callback triggered when the operation is complete . this callback will containt as parameter the related guestId
-	 */
-	function _cancelInvitation(p_roomId, p_guestIds,p_cb) {
-		if (!(p_roomId && typeof p_roomId == 'string')) {
-			console.error('(ReachSDK::reach::_cancelInvitation)parameter p_roomid is incorrect. Expecting non empty string');
-			return;
-		}
-		if (p_guestIds && ! p_guestIds instanceof Array ) {
-			console.error('(ReachSDK::reach::_cancelInvitation)parameter p_guestIds is incorrect. Expecting an Array');
-			return;
-		}
-		console.log('(ReachSDK::reach::_cancelInvitation)p_roomId='+p_roomId+',p_guestIds='+JSON.stringify(p_guestIds));
-		if (mOutgoingInvites && mOutgoingInvites[p_roomId]) {
-			if (p_guestIds) {
-				for (var i=0; i<p_guestIds.length; i++) {
-					var guestId=p_guestIds[i];
-					if (!(guestId && typeof guestId == 'string')) {
-						console.error('(ReachSDK::reach::inviteToRoom)parameter p_guestIds['+i+'] is incorrect. Expecting non empty string');
-					} else {
-						if (mOutgoingInvites[p_roomId][guestId]) {
-							if (mOutgoingInvites[p_roomId][guestId].InviteDataref) {
-								mOutgoingInvites[p_roomId][guestId].InviteDataref.onDisconnect().cancel();
-								if (mOutgoingInvites[p_roomId][guestId].InviteChangedCb && typeof mOutgoingInvites[p_roomId][guestId].InviteChangedCb == 'function') {
-									mOutgoingInvites[p_roomId][guestId].InviteDataref.off('child_changed',mOutgoingInvites[p_roomId][guestId].InviteChangedCb);
-								}
-
-								mOutgoingInvites[p_roomId][guestId].InviteDataref.once('value',function(dataSnapshot) {
-
-									var cb_status,cb_guestId,cb_roomId;
-									if (dataSnapshot && dataSnapshot.val()) {
-										cb_status= dataSnapshot.val().status;
-										cb_roomId= dataSnapshot.val().room;
-										cb_guestId= dataSnapshot.ref().parent().name();
-										if (cb_status && cb_status===INVITATION_ONGOING) {
-											mOutgoingInvites[cb_roomId][cb_guestId].InviteDataref.update({
-												timestamp_end:Webcom.ServerValue.TIMESTAMP,
-												status:INVITATION_CANCELED
-											});
-											if (mOutgoingInvites[cb_roomId][cb_guestId].statusChangedCb && typeof mOutgoingInvites[cb_roomId][cb_guestId].statusChangedCb == 'function')
-												mOutgoingInvites[cb_roomId][cb_guestId].statusChangedCb(cb_roomId,cb_guestId,INVITATION_CANCELED);
-											console.log('(ReachSDK::reach::_cancelInvitation)deleting Invite to room '+cb_roomId+' for invitee '+cb_guestId);
-										} else {
-											console.warn('(ReachSDK::reach::_cancelInvitation)cannot delete intivation to room '+cb_roomId+' for guest '+cb_guestId+' Invitation has been removed/rejected/accepted');
-										}
-									}
-									delete mOutgoingInvites[p_roomId][guestId];
-									if (p_cb && typeof p_cb=='function') p_cb(guestId);
-								});
-
-							} else {
-								delete mOutgoingInvites[p_roomId][guestId];
-								if (p_cb && typeof p_cb=='function') p_cb(guestId);
-							}
-
-						} else {
-							if (p_cb && typeof p_cb=='function') p_cb(guestId);
-						}
-					}
-				}
-
-
-			} else {
-				for (let invitee in mOutgoingInvites[p_roomId]) {
-					_cancelInvitation(p_roomId, [invitee],p_cb);
-				}
-			}
-		} else {
-			console.warn('(ReachSDK::reach::_cancelInvitation) Invite to room '+p_roomId+' not found');
-		}
-	}
 
 	/**
 	 * Makes an invite accepted, and defines the "accepted" flag of this invite at true in the database.
 	 * @param p_invitation -
 	 */
 	function _acceptInvitation(p_invitation) {
-		var inviteId=Object.keys(p_invitation)[0];
+		const inviteId = Object.keys(p_invitation)[0];
 		if (!inviteId) {
 			console.error('(ReachSDK::reach::_acceptInvitation)parameter p_invitation is incorrect. cannot get invitation Id');
 			return;
@@ -609,23 +631,24 @@ var reach = function (p_me, datarefs) {
 			console.error('(ReachSDK::reach::_acceptInvitation)parameter p_invitation is incorrect. cannot get invitation data');
 			return;
 		}
-		dataref.child('invitationList').child(me).child(inviteId).once('value',function(dataSnapshot) {
-			var cb_status,
+
+		dataref.child(`invitationList/${me}/${inviteId}`).once('value', (dataSnapshot) => {
+			let cb_status,
 				cb_guestId,
 				cb_invitationId;
 
 			if (dataSnapshot && dataSnapshot.val()) {
-				cb_invitationId=dataSnapshot.name();
-				cb_status= dataSnapshot.val().status;
-				cb_guestId= dataSnapshot.ref().parent().name();
+				cb_invitationId = dataSnapshot.name();
+				cb_status = dataSnapshot.val().status;
+				cb_guestId = dataSnapshot.ref().parent().name();
 				if (cb_status && cb_status===INVITATION_ONGOING) {
-					console.log('(ReachSDK::reach::_acceptInvitation)inviteId='+inviteId+',data='+JSON.stringify(p_invitation[inviteId]));
-					dataref.child('invitationList').child(cb_guestId).child(cb_invitationId).update({
-						timestamp_end:Webcom.ServerValue.TIMESTAMP,
-						status:INVITATION_ACCEPTED
+					console.log(`(ReachSDK::reach::_acceptInvitation)inviteId=${inviteId},data=${JSON.stringify(p_invitation[inviteId])}`);
+					dataref.child(`invitationList/${cb_guestId}/${cb_invitationId}`).update({
+						timestamp_end: Webcom.ServerValue.TIMESTAMP,
+						status: INVITATION_ACCEPTED
 					});
 				} else {
-					console.warn('(ReachSDK::reach::_acceptInvitation)inviteId='+cb_invitationId+',data='+JSON.stringify(p_invitation[inviteId])+', cannot be accepted. It has been removed or canceled');
+					console.warn(`(ReachSDK::reach::_acceptInvitation)inviteId=${cb_invitationId},data=${JSON.stringify(p_invitation[inviteId])}, cannot be accepted. It has been removed or canceled`);
 				}
 			}
 		});
@@ -637,7 +660,7 @@ var reach = function (p_me, datarefs) {
 	 * @param {string} p_reason - optional info about the reject
 	 */
 	function _rejectInvitation(p_invitation,p_reason) {
-		var inviteId=Object.keys(p_invitation)[0];
+		const inviteId = Object.keys(p_invitation)[0];
 		if (!inviteId) {
 			console.error('(ReachSDK::reach::_rejectInvitation)parameter p_invitation is incorrect. cannot get invitation Id');
 			return;
@@ -646,31 +669,50 @@ var reach = function (p_me, datarefs) {
 			console.error('(ReachSDK::reach::_rejectInvitation)parameter p_invitation is incorrect. cannot get invitation data');
 			return;
 		}
-		dataref.child('invitationList').child(me).child(inviteId).once('value',function(dataSnapshot) {
-			var cb_status,cb_guestId,cb_invitationId;
+		dataref.child(`invitationList/${me}/${inviteId}`).once('value', (dataSnapshot) => {
+			let cb_status,cb_guestId,cb_invitationId;
 			if (dataSnapshot && dataSnapshot.val()) {
-				cb_invitationId=dataSnapshot.name();
-				cb_status= dataSnapshot.val().status;
-				cb_guestId= dataSnapshot.ref().parent().name();
-				if (cb_status && cb_status===INVITATION_ONGOING) {
-					console.log('(ReachSDK::reach::_rejectInvitation)inviteId='+inviteId+',data='+JSON.stringify(p_invitation[inviteId]));
+				cb_invitationId = dataSnapshot.name();
+				cb_status = dataSnapshot.val().status;
+				cb_guestId = dataSnapshot.ref().parent().name();
+				if (cb_status && cb_status === INVITATION_ONGOING) {
+					console.log(`(ReachSDK::reach::_rejectInvitation)inviteId=${inviteId},data=${JSON.stringify(p_invitation[inviteId])}`);
 					if (p_reason) {
-						dataref.child('invitationList').child(cb_guestId).child(cb_invitationId).update({
-							timestamp_end:Webcom.ServerValue.TIMESTAMP,
-							status_info:p_reason,
-							status:INVITATION_REJECTED
+						dataref.child(`invitationList/${cb_guestId}/${cb_invitationId}`).update({
+							timestamp_end: Webcom.ServerValue.TIMESTAMP,
+							status_info: p_reason,
+							status: INVITATION_REJECTED
 						});
 					} else {
-						dataref.child('invitationList').child(cb_guestId).child(cb_invitationId).update({
-							timestamp_end:Webcom.ServerValue.TIMESTAMP,
-							status:INVITATION_REJECTED
+						dataref.child(`invitationList/${cb_guestId}/${cb_invitationId}`).update({
+							timestamp_end: Webcom.ServerValue.TIMESTAMP,
+							status: INVITATION_REJECTED
 						});
 					}
 				} else {
-					console.warn('(ReachSDK::reach::_rejectInvitation)inviteId='+cb_invitationId+',data='+JSON.stringify(p_invitation[inviteId])+', cannot be rejected. It has been removed or canceled');
+					console.warn(`(ReachSDK::reach::_rejectInvitation)inviteId=${cb_invitationId},data=${JSON.stringify(p_invitation[inviteId])}, cannot be rejected. It has been removed or canceled`);
 				}
 			}
 		});
+	}
+
+	/**
+	 * check if the room corresponding to the invitation is active
+	 * @param p_invitation - The invitation Data
+	 * @param p_cb - The callback to trigger to get the result. this callback will contains the parameter true is the room is active
+	 */
+	function _isRoomActive(p_invitation,p_cb) {
+		if (p_invitation && p_cb && typeof p_cb == 'function') {
+			const inviteId = Object.keys(p_invitation)[0];
+			console.log(`(ReachSDK::reach::_isRoomActive)inviteId=${inviteId}`);
+			const roomId = p_invitation[inviteId].room;
+
+			datarefs.getRooms().child(`${roomId}/commonDataList/status`).once('value', (snapshot) => {
+				const opened = snapshot && snapshot.val() && snapshot.val() === ROOM_STATUS_OPEN;
+				console.log(`(ReachSDK::reach::_isRoomActive)inviteId=${inviteId} result=${opened}`);
+				p_cb(opened);
+			});
+		}
 	}
 
 	/**
@@ -678,29 +720,29 @@ var reach = function (p_me, datarefs) {
 	 * All invitations with status Canceled or Rejected will be archived
 	 * All invitation with status Ongoing or Accepted Will be archived if the corresponding room is closed
 	 * If an invitation with status "Ongoing" is archived, its status will be set to canceled
-	 * @param user - The user Id
+	 * @param p_userId - The user Id
 	 * @param p_cb - This callback is trigger when archive is complete
 	 */
-	function _archiveInvitations(p_userId,p_cb) {
-		console.log('(ReachSDK::reach::_archiveInvitations)userId='+p_userId);
-		dataref.child('invitationList').child(me).once('value',function(snapshot) {
+	function _archiveInvitations(p_userId, p_cb) {
+		console.log(`(ReachSDK::reach::_archiveInvitations)userId=${p_userId}`);
+		dataref.child(`invitationList/${me}`).once('value', (snapshot) => {
 			if (snapshot && snapshot.hasChildren()) {
-				var nbChildren = snapshot.numChildren();
-				var nbChildrenProcessed = 0;
-				snapshot.forEach(function(childSnapshot) {
+				const nbChildren = snapshot.numChildren();
+				let nbChildrenProcessed = 0;
+				snapshot.forEach((childSnapshot) => {
 					if (childSnapshot && childSnapshot.val()) {
-						console.log('(ReachSDK::reach::_archiveInvitations)userId='+p_userId+ ' inviteId='+childSnapshot.name());
-						if (childSnapshot.val().status===INVITATION_REJECTED || childSnapshot.val().status===INVITATION_CANCELED ) {
-							dataref.child('invitationListHistory').child(p_userId).child(childSnapshot.name()).update(childSnapshot.val());
+						console.log(`(ReachSDK::reach::_archiveInvitations)userId=${p_userId} inviteId=${childSnapshot.name()}`);
+						if (childSnapshot.val().status === INVITATION_REJECTED || childSnapshot.val().status === INVITATION_CANCELED ) {
+							dataref.child(`invitationListHistory/${p_userId}/${childSnapshot.name()}`).update(childSnapshot.val());
 							childSnapshot.ref().remove();
 							nbChildrenProcessed++;
 							if (nbChildrenProcessed>=nbChildren && p_cb && typeof p_cb == 'function') {
 								p_cb();
 							}
 						} else {
-							var inviteData={};
-							inviteData[childSnapshot.name()]=childSnapshot.val();
-							var cb2 = function(isActive) {
+							const inviteData = {};
+							inviteData[childSnapshot.name()] = childSnapshot.val();
+							_isRoomActive(inviteData, (isActive) => {
 								if (isActive) {
 									nbChildrenProcessed++;
 									if (nbChildrenProcessed>=nbChildren && p_cb && typeof p_cb == 'function') {
@@ -708,11 +750,11 @@ var reach = function (p_me, datarefs) {
 									}
 								} else {
 									if (childSnapshot.val().status===INVITATION_ONGOING) {
-										var newValue=childSnapshot.val();
-										newValue.status=INVITATION_CANCELED;
-										dataref.child('invitationListHistory').child(p_userId).child(childSnapshot.name()).set(newValue);
+										const newValue = childSnapshot.val();
+										newValue.status = INVITATION_CANCELED;
+										dataref.child(`invitationListHistory/${p_userId}/${childSnapshot.name()}`).set(newValue);
 									} else {
-										dataref.child('invitationListHistory').child(p_userId).child(childSnapshot.name()).set(childSnapshot.val());
+										dataref.child(`invitationListHistory/${p_userId}/${childSnapshot.name()}`).set(childSnapshot.val());
 									}
 									childSnapshot.ref().remove();
 									nbChildrenProcessed++;
@@ -720,8 +762,7 @@ var reach = function (p_me, datarefs) {
 										p_cb();
 									}
 								}
-							};
-							_isRoomActive(inviteData,cb2);
+							});
 						}
 					} else {
 						if (p_cb && typeof p_cb == 'function') {
@@ -739,28 +780,6 @@ var reach = function (p_me, datarefs) {
 		});
 	}
 
-	/**
-	 * check if the room corresponding to the invitation is active
-	 * @param p_invitation - The invitation Data
-	 * @param p_cb - The callback to trigger to get the result. this callback will contains the parameter true is the room is active
-	 */
-	function _isRoomActive(p_invitation,p_cb) {
-		if (p_invitation && p_cb && typeof p_cb == 'function') {
-			var inviteId = Object.keys(p_invitation)[0];
-			console.log('(ReachSDK::reach::_isRoomActive)inviteId='+inviteId);
-			var roomId = p_invitation[inviteId].room;
-			var onRoomStatus = function(snapshot) {
-				if (snapshot && snapshot.val() && snapshot.val()===ROOM_STATUS_OPEN) {
-					console.log('(ReachSDK::reach::_isRoomActive)inviteId='+inviteId+ ' result=true');
-					p_cb(true);
-				} else {
-					console.log('(ReachSDK::reach::_isRoomActive)inviteId='+inviteId+ ' result=false');
-					p_cb(false);
-				}
-			};
-			datarefs.getRooms().child(roomId).child('commonDataList').child('status').once('value',onRoomStatus);
-		}
-	}
 
 
 
@@ -776,58 +795,60 @@ var reach = function (p_me, datarefs) {
 
 		if (newInviteCb) {
 			dataref.child('invitationList').child(me).off('child_added',newInviteCb);
-			newInviteCb=null;
+			newInviteCb = null;
 		}
 //		if (onRoomInviteChangedCb) {
 //			dataref.child("invitationList").child(me).off("child_changed",InviteChangedCb);
-//			onRoomInviteChangedCb=null;
+//			onRoomInviteChangedCb = null;
 //		}
 //
 //		if (mTimeoutOnNewInviteCb) {
 //			dataref.child("invitationList").child(me).off("child_added",mTimeoutOnNewInviteCb);
-//			mTimeoutOnNewInviteCb=null;
+//			mTimeoutOnNewInviteCb = null;
 //		}
 //		if (mTimeoutOnInviteChangedCb) {
 //			dataref.child("invitationList").child(me).off("child_changed",mTimeoutOnInviteChangedCb);
-//			mTimeoutOnInviteChangedCb=null;
+//			mTimeoutOnInviteChangedCb = null;
 //		}
 
 		if (onUserAddedCb) {
-			dataref.child('userList').off('child_added',onUserAddedCb);
-			onUserAddedCb=null;
+			dataref.child('userList').off('child_added', onUserAddedCb);
+			onUserAddedCb = null;
 		}
 		if (onUserChangedCb) {
-			dataref.child('userList').off('child_changed',onUserChangedCb);
-			onUserChangedCb=null;
+			dataref.child('userList').off('child_changed', onUserChangedCb);
+			onUserChangedCb = null;
 		}
 		if (onUserRemovedCb) {
-			dataref.child('userList').off('child_removed',onUserRemovedCb);
-			onUserRemovedCb=null;
+			dataref.child('userList').off('child_removed', onUserRemovedCb);
+			onUserRemovedCb = null;
 		}
 
 		if (mOutgoingInvites) {
-
-			mOutgoingInvites.forEach(function(roomId) {
-				mOutgoingInvites[roomId].forEach(function(invitee) {
+			mOutgoingInvites.forEach((roomId) => {
+				mOutgoingInvites[roomId].forEach((invitee) => {
 					if (invitee.InviteDataref) {
 						invitee.InviteDataref.onDisconnect().cancel();
 						invitee.InviteDataref.update({
-							status:INVITATION_CANCELED,
-							timestamp_end:Webcom.ServerValue.TIMESTAMP
-
+							status: INVITATION_CANCELED,
+							timestamp_end: Webcom.ServerValue.TIMESTAMP
 						});
 					}
 				});
 			});
-			mOutgoingInvites=[];
+			mOutgoingInvites = [];
 		}
 
-		if (automaticRejectTimeOut) automaticRejectTimeOut=null;
-		if (automaticRejectReason) automaticRejectReason=null;
+		if (automaticRejectTimeOut) {
+			automaticRejectTimeOut = null;
+		}
+		if (automaticRejectReason) {
+			automaticRejectReason = null;
+		}
 
 		if (mDeviceId) {
 			mDeviceId.remove();
-			mDeviceId=null;
+			mDeviceId = null;
 		}
 
 	}
@@ -839,7 +860,7 @@ var reach = function (p_me, datarefs) {
 		 * identifies the user if the Webcombase.
 		 * @return {string} - The user ID
 		 */
-		getMe: function() {
+		getMe: () => {
 			return me;
 		},
 		/**
@@ -847,49 +868,33 @@ var reach = function (p_me, datarefs) {
 		 * @param {string} p_userId - the user Id
 		 * @param {function} p_cb - the callback triggers to return the result. The result will be passed in parameter as boolean : true = connected / false = not connected
 		 */
-		isConnected: function(p_userId,p_cb) {
-			_isConnected(p_userId,p_cb);
-		},
+		isConnected: _isConnected,
 		/**
 		 * check if a user is register
 		 * @param {string} p_userId - the user Id
 		 * @param {function} p_cb - the callback triggers to return the result. The result will be passed in parameter as boolean : true = registered / false = not registered
 		 */
-		isRegistered: function(p_userId,p_cb) {
-			_isRegistered(p_userId,p_cb);
-		},
+		isRegistered: _isRegistered,
 		/**
 		 * set the device status (DEVICE_STATUS_CONNECTED)
 		 * @param {string} status - the new status
 		 */
-		setConnectedStatus: function(p_status) {
-			return _setConnectedStatus(p_status);
-
-		},
+		setConnectedStatus: _setConnectedStatus,
 		/**
 		 * Defines the callback to trigger when a new user is added
 		 * @param {function} p_cb - The callback to use
 		 */
-		setOnUserAdded: function(p_cb) {
-			return _setOnUserAdded(p_cb);
-
-		},
+		setOnUserAdded: _setOnUserAdded,
 		/**
 		 * Defines the callback to trigger when the user has changed
 		 * @param {function} p_cb - The callback to use
 		 */
-		setOnUserChanged: function(p_cb) {
-			return _setOnUserChanged(p_cb);
-
-		},
+		setOnUserChanged: _setOnUserChanged,
 		/**
 		 * Defines the callback to trigger when a user has been removed.
 		 * @param {function} p_cb - The callback to use
 		 */
-		setOnUserRemoved: function(p_cb) {
-			return _setOnUserRemoved(p_cb);
-
-		},
+		setOnUserRemoved: _setOnUserRemoved,
 		/**
 		 * Gather the invitees to the room.
 		 * Defines a callback to trigger for Invite changes, and calls callbacks for room invite acceptation or refuse.
@@ -900,43 +905,33 @@ var reach = function (p_me, datarefs) {
 		 * @param {string} p_topic - custom message for the invitation
 		 * @param {function} p_statusChangedCb - optional : callback function when an invitee accepts/rejected/canceled the Invite
 		 */
-		inviteToRoom: function(p_roomId, p_guestIds, p_topic,p_statusChangedCb) {
-			return _inviteToRoom(p_roomId, p_guestIds, p_topic,p_statusChangedCb);
-		},
+		inviteToRoom: _inviteToRoom,
 		/**
 		 * Cancels the Invite
 		 * @param {string} p_roomId - The room Id of the Invite
-		 * @param {sting} p_guestIds - optional : An array possessing the identifiers of the invitees. (if undefined ,  all invitee will have their Invite canceled)
+		 * @param {string} p_guestIds - optional : An array possessing the identifiers of the invitees. (if undefined ,  all invitee will have their Invite canceled)
 		 * @param {string} inviteId - The invite identifier
 		 */
-		cancelInvitation: function(p_roomId, p_guestIds) {
-			return _cancelInvitation(p_roomId, p_guestIds);
-		},
+		cancelInvitation: _cancelInvitation,
 		/**
 		 * Defines the callback to trigger when a room invite has been received.
 		 * Other callbacks will be triggered about Invite lists.
 		 * @param {function} onNewRoomInvitationCb - The callback triggers when a Invite is received (status = on going)
 		 */
-		setOnNewRoomInvitation: function(p_onNewRoomInvitationCb) {
-			return _setOnNewRoomInvitation(p_onNewRoomInvitationCb);
-		},
+		setOnNewRoomInvitation: _setOnNewRoomInvitation,
 		/**
 		 * Defines the callback to trigger when a room invite has been received.
 		 * Other callbacks will be triggered about Invite lists.
 		 * @param {function} onRoomInvitationChangedCb - The callback triggers when the satus on the Invite received has changed (status = accepted/rejected/canceled)
 		 */
-		setOnRoomInvitationChanged: function(p_onRoomInvitationChangedCb) {
-			return _setOnRoomInvitationChanged(p_onRoomInvitationChangedCb);
-		},
+		setOnRoomInvitationChanged: _setOnRoomInvitationChanged,
 		/**
 		 * Defines a timeout to reject automatically the Invite
 		 * Other callbacks will be triggered about Invite lists.
 		 * @param {integer} p_timeout - The delay
 		 * @param {string} p_reason - optional info about the reject
 		 */
-		setNewRoomInvitationTimeout: function(p_timeout,p_reason) {
-			return _setNewRoomInvitationTimeout(p_timeout,p_reason);
-		},
+		setNewRoomInvitationTimeout: _setNewRoomInvitationTimeout,
 
 		/**
 		 * move all the non active invitations processed of an user to the invitation List History:
@@ -945,31 +940,28 @@ var reach = function (p_me, datarefs) {
 		 * If an invitation with status "Ongoing" is archived, its status will be set to canceled
 		 * @param p_cb - This callback is trigger when archive is complete
 		 */
-		archiveMyInvitations: function(p_cb) {
-			return _archiveInvitations(me,p_cb);
+		archiveMyInvitations: (p_cb) => {
+			return _archiveInvitations(me, p_cb);
 		},
 		/**
 		 * Makes an invite accepted, and defines the "accepted" flag of this invite at true in the database.
 		 * @param p_invitationData -
 		 */
-		acceptInvitation: function(p_invitationData) {
-			return _acceptInvitation(p_invitationData);
-		},
+		acceptInvitation: _acceptInvitation,
 
 		/**
 		 * Refuses the invite and set the "accepted" flag of this invite in the database to false
 		 * @param p_invitationData - The invite data
 		 * @param {string} p_reason - optional info about the reject
 		 */
-		rejectInvitation: function(p_invitationData,p_reason) {
-			return _rejectInvitation(p_invitationData,p_reason);
-		},
+		rejectInvitation: _rejectInvitation,
+
 		/**
 		 * Defines a callback for a particular event
-		 * @param {string} event - To choose between "roomInvite", "roomInviteAccepted", "roomInviteCanceled", "user" and "userRemoval"
-		 * @parm {function} p_cb - The callback to rise
+		 * @param {string} p_evt - To choose between "roomInvite", "roomInviteAccepted", "roomInviteCanceled", "user" and "userRemoval"
+		 * @param {function} p_cb - The callback to rise
 		 */
-		on: function(p_evt, p_cb) {
+		on: (p_evt, p_cb) => {
 			switch (p_evt) {
 			case 'newRoomInvitation':
 				this.setOnNewRoomInvitation(p_cb);
@@ -994,9 +986,7 @@ var reach = function (p_me, datarefs) {
 		/**
 		 * Closes and removes callbacks
 		 */
-		close: function() {
-			return _close();
-		}
+		close: _close
 	};
 };
 

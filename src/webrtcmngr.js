@@ -3,6 +3,8 @@
  * @author Webcom
  */
 
+/*eslint complexity:1, max-statements: 1, max-len: 1, max-params: 1*/
+
 import utils from './utils';
 import webrtc from './webrtc';
 import localstream from './localstream';
@@ -11,16 +13,16 @@ import localstream from './localstream';
  * @constructor
  * @description WebRTC manager handling the WebRTC stacks in use
  */
-var webrtcmngr = function(datarefs) {
+const webrtcmngr = function(datarefs) {
 
 	/**
 	 * @description An array containg the WebRTC stacks in use
 	 */
-	var webrtcStacks = [];
+	const webrtcStacks = [];
 	/**
 	 * @description An array containt the virtual WebRTC stacks
 	 */
-	var virtualWebrtcStacks = [];
+	const virtualWebrtcStacks = [];
 
 	/**
 	 * Creates a WebRTC object
@@ -36,16 +38,17 @@ var webrtcmngr = function(datarefs) {
 	 * @param p_muteVideo - optional - if true peerconnection will be created with video muted
 	 * @param p_getStreamCb - a callback function to retrieve the mediastream object
 	 */
-	function _createWebrtc(p_Vid, p_remoteAppInstId, p_onCloseCb,p_isPublish,p_actionType,p_peercoId,p_peercoRef,p_mutedAudio,p_muteVideo,p_getStreamCb) {
-		var webrtcStackId=p_peercoId ;
+	function _createWebrtc(p_Vid, p_remoteAppInstId, p_onCloseCb, p_isPublish, p_actionType, p_peercoId, p_peercoRef, p_mutedAudio, p_muteVideo, p_getStreamCb) {
+		const
+			webrtcStackId = p_peercoId,
+			localDataRef = datarefs.getWebrtc().child(`${p_peercoRef}/${utils.appInstanceId}`),
+			remoteDataRef = datarefs.getWebrtc().child(`${p_peercoRef}/${p_remoteAppInstId}`);
 //    	 if (p_isPublish) {
 //    		 webrtcStackId=utils.appInstanceId+"_"+p_remoteAppInstId;
 //         } else {
 //        	 webrtcStackId=p_remoteAppInstId+"_"+utils.appInstanceId;
 //         }
-		var localDataRef = datarefs.getWebrtc().child(p_peercoRef).child(utils.appInstanceId);
-		var remoteDataRef = datarefs.getWebrtc().child(p_peercoRef).child(p_remoteAppInstId);
-		var virtualWebrtcStack ;
+		let virtualWebrtcStack ;
 		// create the virtual webrtcstack
 		if (p_isPublish) {
 			virtualWebrtcStack = {
@@ -58,14 +61,14 @@ var webrtcmngr = function(datarefs) {
 				remoteVid: p_Vid
 			};
 		}
-		var id = virtualWebrtcStacks.push(virtualWebrtcStack) - 1;
+
+		const id = virtualWebrtcStacks.push(virtualWebrtcStack) - 1;
 
 		// create the real webrtcstack if it does not already exist
 		if (!webrtcStacks[webrtcStackId]) {
 			console.debug('ReachSDK::webrtcmngr::createWebrtc->create a new real webrtcStack');
 			// create the real webrtcstack
-			var webRtcStack;
-			webRtcStack = webrtc(this, p_isPublish, localDataRef, remoteDataRef,webrtcStackId,p_actionType,p_mutedAudio,p_muteVideo);
+			const webRtcStack = webrtc(this, p_isPublish, localDataRef, remoteDataRef, webrtcStackId, p_actionType, p_mutedAudio, p_muteVideo);
 			webRtcStack.setOnClose(p_onCloseCb);
 			if (p_isPublish) {
 				webrtcStacks[webrtcStackId] = {
@@ -90,15 +93,15 @@ var webrtcmngr = function(datarefs) {
 			// increment ref counter
 			if (p_isPublish) {
 				webrtcStacks[webrtcStackId].isPublished++;
-				webrtcStacks[webrtcStackId].stack.connectLocalStream(p_Vid,p_getStreamCb);
+				webrtcStacks[webrtcStackId].stack.connectLocalStream(p_Vid, p_getStreamCb);
 			} else {
 				webrtcStacks[webrtcStackId].isSubscribed++;
-				webrtcStacks[webrtcStackId].stack.connectRemoteStream(p_Vid,p_getStreamCb);
+				webrtcStacks[webrtcStackId].stack.connectRemoteStream(p_Vid, p_getStreamCb);
 			}
 
 
 		}
-		console.debug('ReachSDK::webrtcmngr::createWebrtc->webrtcStack:'+webrtcStackId+ ' new isPublished count ='+webrtcStacks[webrtcStackId].isPublished+' new isSubscribed count ='+webrtcStacks[webrtcStackId].isSubscribed);
+		console.debug(`ReachSDK::webrtcmngr::createWebrtc->webrtcStack:${webrtcStackId} new isPublished count =${webrtcStacks[webrtcStackId].isPublished} new isSubscribed count =${webrtcStacks[webrtcStackId].isSubscribed}`);
 		return id;
 	}
 
@@ -109,16 +112,16 @@ var webrtcmngr = function(datarefs) {
 	 * @param callback -
 	 */
 	function _closeWebrtc(id,p_isUnPublish,callback) {
-		console.debug('ReachSDK::webrtcmngr::closeWebrtc->id='+id);
+		console.debug(`ReachSDK::webrtcmngr::closeWebrtc->id=${id}`);
 		if (!virtualWebrtcStacks[id]) {
-			console.warn('ReachSDK::webrtcmngr::closeWebrtc: virtualstack '+id+' not found');
+			console.warn(`ReachSDK::webrtcmngr::closeWebrtc: virtualstack ${id} not found`);
 			if (callback && typeof callback == 'function') {
 				callback();
 			}
 			return false;
 		}
 
-		var webrtcStackId = virtualWebrtcStacks[id].webRtcStackId;
+		const webrtcStackId = virtualWebrtcStacks[id].webRtcStackId;
 		if (webrtcStackId && webrtcStacks[webrtcStackId]  ) {
 			if (p_isUnPublish && webrtcStacks[webrtcStackId].isPublished>0) {
 				webrtcStacks[webrtcStackId].isPublished--;
@@ -126,12 +129,12 @@ var webrtcmngr = function(datarefs) {
 				webrtcStacks[webrtcStackId].isSubscribed--;
 			}
 			if (webrtcStacks[webrtcStackId].isPublished<1 && webrtcStacks[webrtcStackId].isSubscribed<1) {
-				console.debug('ReachSDK::webrtcmngr::closeWebrtc->destroy  real webrtcStack:'+webrtcStackId);
+				console.debug(`ReachSDK::webrtcmngr::closeWebrtc->destroy  real webrtcStack:${webrtcStackId}`);
 				// destroy the stack
 				webrtcStacks[webrtcStackId].stack.close(callback);
 				webrtcStacks[webrtcStackId] = null;
 			} else {
-				console.debug('ReachSDK::webrtcmngr::closeWebrtc->decrement  real webrtcStack:'+webrtcStackId+ ' new isPublished count ='+webrtcStacks[webrtcStackId].isPublished+' new isSubscribed count ='+webrtcStacks[webrtcStackId].isSubscribed);
+				console.debug(`ReachSDK::webrtcmngr::closeWebrtc->decrement  real webrtcStack:${webrtcStackId} new isPublished count =${webrtcStacks[webrtcStackId].isPublished} new isSubscribed count =${webrtcStacks[webrtcStackId].isSubscribed}`);
 				if (callback && typeof callback == 'function') {
 					callback();
 				}
@@ -157,7 +160,7 @@ var webrtcmngr = function(datarefs) {
 	 * @param webrtcStackId - The WebRTC stack ID to clear
 	 */
 	function _clearWebrtcStacks(webrtcStackId) {
-		console.debug('ReachSDK::webrtcmngr::clearWebrtcStacks id='+webrtcStackId);
+		console.debug(`ReachSDK::webrtcmngr::clearWebrtcStacks id=${webrtcStackId}`);
 		if (webrtcStackId && webrtcStacks && webrtcStacks[webrtcStackId]) {
 			webrtcStacks[webrtcStackId] = null;
 		}
@@ -169,18 +172,18 @@ var webrtcmngr = function(datarefs) {
 	 * @param virtualWebrtcStackId - The WebRTC stack ID to mute
 	 */
 	function _muteAudioWebrtcStack(virtualWebrtcStackId) {
-		console.log('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
+		console.log(`(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId}`);
 
 		if (virtualWebrtcStacks && virtualWebrtcStacks[virtualWebrtcStackId] && virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId) {
-			var webRtcStackId=virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
-			console.log('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'webRtcStackId='+webRtcStackId);
+			const webRtcStackId = virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
+			console.log(`(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId} webRtcStackId=${webRtcStackId}`);
 			if (webrtcStacks && webrtcStacks[webRtcStackId] && webrtcStacks[webRtcStackId].stack) {
 				webrtcStacks[webRtcStackId].stack.muteAudio();
 			}  else {
-				console.warn('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
+				console.warn(`(ReachSDK::webrtcmngr::muteAudioWebrtcStack) webrtcStack=${webRtcStackId} not found`);
 			}
 		} else {
-			console.warn('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
+			console.warn(`(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId} not found`);
 		}
 
 
@@ -188,21 +191,21 @@ var webrtcmngr = function(datarefs) {
 
 	/**
 	 * Audio unmute the webrtc peerconnection
-	 * @param webrtcStackId - The WebRTC stack ID to unmute
+	 * @param virtualWebrtcStackId - The WebRTC stack ID to unmute
 	 */
 	function  _unmuteAudioWebrtcStack (virtualWebrtcStackId) {
-		console.log('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
+		console.log(`(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId}`);
 
 		if (virtualWebrtcStacks && virtualWebrtcStacks[virtualWebrtcStackId] && virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId) {
-			var webRtcStackId=virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
-			console.log('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ ',webRtcStackId='+webRtcStackId);
+			const webRtcStackId = virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
+			console.log(`(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId},webRtcStackId=${webRtcStackId}`);
 			if (webrtcStacks && webrtcStacks[webRtcStackId] && webrtcStacks[webRtcStackId].stack) {
 				webrtcStacks[webRtcStackId].stack.unmuteAudio();
 			}  else {
-				console.warn('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
+				console.warn(`(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) webrtcStack=${webRtcStackId} not found`);
 			}
 		} else {
-			console.warn('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
+			console.warn(`(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId} not found`);
 		}
 
 	}
@@ -213,18 +216,18 @@ var webrtcmngr = function(datarefs) {
 	 * @param virtualWebrtcStackId - The WebRTC stack ID to mute
 	 */
 	function _muteVideoWebrtcStack(virtualWebrtcStackId) {
-		console.log('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
+		console.log(`(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId}`);
 
 		if (virtualWebrtcStacks && virtualWebrtcStacks[virtualWebrtcStackId] && virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId) {
-			var webRtcStackId=virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
-			console.log('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'webRtcStackId='+webRtcStackId);
+			const webRtcStackId = virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
+			console.log(`(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId} webRtcStackId=${webRtcStackId}`);
 			if (webrtcStacks && webrtcStacks[webRtcStackId] && webrtcStacks[webRtcStackId].stack) {
 				webrtcStacks[webRtcStackId].stack.muteVideo();
 			}  else {
-				console.warn('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
+				console.warn(`(ReachSDK::webrtcmngr::muteAudioWebrtcStack) webrtcStack=${webRtcStackId} not found`);
 			}
 		} else {
-			console.warn('(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
+			console.warn(`(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId} not found`);
 		}
 
 
@@ -232,25 +235,24 @@ var webrtcmngr = function(datarefs) {
 
 	/**
 	 * Video unmute the webrtc peerconnection
-	 * @param webrtcStackId - The WebRTC stack ID to unmute
+	 * @param virtualWebrtcStackId - The WebRTC stack ID to unmute
 	 */
 	function  _unmuteVideoWebrtcStack (virtualWebrtcStackId) {
-		console.log('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId);
+		console.log(`(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId}`);
 
 		if (virtualWebrtcStacks && virtualWebrtcStacks[virtualWebrtcStackId] && virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId) {
-			var webRtcStackId=virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
-			console.log('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ ',webRtcStackId='+webRtcStackId);
+			const webRtcStackId = virtualWebrtcStacks[virtualWebrtcStackId].webRtcStackId;
+			console.log(`(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId}, webRtcStackId=${webRtcStackId}`);
 			if (webrtcStacks && webrtcStacks[webRtcStackId] && webrtcStacks[webRtcStackId].stack) {
 				webrtcStacks[webRtcStackId].stack.unmuteVideo();
 			}  else {
-				console.warn('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) webrtcStack='+webRtcStackId+ 'not found');
+				console.warn(`(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) webrtcStack=${webRtcStackId} not found`);
 			}
 		} else {
-			console.warn('(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId='+virtualWebrtcStackId+ 'not found');
+			console.warn(`(ReachSDK::webrtcmngr::_unmuteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId} not found`);
 		}
 
 	}
-
 
 	return {
 
@@ -263,8 +265,8 @@ var webrtcmngr = function(datarefs) {
 		 * @param p_actionType - The action type (audio, video, audio-video)
 		 * @param p_peercoId - The PeerConnection Id in the webrtc node
 		 */
-		createWebrtc: function(p_Vid, p_remoteAppInstId, p_onCloseCb,p_isPublish,p_actionType,p_peercoId,p_mutedAudio,p_muteVideo,p_getStreamCb) {
-			return  _createWebrtc.bind(this)(p_Vid, p_remoteAppInstId, p_onCloseCb,p_isPublish,p_actionType,p_peercoId,p_mutedAudio,p_muteVideo,p_getStreamCb);
+		createWebrtc: (p_Vid, p_remoteAppInstId, p_onCloseCb, p_isPublish, p_actionType, p_peercoId, p_mutedAudio, p_muteVideo, p_getStreamCb) => {
+			return  _createWebrtc.bind(this)(p_Vid, p_remoteAppInstId, p_onCloseCb, p_isPublish, p_actionType, p_peercoId, p_mutedAudio, p_muteVideo, p_getStreamCb);
 		},
 
 		/**
@@ -273,47 +275,33 @@ var webrtcmngr = function(datarefs) {
 		 * @param p_isUnPublish
 		 * @param callback -
 		 */
-		closeWebrtc: function(id,p_isUnPublish,callback) {
-			return  _closeWebrtc(id,p_isUnPublish,callback);
-		},
+		closeWebrtc: _closeWebrtc,
 
 		/**
 		 * Clears a specifical WebRTC stack by setting it to null.
 		 * @param webrtcStackId - The WebRTC stack ID to clear
 		 */
-		clearWebrtcStacks: function(webrtcStackId) {
-			return _clearWebrtcStacks(webrtcStackId);
-		},
+		clearWebrtcStacks: _clearWebrtcStacks,
 		/**
 		 * audio mute the webrtc peerconnection
 		 * @param virtualWebrtcStackId - The WebRTC stack ID to mute
 		 */
-		muteAudioWebrtcStack: function(virtualWebrtcStackId) {
-			return _muteAudioWebrtcStack(virtualWebrtcStackId);
-
-		},
+		muteAudioWebrtcStack: _muteAudioWebrtcStack,
 		/**
 		 *  audio unmute the webrtc peerconnection
 		 * @param virtualWebrtcStackId - The WebRTC stack ID to unmute
 		 */
-		unmuteAudioWebrtcStack: function(virtualWebrtcStackId) {
-			return _unmuteAudioWebrtcStack(virtualWebrtcStackId);
-		},
+		unmuteAudioWebrtcStack: _unmuteAudioWebrtcStack,
 		/**
 		 * video mute the webrtc peerconnection
 		 * @param virtualWebrtcStackId - The WebRTC stack ID to mute
 		 */
-		muteVideoWebrtcStack: function(virtualWebrtcStackId) {
-			return _muteVideoWebrtcStack(virtualWebrtcStackId);
-
-		},
+		muteVideoWebrtcStack: _muteVideoWebrtcStack,
 		/**
 		 * video unmute the webrtc peerconnection
 		 * @param virtualWebrtcStackId - The WebRTC stack ID to unmute
 		 */
-		unmuteVideoWebrtcStack: function(virtualWebrtcStackId) {
-			return _unmuteVideoWebrtcStack(virtualWebrtcStackId);
-		}
+		unmuteVideoWebrtcStack: _unmuteVideoWebrtcStack
 	};
 };
 

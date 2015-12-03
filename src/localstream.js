@@ -5,73 +5,74 @@
  * @author Webcom
  */
 
+/*eslint complexity:1, max-statements: 1, max-len: 1*/
 
 /**
  * @constructor
  * @description The local stream object with its streams, flags and callbacks. It is a singleton.
  */
-var localstream = (function() {
+const localstream = (function() {
 
 	/**
 	 * @description The local video streams, as HTML video objects, in an array
 	 */
-	var localVideoStreams = [];
+	let localVideoStreams = [];
 	/**
 	 * @description The local audio streams, as HTML video objects, in an array
 	 */
-	var localAudioStreams = [];
+	let localAudioStreams = [];
 	/**
 	 * @description The local audio and video streams, as HTML video objects, in an array
 	 */
-	var localAudioVideoStreams = [];
+	let localAudioVideoStreams = [];
 	/**
 	 * @description The video stream object
 	 */
-	var streamVideo = null;
+	let streamVideo = null;
 	/**
 	 * @description The audio stream object
 	 */
-	var streamAudio = null;
+	let streamAudio = null;
 	/**
 	 * @description The video and audio stream object
 	 */
-	var streamAudioVideo = null;
+	let streamAudioVideo = null;
 	/**
 	 * @description An array containing video listeners as functions. These listeners will be triggered if the video stream is established.
 	 */
-	var listenersVideo = [];
+	let listenersVideo = [];
 	/**
 	 * @description An array containing audio listeners as functions. These listeners will be triggered if the audio stream is established.
 	 */
-	var listenersAudio = [];
+	let listenersAudio = [];
 	/**
 	 * @description An array containing audio and video listeners as functions. These listeners will be triggered if the vide-and-audio stream is established.
 	 */
-	var listenersAudioVideo = [];
+	let listenersAudioVideo = [];
 	/**
 	 * @description The local video stream, as an HTML video element
 	 */
-	var mLocalStreamVideo = null;
+	let mLocalStreamVideo = null;
 	/**
 	 * @description The local audio stream, as an HTML video element
 	 */
-	var mLocalStreamAudio = null;
+	let mLocalStreamAudio = null;
 	/**
 	 * @description The local audio and video stream, as an HTML video element
 	 */
-	var mLocalStreamAudioVideo = null;
+	let mLocalStreamAudioVideo = null;
 	/**
 	 * @description Flag indicating if the video initialisation is in progress
 	 */
-	var initVideoProgress = false;
+	let initVideoProgress = false;
 	/**
 	 * @description Flag indicating if the audio initialisation is in progress
 	 */
-	var initAudioProgress = false;
+	let initAudioProgress = false;
 	/**
 	 * @description Flag indicating if the audio and video initialisation is in progress
 	 */
-	var initAudioVideoProgress = false;
+	let initAudioVideoProgress = false;
 
 	/**
 	 * Initializes the video local stream.
@@ -91,26 +92,29 @@ var localstream = (function() {
 
 			if(streamVideo === null){
 				navigator.getMedia({audio : false,video : true},
-					function(s) {
+					(s) => {
 						streamVideo = s;
-						for (var i = 0; i < localVideoStreams.length; i++) {
-							attachMediaStream(localVideoStreams[i],streamVideo);
-						}
+
+						localVideoStreams.forEach((localVideoStream) => {
+							attachMediaStream(localVideoStream, streamVideo);
+						});
 						localVideoStreams = [];
-						for (var j=0;j<listenersVideo.length;j++) {
-							listenersVideo[j](streamVideo);
-						}
+
+						listenersVideo.forEach((listenerVideo) => {
+							listenerVideo(streamVideo);
+						});
 						listenersVideo = [];
+
 						initVideoProgress=false;
 
 						if (callback) {
 							callback();
 						}
 					},
-					function(error) {
+					(error) => {
 						console.error('Error on webrtcLocalStream - webkitGetUserMedia : error=');
 						console.dir(error);
-						initVideoProgress=false;
+						initVideoProgress = false;
 
 						if (callback) {
 							callback(error);
@@ -118,15 +122,17 @@ var localstream = (function() {
 					}
 				);
 			} else {
-				for (var i = 0; i < localVideoStreams.length; i++) {
-					attachMediaStream(localVideoStreams[i],streamVideo);
-				}
+				localVideoStreams.forEach((localVideoStream) => {
+					attachMediaStream(localVideoStream, streamVideo);
+				});
 				localVideoStreams = [];
-				for (var j=0;j<listenersVideo.length;j++) {
-					listenersVideo[j](streamVideo);
-				}
+
+				listenersVideo.forEach((listenerVideo) => {
+					listenerVideo(streamVideo);
+				});
 				listenersVideo = [];
-				initVideoProgress=false;
+
+				initVideoProgress = false;
 			}
 		}
 	}
@@ -149,23 +155,25 @@ var localstream = (function() {
 
 			if(streamAudio === null){
 				navigator.getMedia({audio : true,video : false},
-					function(s) {
+					(s) => {
 						streamAudio = s;
-						for (var i = 0; i < localAudioStreams.length; i++) {
-							attachMediaStream(localAudioStreams[i],streamAudio);
-						}
+						localAudioStreams.forEach((localAudioStream) => {
+							attachMediaStream(localAudioStream, streamAudio);
+						});
 						localAudioStreams = [];
-						for (var j=0;j<listenersAudio.length;j++) {
-							listenersAudio[j](streamAudio);
-						}
+
+						listenersAudio.forEach((listenerAudio) => {
+							listenerAudio(streamAudio);
+						});
 						listenersAudio = [];
-						initAudioProgress=false;
+
+						initAudioProgress = false;
 
 						if (callback) {
 							callback();
 						}
 					},
-					function(error) {
+					(error) => {
 						console.error('Error on webrtcLocalStream - webkitGetUserMedia :error=');
 						console.dir(error);
 						initAudioProgress=false;
@@ -176,15 +184,17 @@ var localstream = (function() {
 					}
 				);
 			} else {
-				for (var i = 0; i < localAudioStreams.length; i++) {
-					attachMediaStream(localAudioStreams[i],streamAudio);
-				}
+				localAudioStreams.forEach((localAudioStream) => {
+					attachMediaStream(localAudioStream, streamAudio);
+				});
 				localAudioStreams = [];
-				for (var j=0;j<listenersAudio.length;j++) {
-					listenersAudio[j](streamAudio);
-				}
+
+				listenersAudio.forEach((listenerAudio) => {
+					listenerAudio(streamAudio);
+				});
 				listenersAudio = [];
-				initAudioProgress=false;
+
+				initAudioProgress = false;
 			}
 		}
 	}
@@ -208,17 +218,19 @@ var localstream = (function() {
 			if(streamAudioVideo === null){
 				navigator.getMedia({audio : true,video : true},
 					(s) => {
-
 						streamAudioVideo = s;
-						for (let i = 0; i < localAudioVideoStreams.length; i++) {
-							attachMediaStream(localAudioVideoStreams[i],streamAudioVideo);
-						}
+
+						localAudioVideoStreams.forEach((localAudioVideoStream) => {
+							attachMediaStream(localAudioVideoStream, streamAudioVideo);
+						});
 						localAudioVideoStreams = [];
-						for (let j=0;j<listenersAudioVideo.length;j++) {
-							listenersAudioVideo[j](streamAudioVideo);
-						}
+
+						listenersAudioVideo.forEach((listenerAudioVideo) => {
+							listenerAudioVideo(streamAudioVideo);
+						});
 						listenersAudioVideo = [];
-						initAudioVideoProgress=false;
+
+						initAudioVideoProgress = false;
 
 						if (callback) {
 							callback();
@@ -235,15 +247,17 @@ var localstream = (function() {
 					}
 				);
 			} else {
-				for (let i = 0; i < localAudioVideoStreams.length; i++) {
-					attachMediaStream(localAudioVideoStreams[i],streamAudioVideo);
-				}
+				localAudioVideoStreams.forEach((localAudioVideoStream) => {
+					attachMediaStream(localAudioVideoStream, streamAudioVideo);
+				});
 				localAudioVideoStreams = [];
-				for (let j=0;j<listenersAudioVideo.length;j++) {
-					listenersAudioVideo[j](streamAudioVideo);
-				}
+
+				listenersAudioVideo.forEach((listenerAudioVideo) => {
+					listenerAudioVideo(streamAudioVideo);
+				});
 				listenersAudioVideo = [];
-				initAudioVideoProgress=false;
+
+				initAudioVideoProgress = false;
 			}
 
 		}
@@ -297,14 +311,14 @@ var localstream = (function() {
 		/**
 		 * Returns the video stream
 		 */
-		getVideoStream:function () {
+		getVideoStream: () => {
 			return streamVideo;
 		},
 		/**
 		 * Adds a video listener which will be called after the video stream is established.
 		 * @param {function} cb - The listener to add
 		 */
-		addVideoListener: function(cb) {
+		addVideoListener: (cb) => {
 			listenersVideo.push(cb);
 		},
 		/**
@@ -313,7 +327,7 @@ var localstream = (function() {
 		 * A video element will be created, and pushed to the local streams objects. The catched video and audio stream will be attached to the created HTML element.
 		 * Listeners will also be called.
 		 */
-		initVideo: function() {
+		initVideo: () => {
 			initVideo();
 		},
 		/**
@@ -322,7 +336,7 @@ var localstream = (function() {
 		 * @param videoElt - The video element where place the connected local video stream. if null, a new one will be created.
 		 * @param getLocalStreamCb - a callback function to retrieve the mediastream object
 		 */
-		connectLocalVideoStream:function (videoElt, publishStreamCb, getLocalStreamCb) {
+		connectLocalVideoStream: (videoElt, publishStreamCb, getLocalStreamCb) => {
 			if (videoElt) {
 				videoElt.muted=true;
 				if (streamVideo) {
@@ -355,14 +369,14 @@ var localstream = (function() {
 		 * Returns the audio stream
 		 * @return - An audio stream
 		 */
-		getAudioStream:function () {
+		getAudioStream: () => {
 			return streamAudio;
 		},
 		/**
 		 * Adds an audio listener which will be called after the audio stream is established.
 		 * @param {function} cb - The listener to add
 		 */
-		addAudioListener: function(cb) {
+		addAudioListener: (cb) => {
 			listenersAudio.push(cb);
 		},
 		/**
@@ -371,7 +385,7 @@ var localstream = (function() {
 		 * A video element will be created, and pushed to the local streams objects. The catched audio stream will be attached to the created HTML element.
 		 * Listeners will also be called.
 		 */
-		initAudio: function() {
+		initAudio: () => {
 			initAudio();
 		},
 		/**
@@ -380,7 +394,7 @@ var localstream = (function() {
 		 * @param AudioElt - The audio element in use possessing the attached local audio stream
 		 * @param getLocalStreamCb - a callback function to retrieve the mediastream object
 		 */
-		connectLocalAudioStream:function (AudioElt, publishStreamCb, getLocalStreamCb) {
+		connectLocalAudioStream: (AudioElt, publishStreamCb, getLocalStreamCb) => {
 			if (AudioElt) {
 				AudioElt.muted=true;
 				if (streamAudio) {
@@ -413,14 +427,14 @@ var localstream = (function() {
 		 * Returns the audio video stream
 		 * @return - The audio and video stream
 		 */
-		getAudioVideoStream:function () {
+		getAudioVideoStream: () => {
 			return streamAudioVideo;
 		},
 		/**
 		 * Adds the audio-and-video listener which will be called after the audi-and-video stream is established.
 		 * @param cb - The audio and video listener to add
 		 */
-		addAudioVideoListener: function(cb) {
+		addAudioVideoListener: (cb) => {
 			listenersAudioVideo.push(cb);
 		},
 		/**
@@ -429,7 +443,7 @@ var localstream = (function() {
 		 * A video element will be created, and pushed to the local streams objects. The catched audio stream will be attached to the created HTML element.
 		 * Listeners will also be called.
 		 */
-		initAudioVideo: function() {
+		initAudioVideo: () => {
 			initAudioVideo();
 		},
 		/**
@@ -438,7 +452,7 @@ var localstream = (function() {
 		 * @param AudioVideoElt - The element where to place the audio and video local streams
 		 * @param getLocalStreamCb - a callback function to retrieve the mediastream object
 		 */
-		connectLocalAudioVideoStream:function (AudioVideoElt, publishStreamCb, getLocalStreamCb) {
+		connectLocalAudioVideoStream: (AudioVideoElt, publishStreamCb, getLocalStreamCb) => {
 			if (AudioVideoElt) {
 				AudioVideoElt.muted=true;
 				if (streamAudioVideo) {
@@ -471,7 +485,7 @@ var localstream = (function() {
 		/**
 		 * Detaches streams and deletes listeners
 		 */
-		close: function() {
+		close: () => {
 			close();
 		}
 	};
