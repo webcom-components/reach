@@ -1,16 +1,16 @@
-"use strict";
+'use strict';
 
 /* global webdriver */
 
-var Webcom = (window || global).Webcom;
+let Webcom = (window || global).Webcom;
 
-var PersistentStorage = Webcom.INTERNAL.PersistentStorage;
+const PersistentStorage = Webcom.INTERNAL.PersistentStorage;
 
 /**
  * Reset repos to force new persistent connection to be established
  */
 function resetLocalRepos() {
-    Webcom.Context.getInstance().repos_ = {};
+	Webcom.Context.getInstance().repos_ = {};
 }
 
 /**
@@ -18,7 +18,7 @@ function resetLocalRepos() {
  * @param {String} name
  */
 function resetLocalRepo(name) {
-    delete Webcom.Context.getInstance().repos_[name];
+	delete Webcom.Context.getInstance().repos_[name];
 }
 
 /**
@@ -28,7 +28,7 @@ function resetLocalRepo(name) {
  * @param {String} url - new url to
  */
 function overrideNSUrl(namespace, originalDomain, url) {
-    PersistentStorage.set(`host:${originalDomain}/base/${namespace}`, url);
+	PersistentStorage.set(`host:${originalDomain}/base/${namespace}`, url);
 }
 
 /**
@@ -37,7 +37,7 @@ function overrideNSUrl(namespace, originalDomain, url) {
  * @param {String} originalDomain
  */
 function removeNSOverridenUrl(namespace, originalDomain="webcom.orange.com") {
-    PersistentStorage.remove(`host:${originalDomain}/base/${namespace}`);
+	PersistentStorage.remove(`host:${originalDomain}/base/${namespace}`);
 }
 
 /**
@@ -47,24 +47,21 @@ function removeNSOverridenUrl(namespace, originalDomain="webcom.orange.com") {
  * @returns {Promise}
  */
 function insertParentScriptToIframe(iframe, reg) {
-    let target,
-        src = [].slice.call(document.querySelectorAll('script')).find((el) => {
-            return new RegExp(reg).test(el.getAttribute('src'));
-        });
-
-    return new Promise((resolve) => {
-        if (!src) {
-            resolve(null);
-        }
-
-        target = document.createElement('script');
-        iframe.contentWindow.document.head.appendChild(target);
-
-        target.onload = function() {
-            resolve(src.getAttribute('src'));
-        }
-        target.src = src.getAttribute('src');
-    });
+	let target;
+	const src = [].slice.call(document.querySelectorAll('script')).find((el) => {
+		return new RegExp(reg).test(el.getAttribute('src'));
+	});
+	return new Promise((resolve) => {
+		if (!src) {
+			resolve(null);
+		}
+		target = document.createElement('script');
+		iframe.contentWindow.document.head.appendChild(target);
+		target.onload = () => {
+			resolve(src.getAttribute('src'));
+		};
+		target.src = src.getAttribute('src');
+	});
 }
 
 /**
@@ -72,42 +69,37 @@ function insertParentScriptToIframe(iframe, reg) {
  * @returns {WebDriver} Instance of webdriver to get control over iframe
  */
 function getBrowserWebDriver() {
-    let driver,
-        iframe = document.createElement('iframe');
+	let driver;
+	const iframe = document.createElement('iframe');
 
-    iframe.name= 'webdriver frame';
+	iframe.name= 'webdriver frame';
 
-    document.body.appendChild(iframe);
+	document.body.appendChild(iframe);
 
-    iframe.contentWindow.document.open();
-    iframe.contentWindow.document.close();
-    iframe.contentWindow.document.innerHTML = '<p>webdriver</p>';
+	iframe.contentWindow.document.open();
+	iframe.contentWindow.document.close();
+	iframe.contentWindow.document.innerHTML = '<p>webdriver</p>';
 
-    return Promise.all([
-        insertParentScriptToIframe(iframe, 'browser-polyfill'),
-        insertParentScriptToIframe(iframe, 'webcom(-debug)?').then((found) => {
-            if (!found) {
-                return insertParentScriptToIframe(iframe, '^/absolute').then(() => {
-                    return insertParentScriptToIframe(iframe, 'base\/src\/index.js');
-                });
-            }
-        })
-    ]).then(() => {
-        driver = webdriver.browser.createDriver(iframe.contentWindow);
-        driver.executor_.scriptTimeout_ = 10000;
-
-        return driver;
-    });
-}
-
-function isNodeEnv() {
-    return typeof module !== 'undefined' && module.exports;
+	return Promise.all([
+		insertParentScriptToIframe(iframe, 'browser-polyfill'),
+		insertParentScriptToIframe(iframe, 'webcom(-debug)?').then((found) => {
+			if (!found) {
+				return insertParentScriptToIframe(iframe, '^/absolute').then(() => {
+					return insertParentScriptToIframe(iframe, 'base\/src\/index.js');
+				});
+			}
+		})
+	]).then(() => {
+		driver = webdriver.browser.createDriver(iframe.contentWindow);
+		driver.executor_.scriptTimeout_ = 10000;
+		return driver;
+	});
 }
 
 export default {
-    resetLocalRepos: resetLocalRepos,
-    resetLocalRepo: resetLocalRepo,
-    overrideNSUrl: overrideNSUrl,
-    removeNSOverridenUrl: removeNSOverridenUrl,
-    getBrowserWebDriver: getBrowserWebDriver
+	resetLocalRepos,
+	resetLocalRepo,
+	overrideNSUrl,
+	removeNSOverridenUrl,
+	getBrowserWebDriver
 }

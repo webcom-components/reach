@@ -2,85 +2,86 @@
  ------------
  Run unit test & coverage
  */
-"use strict";
+'use strict';
 
-let basePath		= '../..',
-    _				= require('lodash'),
-    babelOptions	= require(basePath + '/.babelrc'),
-    options		= require('../util/handleArgs')({
-        'boolean': ['coverage'],
-        'default': {
-            hubPort: '4444',
-            coverage: false
-        }
-    }),
-    gulpConfig		= require(basePath + '/gulp/config');
+/* eslint require-jsdoc: 0*/
 
-let babelOptionsTest = _.clone(babelOptions);
-
-function normalizationBrowserName(browser) {
-    return browser.replace(/[\s\(\)_]/g, '-').replace(/-+/g, '-').replace(/-+$/, '');
-}
+const
+	_basePath = '../..',
+	babelOptions = require('lodash').clone(require(`${_basePath}/.babelrc`)),
+	options = require('../util/handleArgs')({
+		'boolean': ['once', 'coverage', 'sauce'],
+		'string': ['proxy', 'config'],
+		'default': {
+			once: false,
+			coverage: false,
+			sauce: false,
+			config: 'production'
+		}
+	}),
+	gulpConfig = require(`${_basePath}/gulp/config`),
+	normalizationBrowserName = (browser) => {
+		return browser.replace(/[\s\(\)_]/g, '-').replace(/-+/g, '-').replace(/-+$/, '');
+	};
 
 // Inline env variables
-/*jshint laxcomma: true */
-babelOptionsTest.optional = [
-    'utility.inlineEnvironmentVariables'
-    , 'minification.deadCodeElimination'
-    , 'minification.memberExpressionLiterals'
-    , 'minification.propertyLiterals'
+babelOptions.optional = [
+	'utility.inlineEnvironmentVariables'
+	, 'minification.deadCodeElimination'
+	, 'minification.memberExpressionLiterals'
+	, 'minification.propertyLiterals'
 ];
+
 export default function(config) {
-    config.set({
-        basePath: basePath,
-
-        browserNoActivityTimeout: 180000,
-
-        frameworks: ['jasmine'],
-
-        reporters: (() => {
-            let list = ['html', 'progress', 'junit', 'dots'];
-            if (options.coverage) {
-                list.push('coverage');
-            }
-            return list;
-        })(),
-
-        files: [
-            '../../node_modules/babelify/node_modules/babel-core/browser-polyfill.js',
-            '../../test/unit/**/*.js'
-        ],
-
-        preprocessors: {
-            'src/**/*.js': ['webpack', 'sourcemap'],
-            'test/**/*.js': ['webpack', 'sourcemap']
-        },
-        webpack: gulpConfig.webpack({
-            debug: true,
-            coverage: options.coverage
-        }),
-
-        webpackMiddleware: {
-            noInfo: true
-        },
-
-        junitReporter: {
-            outputDir: gulpConfig.junitDir('unit'),
-            suite: ''
-        },
-        coverageReporter: (() => {
-            if (options.coverage) {
-                return {
-                    reporters: [
-                        {type: 'text', dir: gulpConfig.coverageDir('html'), subdir: normalizationBrowserName},
-                        {type: 'html', dir: gulpConfig.coverageDir('html'), subdir: normalizationBrowserName},
-                        {type: 'cobertura', dir: gulpConfig.coverageDir('cobertura'), subdir: normalizationBrowserName}
-                    ]
-                };
-            }
-            else {
-                return undefined;
-            }
-        })()
-    });
+	config.set({
+		basePath: _basePath,
+		browserNoActivityTimeout: 180000,
+		frameworks: ['jasmine'],
+		reporters: (() => {
+			const list = ['progress', 'dots'];
+			if (options.coverage) {
+				list.push('coverage');
+			}
+			if (options.sauce) {
+				list.push('saucelabs');
+			}
+			return list;
+		})(),
+		files: [
+			'../../test/unit/**/*.js'
+		],
+		preprocessors: {
+			'src/**/*.js': ['webpack', 'sourcemap'],
+			'test/**/*.js': ['webpack', 'sourcemap']
+		},
+		webpack: gulpConfig.webpack({
+			debug: true,
+			coverage: options.coverage
+		}),
+		webpackMiddleware: {
+			noInfo: true
+		},
+		junitReporter: {
+			outputDir: gulpConfig.junitDir('unit'),
+			suite: ''
+		},
+		sauceLabs: {
+			testName: 'Reach Unit Tests',
+			connectOptions: {
+				username: 'webcomOps',
+				accessKey: 'b0a37537-3f46-4b2b-a5d3-d4851a08ceaa'
+			},
+			proxy: options.proxy
+		},
+		coverageReporter: (() => {
+			if (options.coverage) {
+				return {
+					reporters: [
+						{type: 'lcov', subdir: 'report-lcov' }
+					]
+				};
+			}
+			return undefined;
+		})()
+	});
 };

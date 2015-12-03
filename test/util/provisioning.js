@@ -2,9 +2,7 @@
 
 /* global config */
 
-import util from "./util";
-
-var Webcom = window.Webcom;
+import util from './util';
 
 let user;
 
@@ -16,37 +14,38 @@ let user;
  * @paral {boolean} credentials.rememberMe
  */
 function login(credentials) {
-    var ref = new Webcom(`${config.url}/base/accounts`);
+	const ref = new window.Webcom(`${config.url}/base/accounts`);
 
-    return new Promise((resolve) => {
-        ref.removeUser(credentials.email, credentials.password, () => {
-            resolve();
-        });
-    }).then(() => {
-            return new Promise((resolve) => {
-                ref.createUser(credentials.email, credentials.password, () => {
-                    resolve();
-                });
-            });
-        }).then(() => {
-            return new Promise((resolve, reject) => {
-                ref.authWithPassword({
-                    email: credentials.email,
-                    password: credentials.password,
-                    rememberMe: credentials.rememberMe
-                }, function (error, u) {
-                    util.removeNSOverridenUrl('accounts');
-
-                    if (error) {
-                        reject(error);
-                    }
-                    else if (u) {
-                        user = u;
-                        resolve(ref);
-                    }
-                });
-            });
-        });
+	return new Promise((resolve) => {
+		ref.removeUser(credentials.email, credentials.password, () => {
+			resolve();
+		});
+	}).then(() => {
+		return new Promise((resolve) => {
+			ref.createUser(credentials.email, credentials.password, () => {
+				resolve();
+			});
+		});
+	}).then(() => {
+		return new Promise((resolve, reject) => {
+			ref.authWithPassword(
+				{
+					email: credentials.email,
+					password: credentials.password,
+					rememberMe: credentials.rememberMe
+				},
+				(error, u) => {
+					util.removeNSOverridenUrl('accounts');
+					if (error) {
+						reject(error);
+					} else if (u) {
+						user = u;
+						resolve(ref);
+					}
+				}
+			);
+		});
+	});
 }
 
 /**
@@ -57,29 +56,29 @@ function login(credentials) {
  * @param {string} token
  */
 function _createNamespace(apiUrl, namespace, token){
-    var req = new XMLHttpRequest(),
-        formData = new FormData(),
-        p;
+	const
+		req = new XMLHttpRequest(),
+		formData = new FormData();
+	let p;
 
-    req.open('POST', apiUrl + '/admin/base/' + namespace);
+	req.open('POST', `${apiUrl}/admin/base/${namespace}`);
 
-    p = new Promise((resolve, reject) => {
-        req.onreadystatechange = function () {
-            if (req.readyState === 4) {
-                if(req.status === 200) {
-                    resolve();
-                }
-                else {
-                    reject();
-                }
-            }
-        };
-    });
+	p = new Promise((resolve, reject) => {
+		req.onreadystatechange = () => {
+			if (req.readyState === 4) {
+				if(req.status === 200) {
+					resolve();
+				} else {
+					reject();
+				}
+			}
+		};
+	});
 
-    formData.append('token', token);
-    req.send(formData);
+	formData.append('token', token);
+	req.send(formData);
 
-    return p;
+	return p;
 }
 
 /**
@@ -90,32 +89,31 @@ function _createNamespace(apiUrl, namespace, token){
  * @param {string} token
  */
 function _removeNamespace(apiUrl, namespace, token){
-    var req = new XMLHttpRequest(),
-        formData = new FormData(),
-        p;
+	const
+		req = new XMLHttpRequest(),
+		formData = new FormData();
+	let p;
 
-    req.open('POST', apiUrl + '/admin/base/' + namespace);
+	req.open('POST', `${apiUrl}/admin/base/${namespace}`);
+	p = new Promise((resolve, reject) => {
+		req.onreadystatechange = () => {
+			if (req.readyState === 4) {
+				if (req.status === 200) {
+					resolve();
+				} else {
+					reject();
+				}
+			}
+		};
+	});
 
-    p = new Promise((resolve, reject) => {
-        req.onreadystatechange = function () {
-            if (req.readyState === 4) {
-                if(req.status === 200) {
-                    resolve();
-                }
-                else {
-                    reject();
-                }
-            }
-        };
-    });
+	formData.append('token', token);
+	formData.append('_method', 'DELETE');
+	formData.append('namespace', namespace);
 
-    formData.append('token', token);
-    formData.append('_method', 'DELETE');
-    formData.append('namespace', namespace);
+	req.send(formData);
 
-    req.send(formData);
-
-    return p;
+	return p;
 }
 
 /**
@@ -123,20 +121,19 @@ function _removeNamespace(apiUrl, namespace, token){
  * @param {string} name
  */
 export function createNamespace(name) {
-    return new Promise((resolve) => {
-        let r;
-
-        login(config.credentials).then((ref) => {
-            r = ref;
-            return _createNamespace(config.url, name, user.webcomAuthToken);
-        }).then(() => {
-            r.logout(function(){
-                r.goOffline();
-                util.resetLocalRepo(r.toString());
-                resolve();
-            });
-        });
-    });
+	return new Promise((resolve) => {
+		let r;
+		login(config.credentials).then((ref) => {
+			r = ref;
+			return _createNamespace(config.url, name, user.webcomAuthToken);
+		}).then(() => {
+			r.logout(() => {
+				r.goOffline();
+				util.resetLocalRepo(r.toString());
+				resolve();
+			});
+		});
+	});
 }
 
 /**
@@ -144,24 +141,22 @@ export function createNamespace(name) {
  * @param {string} name
  */
 export function removeNamespace(name) {
-    return new Promise((resolve) => {
-        let r;
-
-        login(config.credentials).then((ref) => {
-            r = ref;
-            return _removeNamespace(config.url, name, user.webcomAuthToken);
-        }).then(() => {
-            r.logout(function(){
-                r.goOffline();
-
-                r.removeUser(config.credentials.email, config.credentials.password, () => {
-                    util.resetLocalRepo(r.toString());
-                    util.removeNSOverridenUrl(name);
-                    resolve();
-                });
-            });
-        });
-    });
+	return new Promise((resolve) => {
+		let r;
+		login(config.credentials).then((ref) => {
+			r = ref;
+			return _removeNamespace(config.url, name, user.webcomAuthToken);
+		}).then(() => {
+			r.logout(() => {
+				r.goOffline();
+				r.removeUser(config.credentials.email, config.credentials.password, () => {
+					util.resetLocalRepo(r.toString());
+					util.removeNSOverridenUrl(name);
+					resolve();
+				});
+			});
+		});
+	});
 }
 
 /**
@@ -172,28 +167,27 @@ export function removeNamespace(name) {
  * @returns {Promise}
  */
 function getAdminToken(apiUrl, namespace, token) {
-    var req = new XMLHttpRequest(),
-        p;
+	const req = new XMLHttpRequest();
+	let p;
 
-    req.open('GET', `${apiUrl}/admin/base/${namespace}/token?token=${token}`);
-    req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+	req.open('GET', `${apiUrl}/admin/base/${namespace}/token?token=${token}`);
+	req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
-    p = new Promise((resolve, reject) => {
-        req.onreadystatechange = function () {
-            if (req.readyState === 4) {
-                if(req.status === 200) {
-                    resolve(JSON.parse(req.responseText).authToken);
-                }
-                else {
-                    reject();
-                }
-            }
-        };
-    });
+	p = new Promise((resolve, reject) => {
+		req.onreadystatechange = () => {
+			if (req.readyState === 4) {
+				if (req.status === 200) {
+					resolve(JSON.parse(req.responseText).authToken);
+				} else {
+					reject();
+				}
+			}
+		};
+	});
 
-    req.send();
+	req.send();
 
-    return p;
+	return p;
 }
 
 /**
@@ -203,33 +197,33 @@ function getAdminToken(apiUrl, namespace, token) {
  * @returns {*}
  */
 export function setRules(rules, namespace) {
-    return getAdminToken(config.url, namespace, user.webcomAuthToken).then((adminToken) => {
-        var req = new XMLHttpRequest(), p;
+	return getAdminToken(config.url, namespace, user.webcomAuthToken).then((adminToken) => {
+		const req = new XMLHttpRequest();
+		let p;
 
-        req.open('PUT', `${config.url}/base/${namespace}/.settings/rules.json?auth=${adminToken}`);
-        req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+		req.open('PUT', `${config.url}/base/${namespace}/.settings/rules.json?auth=${adminToken}`);
+		req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
-        p = new Promise((resolve, reject) => {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4) {
-                    if(req.status === 200) {
-                        resolve();
-                    }
-                    else {
-                        reject();
-                    }
-                }
-            };
-        });
+		p = new Promise((resolve, reject) => {
+			req.onreadystatechange = function () {
+				if (req.readyState === 4) {
+					if (req.status === 200) {
+						resolve();
+					} else {
+						reject();
+					}
+				}
+			};
+		});
 
-        req.send(JSON.stringify({rules: rules}));
+		req.send(JSON.stringify({rules}));
 
-        return p;
-    });
+		return p;
+	});
 }
 
 export default {
-    createNamespace: createNamespace,
-    removeNamespace: removeNamespace,
-    setRules: setRules
+	createNamespace,
+	removeNamespace,
+	setRules
 };

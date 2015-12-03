@@ -38,8 +38,9 @@ describe('Reach Tests', () => {
 		}
 	});
 
-	it('Should return SDK version', () => {
-		expect(Reach.SDK_VERSION).toEqual(jasmine.any(String));
+	it('Should have predefined actions', () => {
+		expect(Reach.actions).not.toBeNull();
+		expect(Reach.actions.ACTION_TYPE_AUDIO_VIDEO).toEqual('audio-video');
 	});
 
 	it('should Validate room data schema', (done) => {
@@ -63,7 +64,7 @@ describe('Reach Tests', () => {
 		});
 	});
 
-	it('Publish video stream', (done) => {
+	xit('Publish video stream', (done) => {
 		const sdk = new Reach(config.namespaceUrl);
 		const room = sdk.Room('Paul', 'room1');
 		room.publishStream('video',

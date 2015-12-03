@@ -1,5 +1,6 @@
-const distFolder = './dist',
-	options	= require('./util/handleArgs')({
+const
+	distFolder = './dist',
+	options = require('./util/handleArgs')({
 		'string': ['config'],
 		'default': {
 			config: 'development'
