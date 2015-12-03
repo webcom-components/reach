@@ -4,7 +4,7 @@
   "main": "dist/reach.js",
   "scripts": {
     "prebuild": "rm -rf dist && mkdir -p dist",
-    "lint": "echo \"Fix lint errors\"",
+    "lint": "gulp lint",
     "test:unit": "echo \"Fix unit tests\"",
     "test:coverage": "echo \"Fix coverage tests\"",
     "build": "gulp build:debug && build:release",
