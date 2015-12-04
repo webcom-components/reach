@@ -19,10 +19,7 @@ const
 			config: 'production'
 		}
 	}),
-	gulpConfig = require(`${_basePath}/gulp/config`),
-	normalizationBrowserName = (browser) => {
-		return browser.replace(/[\s\(\)_]/g, '-').replace(/-+/g, '-').replace(/-+$/, '');
-	};
+	gulpConfig = require(`${_basePath}/gulp/config`);
 
 // Inline env variables
 babelOptions.optional = [
@@ -67,10 +64,6 @@ export default function(config) {
 		},
 		sauceLabs: {
 			testName: 'Reach Unit Tests',
-			connectOptions: {
-				username: 'webcomOps',
-				accessKey: 'b0a37537-3f46-4b2b-a5d3-d4851a08ceaa'
-			},
 			proxy: options.proxy
 		},
 		coverageReporter: (() => {

@@ -1,13 +1,13 @@
 language: node_js
 node_js:
-  - "5"
+  - "0.12"
 before_script:
   - npm prune
 script:
   - npm run test:coverage -- --sauce
 after_script:
   - npm install -g codeclimate-test-reporter
-  - codeclimate-test-reporter < coverage/lcov.info
+  - codeclimate-test-reporter < coverage/report-lcov/lcov.info
 after_success:
   - npm run semantic-release
 branches:
@@ -17,7 +17,3 @@ branches:
 addons:
   addons:
     sauce_connect: true
-  artifacts:
-    paths:
-    - $(ls ./dist/* | tr "\n" ":")
-    - $(find coverage | tr "\n" ":")

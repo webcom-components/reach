@@ -37,31 +37,66 @@ const options = args({
 	} : null,
 
 	customLaunchers = options.sauce ? {
-		sl_chrome: {
+		sl_chrome_beta: {
 			base: 'SauceLabs',
 			browserName: 'chrome',
 			platform: 'Windows 7',
+			version: 'beta',
+			proxy
+		},
+		sl_chrome_dev: {
+			base: 'SauceLabs',
+			browserName: 'chrome',
+			platform: 'Windows 10',
+			version: 'dev',
+			proxy
+		},
+		sl_chrome_35: {
+			base: 'SauceLabs',
+			browserName: 'chrome',
+			platform: 'OS X 10.11',
 			version: '35',
 			proxy
 		},
-		sl_firefox: {
+		sl_firefox_beta: {
+			base: 'SauceLabs',
+			browserName: 'firefox',
+			platform: 'Windows 10',
+			version: 'beta',
+			proxy
+		},
+		sl_firefox_dev: {
+			base: 'SauceLabs',
+			browserName: 'firefox',
+			platform: 'OS X 10.11',
+			version: 'dev',
+			proxy
+		},
+		sl_firefox_30: {
 			base: 'SauceLabs',
 			browserName: 'firefox',
 			version: '30',
 			proxy
 		},
-		sl_ios_safari: {
+		sl_android_chrome_46: {
 			base: 'SauceLabs',
-			browserName: 'iphone',
-			platform: 'OS X 10.9',
-			version: '7.1',
+			browserName: 'chrome',
+			platform: 'Android 4.4',
+			version: '46',
 			proxy
 		},
-		sl_ie_11: {
+		sl_android_firefox_42: {
 			base: 'SauceLabs',
-			browserName: 'internet explorer',
-			platform: 'Windows 8.1',
-			version: '11',
+			browserName: 'firefox',
+			platform: 'Android 5.0',
+			version: '46',
+			proxy
+		},
+		sl_android: {
+			base: 'SauceLabs',
+			browserName: 'android',
+			version: '46',
+			platform: 'Android 5.1',
 			proxy
 		}
 	} : null,
