@@ -77,30 +77,6 @@ const options = args({
 			browserName: 'firefox',
 			version: '30',
 			proxy
-		},
-		sl_android_chrome_46: {
-			base: 'SauceLabs',
-			browserName: 'chrome',
-			platform: 'Android 4.4',
-			device: 'LG Nexus 4 Emulator',
-			version: '46',
-			proxy
-		},
-		sl_android_firefox_42: {
-			base: 'SauceLabs',
-			browserName: 'firefox',
-			platform: 'Android 5.0',
-			device: 'Android 5.0 Emulator',
-			version: '46',
-			proxy
-		},
-		sl_android: {
-			base: 'SauceLabs',
-			browserName: 'android',
-			version: '46',
-			platform: 'Android 5.1',
-			device: 'Android 5.1 Emulator',
-			proxy
 		}
 	} : null,
 

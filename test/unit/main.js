@@ -7,6 +7,7 @@ describe('Reach Tests', () => {
 	let ref;
 
 	beforeAll((done) => {
+		jasmine.DEFAULT_TIMEOUT_INTERVAL = 10 * 1000;
 		if (config.createNS) {
 			createNamespace(config.namespace).then(() => {
 				ref = new Webcom(config.namespaceUrl);
