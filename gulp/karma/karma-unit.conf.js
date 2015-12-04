@@ -32,7 +32,9 @@ babelOptions.optional = [
 export default function(config) {
 	config.set({
 		basePath: _basePath,
-		browserNoActivityTimeout: 180000,
+		browserNoActivityTimeout: 120000,
+		captureTimeout: 120000,
+		colors: true,
 		frameworks: ['jasmine'],
 		reporters: (() => {
 			const list = ['progress', 'dots'];
@@ -66,6 +68,7 @@ export default function(config) {
 			testName: 'Reach Unit Tests',
 			proxy: options.proxy
 		},
+
 		coverageReporter: (() => {
 			if (options.coverage) {
 				return {

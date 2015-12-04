@@ -82,6 +82,7 @@ const options = args({
 			base: 'SauceLabs',
 			browserName: 'chrome',
 			platform: 'Android 4.4',
+			device: 'LG Nexus 4 Emulator',
 			version: '46',
 			proxy
 		},
@@ -89,6 +90,7 @@ const options = args({
 			base: 'SauceLabs',
 			browserName: 'firefox',
 			platform: 'Android 5.0',
+			device: 'Android 5.0 Emulator',
 			version: '46',
 			proxy
 		},
@@ -97,6 +99,7 @@ const options = args({
 			browserName: 'android',
 			version: '46',
 			platform: 'Android 5.1',
+			device: 'Android 5.1 Emulator',
 			proxy
 		}
 	} : null,

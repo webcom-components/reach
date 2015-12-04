@@ -2,6 +2,7 @@
   "name": "reach",
   "description": "Create apps using WebRTC with Webcom",
   "main": "dist/reach.js",
+  "version": "0.0.0",
   "scripts": {
     "prebuild": "rm -rf dist && mkdir -p dist",
     "lint": "gulp lint",
