@@ -1,16 +1,11 @@
+/* eslint complexity:0 */
+
 const
 	distFolder = './dist',
-	options = require('./util/handleArgs')({
-		'string': ['config'],
-		'default': {
-			config: 'development'
-		}
-	}),
 	libName = 'Reach',
 	devOutputName = 'reach-debug.js',
 	releaseOutputName = 'reach.js',
 	webpack = require('webpack');
-
 
 /**
  * Returns default webpack configuration.
@@ -56,24 +51,6 @@ export default {
 	releaseOutputName,
 
 	/**
-	 * Get junit report directory
-	 * @param type
-	 * @returns {*}
-	 */
-	junitDir(type) {
-		return `${distFolder}/${options.config}/junit/${type}/test-results.xml`;
-	},
-
-	/**
-	 * Get coverage report directory
-	 * @param {String} type
-	 * @returns {string}
-	 */
-	coverageDir(type){
-		return `${distFolder}/${options.config}/coverage/${type}`;
-	},
-
-	/**
 	 * Get checkstyle directory
 	 * @returns {string}
 	 */
@@ -82,54 +59,11 @@ export default {
 	},
 
 	/**
-	 * Browser Sync configuration
-	 */
-	browserSync: {
-		server: {
-			// Serve up our test folder
-			baseDir: './dist/',
-			directory: true,
-			files: ['./dist/**'],
-			routes: {
-				'/node_modules': './node_modules',
-				'/test': './test',
-				'/dist': './dist'
-			}
-		}
-	},
-
-	browserSyncSamples: {
-		ghostMode: {
-			clicks: false,
-			forms: false,
-			scroll: false
-		},
-		//https: true,
-		server: {
-			// Serve up our test folder
-			baseDir: './samples/',
-			directory: true,
-			files: [
-				'./dist/**',
-				'./samples/**'
-			],
-			routes: {
-				'/node_modules': './node_modules',
-				'/test': './test',
-				'/lib/webcom.js': './bower_components/webcom/webcom.js',
-				'/lib': './dist'
-			}
-		}
-	},
-
-
-
-	/**
 	 * Return webpack configuration object
 	 * @param {Object} options - debug or release build ? output file ? with coverage instrumentation code ?
 	 * @returns {{module: {loaders: {test: RegExp, loader: string, query: {optional: string[]}}[]}, resolve: {alias: {adapterjs: string}}, output: {libraryTarget: string, library: string}}}
 	 */
-	webpack: (options={
+	webpack: (options = {
 		release:false,
 		debug: false,
 		coverage: false,

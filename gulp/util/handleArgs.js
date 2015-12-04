@@ -4,9 +4,10 @@
  */
 "use strict";
 
-var minimist	= require('minimist'),
-	_			= require('lodash');
+const
+	minimist = require('minimist'),
+	_ = require('lodash');
 
-export default function(knownOptions){
+export default (knownOptions) => {
 	return minimist(_.slice(process.argv, 2), knownOptions);
 };

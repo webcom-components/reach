@@ -4,7 +4,7 @@
  */
 'use strict';
 
-/* eslint require-jsdoc: 0*/
+/* eslint require-jsdoc: 0 */
 
 const
 	_basePath = '../..',
@@ -60,15 +60,10 @@ export default function(config) {
 		webpackMiddleware: {
 			noInfo: true
 		},
-		junitReporter: {
-			outputDir: gulpConfig.junitDir('unit'),
-			suite: ''
-		},
 		sauceLabs: {
 			testName: 'Reach Unit Tests',
 			proxy: options.proxy
 		},
-
 		coverageReporter: (() => {
 			if (options.coverage) {
 				return {

@@ -89,7 +89,6 @@ const options = args({
 				colors.red.bold('Missing SauceLabs credentials:'),
 				colors.red('userName & accessKey must be defined as env variables (SAUCE_USERNAME & SAUCE_ACCESS_KEY)')
 			);
-			//done(0);
 			return 0;
 		}
 
@@ -102,12 +101,7 @@ const options = args({
 				browsers,
 				configFile: `${__dirname}/../karma/${karmaConfFile}`,
 				files
-			},
-			() => {
-				done();
-				// Sometimes gulp doesn't let go
-				process.exit(0);
-			}
+			}, done
 		)).start();
 
 	};
@@ -122,7 +116,9 @@ gulp.task('test:unit', (done) => {
 			'node_modules/webcom/webcom.js',
 			`test/config/${options.config}.js`,
 			'test/unit/**/*.js'
-		],
-		done
+		], (exitCode) => {
+			done();
+			process.exit(exitCode);
+		}
 	);
 });

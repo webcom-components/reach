@@ -8,7 +8,7 @@
     "lint": "gulp lint",
     "test:unit": "gulp test:unit --once",
     "test:coverage": "npm run test:unit -- --coverage",
-    "build": "gulp build:debug && build:release",
+    "build": "gulp build:debug && gulp build:release",
     "prepublish-dist": "npm run build",
     "publish-dist": "npm run build && publish-dist --author-name \"Webcom\" --author-email \"webcom.ops@orange.com\"",
     "semantic-release": "semantic-release pre && npm run publish-dist && npm publish && semantic-release post"
