@@ -1,5 +1,3 @@
-parser: babel-eslint
-
 root: true
 
 globals:

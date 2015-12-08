@@ -1,11 +1,14 @@
 /* eslint complexity:0 */
 
+import webpack from 'webpack';
+import {readFileSync} from 'fs';
+
 const
 	distFolder = './dist',
 	libName = 'Reach',
 	devOutputName = 'reach-debug.js',
 	releaseOutputName = 'reach.js',
-	webpack = require('webpack');
+	license = readFileSync(`${__dirname}/../LICENSE`, 'utf8');
 
 /**
  * Returns default webpack configuration.
@@ -18,16 +21,7 @@ function getDefaultWebpackConfig() {
 			loaders: [
 				{
 					test:/(src)|(test)\/.*\.js/,
-					loader: 'babel-loader',
-					query: {
-						optional: [
-							'utility.inlineEnvironmentVariables'
-							, 'minification.deadCodeElimination'
-							, 'runtime'
-							, 'minification.memberExpressionLiterals'
-							, 'minification.propertyLiterals'
-						]
-					}
+					loader: 'babel'
 				}
 			]
 		},
@@ -40,7 +34,9 @@ function getDefaultWebpackConfig() {
 			libraryTarget: 'umd',
 			library: libName
 		},
-		plugins: []
+		plugins: [
+			new webpack.BannerPlugin(license)
+		]
 	};
 }
 

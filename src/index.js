@@ -2,20 +2,18 @@
 
 
 // TODO 19k minified, we can do less maybe
-/*eslint-disable no-unused-vars*/
-//import adapterjs from 'adapterjs';
+/* eslint no-unused-vars:0 */
 import adapterjs from './adapter';
-/*eslint-enable no-unused-vars*/
 
 import actions from './actions';
 import datarefs from './datarefs';
 import reach from './reach';
 import room from './room';
-import webrtcmngr from './webrtcmngr.js';
+import webrtcmngr from './webrtcmngr';
 
 const SDK_VERSION = '0.0.1';
 
-export default class Reach {
+export class Reach {
 	constructor(url= 'http://webcom.orange.com/base/webrtc') {
 		this.datarefs = datarefs(url);
 		this.webrtcmngr = webrtcmngr(this.datarefs);
@@ -36,3 +34,5 @@ export default class Reach {
 		return actions;
 	}
 }
+
+module.exports = Reach;

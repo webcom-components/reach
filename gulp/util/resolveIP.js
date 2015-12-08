@@ -4,10 +4,12 @@
  */
 'use strict';
 
-const
-	os = require('os'),
-	_ = require('lodash');
+import os from 'os';
+import _ from 'lodash';
 
+/**
+ * Resolve current host IP
+ */
 export default () => {
 	let resolved;
 	const ipAddresses = _.flatten(_.values(os.networkInterfaces()));

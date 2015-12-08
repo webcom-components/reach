@@ -72,17 +72,19 @@ describe('Reach Tests', () => {
 			document.createElement('div'),
 			Reach.actions.ACTION_TYPE_VIDEO,
 			(stream) => {
-				ref.child('roomsList/room1/publishedMediaList').once('value', (snap) => {
-					const val = snap.val().video;
-					expect(val).toBeDefined();
-					expect(val.actionType).toEqual('video');
-					expect(val.appInstanceId).toEqual(jasmine.any(String));
-					expect(val.from).toEqual('Paul');
+				ref.child('roomsList/room1/publishedMediaList').on('value', (snap) => {
+					const val = snap.val();
+					if(val) {
+						expect(val.video).toBeDefined();
+						expect(val.video.actionType).toEqual('video');
+						expect(val.video.appInstanceId).toEqual(jasmine.any(String));
+						expect(val.video.from).toEqual('Paul');
 
-					room.unPublishStream('video', () => {
-						stream.stop();
-						done();
-					});
+						room.unPublishStream('video', () => {
+							stream.stop();
+							done();
+						});
+					}
 				});
 			});
 	});

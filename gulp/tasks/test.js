@@ -9,17 +9,21 @@
 import usage from '../util/usage';
 import gulp from 'gulp';
 import {Server as Karma} from 'karma';
+import {colors as Colors} from 'gulp-util';
 import args from '../util/handleArgs';
+import resolveIP from '../util/resolveIP';
+import gulpConfig from '../config';
 
 usage.add('test:unit', 'Run unit tests', {
-	'once': 'Force singleRun',
+	'once': 'Force singleRun (for CI & pre-push)',
 	'coverage': 'Create code coverage reports',
 	'sauce': 'Use SauceLabs',
 	'config = <filename>': 'config file name (without .js extension). Default is production',
 	'proxy = <ip:port>': 'proxy'
 });
 
-const options = args({
+const
+	options = args({
 		'boolean': ['once', 'coverage', 'sauce'],
 		'string': ['proxy', 'config'],
 		'default': {
@@ -78,23 +82,35 @@ const options = args({
 			version: '30',
 			proxy
 		}
-	} : null,
+	} : {
+		Chrome_with_fake_ui: {
+			base: 'Chrome',
+			flags: [
+				// see: http://peter.sh/experiments/chromium-command-line-switches/
+				// Use fake device for Media Stream to replace actual camera and microphone.
+				//'--use-fake-device-for-media-stream',
+				// Bypass the media stream infobar by selecting the default device for media streams (e.g. WebRTC).
+				// Works with --use-fake-device-for-media-stream.
+				'--use-fake-ui-for-media-stream'
+			]
+		}
+	},
 
 	browsers = customLaunchers ? Object.keys(customLaunchers) : ['Chrome', 'Firefox'],
 
 	karmaStart = (karmaConfFile, files, done) => {
+
 		if(options.sauce && (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY)) {
-			const colors = require('gulp-util').colors;
 			console.error(
-				colors.red.bold('Missing SauceLabs credentials:'),
-				colors.red('userName & accessKey must be defined as env variables (SAUCE_USERNAME & SAUCE_ACCESS_KEY)')
+				Colors.red.bold('Missing SauceLabs credentials:'),
+				Colors.red('userName & accessKey must be defined as env variables (SAUCE_USERNAME & SAUCE_ACCESS_KEY)')
 			);
 			return 0;
 		}
 
 		(new Karma(
 			{
-				hostname: require('../util/resolveIP')(),
+				hostname: resolveIP(),
 				singleRun: options.once,
 				autoWatch: !options.once,
 				customLaunchers,
@@ -107,7 +123,7 @@ const options = args({
 	};
 
 /**
- * Unit test with Webpack. Call with --ci for Jenkins
+ * Unit test with Webpack.
  */
 gulp.task('test:unit', (done) => {
 	karmaStart(
@@ -116,7 +132,8 @@ gulp.task('test:unit', (done) => {
 			'node_modules/webcom/webcom.js',
 			`test/config/${options.config}.js`,
 			'test/unit/**/*.js'
-		], (exitCode) => {
+		],
+		(exitCode) => {
 			done();
 			process.exit(exitCode);
 		}

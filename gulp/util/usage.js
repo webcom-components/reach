@@ -4,13 +4,11 @@
  */
 'use strict';
 
+import _ from 'lodash';
+import {colors} from 'gulp-util';
+
 const
-	_ = require('lodash'),
-	gulpUtil = require('gulp-util'),
 	tasks = [],
-	color = function(c, s){
-		return gulpUtil.colors[c](s);
-	},
 	log = console.log,
 	maxLength = function(l){
 		let ml = 0;
@@ -38,8 +36,8 @@ const
 		allTasks = maxLength(allTasks);
 
 		_.forEach(tasks, (task) => {
-			log(color('blue', format(task[0], allTasks)));
-			log(`  ${color('white', task[1])}`);
+			log(colors['blue'](format(task[0], allTasks)));
+			log(`  ${colors['white'](task[1])}`);
 			if(task[2]) {
 				_.forIn(task[2], (desc, flag) => {
 					log(`    --${format(flag, allFlags)}\t- ${desc}`);
