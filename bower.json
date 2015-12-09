@@ -1,6 +1,16 @@
 {
-  "name": "reach",
-  "version": "0.0.0",
+  "name": "webcom-reach",
+  "description": "Create apps using WebRTC with Webcom",
+  "keywords": [
+    "signaling",
+    "webcom",
+    "realtime",
+    "webrtc"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webcom-components/reach.git"
+  },
   "authors": [
     "Webcom <webcom.ops@orange.com>",
     "Paul Musso <paul.musso@orange.com>",
@@ -10,13 +20,14 @@
   "main": "dist/reach.js",
   "ignore": [
     "**/.*",
+    "package.json",
     "gulp",
+    "coverage",
     "gulpfile.js",
     "package.json",
     "node_modules",
     "bower_components",
-    "test",
-    "tests"
+    "test"
   ],
   "dependencies": {
     "webcom": "~0.2.2"
