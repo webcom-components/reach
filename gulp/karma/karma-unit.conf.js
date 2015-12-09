@@ -56,7 +56,11 @@ module.exports = (config) => {
 		},
 		sauceLabs: {
 			testName: '[Reach] Unit Tests',
-			proxy: options.proxy
+			connectOptions: {
+				proxy: options.proxy,
+				vmVersion: 'dev-varnish',
+				directDomains: ['*.orange.com']
+			}
 		},
 		coverageReporter: (() => {
 			if (options.coverage) {

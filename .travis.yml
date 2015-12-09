@@ -16,5 +16,4 @@ branches:
     - /^v\d+\.\d+\.\d+$/
 addons:
   addons:
-    sauce_connect:
-      direct_domains: *.orange.com
+    sauce_connect: true
