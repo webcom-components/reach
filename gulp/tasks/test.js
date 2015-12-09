@@ -83,7 +83,7 @@ const
 			proxy
 		}
 	} : {
-		Chrome_with_fake_ui: {
+		Chrome_auto_allow_gum: {
 			base: 'Chrome',
 			flags: [
 				// see: http://peter.sh/experiments/chromium-command-line-switches/
@@ -93,10 +93,16 @@ const
 				// Works with --use-fake-device-for-media-stream.
 				'--use-fake-ui-for-media-stream'
 			]
+		},
+		Firefox_auto_allow_gum: {
+			base: 'Firefox',
+			prefs: {
+				'media.navigator.permission.disabled': true
+			}
 		}
 	},
 
-	browsers = customLaunchers ? Object.keys(customLaunchers) : ['Chrome', 'Firefox'],
+	browsers = Object.keys(customLaunchers),
 
 	karmaStart = (karmaConfFile, files, done) => {
 

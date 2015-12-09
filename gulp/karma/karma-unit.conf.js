@@ -65,7 +65,9 @@ module.exports = (config) => {
 		coverageReporter: (() => {
 			if (options.coverage) {
 				return {
-					reporters: [{type: 'lcov'}]
+					reporters: [
+						{type: 'lcovonly', subdir: '.', file: 'lcov.info' }
+					]
 				};
 			}
 			return undefined;
