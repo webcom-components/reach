@@ -12,7 +12,6 @@ import {Server as Karma} from 'karma';
 import {colors as Colors} from 'gulp-util';
 import args from '../util/handleArgs';
 import resolveIP from '../util/resolveIP';
-import gulpConfig from '../config';
 
 usage.add('test:unit', 'Run unit tests', {
 	'once': 'Force singleRun (for CI & pre-push)',
@@ -34,13 +33,34 @@ const
 		}
 	}),
 
+	travisCI = process.env.CI === true && process.env.TRAVIS === true,
+
 	proxy = options.proxy ? {
 		proxyType: 'manual',
 		httpProxy: options.proxy,
 		sslProxy: options.proxy
 	} : null,
 
-	customLaunchers = options.sauce ? {
+	Chrome_auto_allow_gum = {
+		base: 'Chrome',
+		flags: [
+			// see: http://peter.sh/experiments/chromium-command-line-switches/
+			// Use fake device for Media Stream to replace actual camera and microphone.
+			//'--use-fake-device-for-media-stream',
+			// Bypass the media stream infobar by selecting the default device for media streams (e.g. WebRTC).
+			// Works with --use-fake-device-for-media-stream.
+			'--use-fake-ui-for-media-stream'
+		]
+	},
+
+	Firefox_auto_allow_gum = {
+		base: 'Firefox',
+		prefs: {
+			'media.navigator.permission.disabled': true
+		}
+	},
+
+	sauceLabsBrowsers = {
 		sl_chrome_beta: {
 			base: 'SauceLabs',
 			browserName: 'chrome',
@@ -82,25 +102,13 @@ const
 			version: '30',
 			proxy
 		}
-	} : {
-		Chrome_auto_allow_gum: {
-			base: 'Chrome',
-			flags: [
-				// see: http://peter.sh/experiments/chromium-command-line-switches/
-				// Use fake device for Media Stream to replace actual camera and microphone.
-				//'--use-fake-device-for-media-stream',
-				// Bypass the media stream infobar by selecting the default device for media streams (e.g. WebRTC).
-				// Works with --use-fake-device-for-media-stream.
-				'--use-fake-ui-for-media-stream'
-			]
-		},
-		Firefox_auto_allow_gum: {
-			base: 'Firefox',
-			prefs: {
-				'media.navigator.permission.disabled': true
-			}
-		}
 	},
+
+	travisBrowsers = {Firefox_auto_allow_gum},
+
+	localBrowsers = {Chrome_auto_allow_gum, Firefox_auto_allow_gum},
+
+	customLaunchers = options.sauce ? sauceLabsBrowsers : (travisCI ? travisBrowsers : localBrowsers),
 
 	browsers = Object.keys(customLaunchers),
 
