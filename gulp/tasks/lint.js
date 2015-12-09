@@ -3,7 +3,9 @@ import eslint from 'gulp-eslint';
 import config from '../config';
 import stream from 'stream';
 import source from 'vinyl-source-stream';
+import usage from '../util/usage';
 
+usage.add('lint', 'Run ESLint. Report is available in checkstyle/.');
 gulp.task('lint', () => {
 	return gulp
 		.src(['src/**.js'])
@@ -23,5 +25,4 @@ gulp.task('lint', () => {
 			str.pipe(source('checkstyle.xml'))
 				.pipe(gulp.dest(config.checkstyleDir));
 		}));
-
 });

@@ -1,6 +1,5 @@
 node_modules
 bower_components
 coverage
+checkstyle
 .idea
-dist/*
-!dist/reach*.js

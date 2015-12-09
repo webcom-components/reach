@@ -51,7 +51,7 @@ export default {
 	 * @returns {string}
 	 */
 	get checkstyleDir(){
-		return `${distFolder}/checkstyle`;
+		return './checkstyle';
 	},
 
 	/**
