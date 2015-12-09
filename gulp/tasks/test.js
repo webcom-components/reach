@@ -140,16 +140,18 @@ const
  * Unit test with Webpack.
  */
 gulp.task('test:unit', (done) => {
-	karmaStart(
-		'karma-unit.conf.js',
-		[
-			'node_modules/webcom/webcom.js',
-			`test/config/${options.config}.js`,
-			'test/unit/**/*.js'
-		],
-		(exitCode) => {
-			done();
-			process.exit(exitCode);
-		}
-	);
+	if(!travisCI || options.sauce) {
+		karmaStart(
+			'karma-unit.conf.js',
+			[
+				'node_modules/webcom/webcom.js',
+				`test/config/${options.config}.js`,
+				'test/unit/**/*.js'
+			],
+			(exitCode) => {
+				done();
+				process.exit(exitCode);
+			}
+		);
+	}
 });
