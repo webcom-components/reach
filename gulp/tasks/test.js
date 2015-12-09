@@ -140,8 +140,6 @@ const
  * Unit test with Webpack.
  */
 gulp.task('test:unit', (done) => {
-	console.info(`TravisCI: ${travisCI}`);
-	console.info(`SauceLabs: ${options.sauce}`);
 	if(!travisCI || options.sauce) {
 		karmaStart(
 			'karma-unit.conf.js',
