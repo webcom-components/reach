@@ -33,7 +33,7 @@ const
 		}
 	}),
 
-	travisCI = process.env.CI === true && process.env.TRAVIS === true,
+	travisCI = process.env.CI === true || process.env.TRAVIS === true,
 
 	proxy = options.proxy ? {
 		proxyType: 'manual',
@@ -104,11 +104,9 @@ const
 		}
 	},
 
-	travisBrowsers = {Firefox_auto_allow_gum},
-
 	localBrowsers = {Chrome_auto_allow_gum, Firefox_auto_allow_gum},
 
-	customLaunchers = options.sauce ? sauceLabsBrowsers : (travisCI ? travisBrowsers : localBrowsers),
+	customLaunchers = options.sauce ? sauceLabsBrowsers : localBrowsers,
 
 	browsers = Object.keys(customLaunchers),
 
