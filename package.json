@@ -8,7 +8,7 @@
     "test:coverage": "npm run test:unit -- --coverage",
     "build": "gulp build:debug && gulp build:release",
     "prepublish-dist": "npm run build",
-    "publish-dist": "git config user.name \"webcomOps\" && git config user.email \"webcom.ops@orange.com\" && git add dist && git commit --no-verify --message \"chore(publish): publish dist [ci skip]\" dist && git push --no-verify",
+    "publish-dist": "echo \"machine github.com login $GH_TOKEN\" >> ~/.netrc && git config user.name \"webcomOps\" && git config user.email \"webcom.ops@orange.com\" && git add dist && git commit --no-verify --message \"chore(publish): publish dist [ci skip]\" dist && git push --no-verify",
     "semantic-release": "semantic-release pre && npm run publish-dist && npm publish && semantic-release post"
   },
   "keywords": [
