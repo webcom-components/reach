@@ -3,13 +3,12 @@
   "description": "Create apps using WebRTC with Webcom",
   "main": "dist/reach.js",
   "scripts": {
-    "prebuild": "rm -rf dist && mkdir -p dist",
     "lint": "gulp lint",
     "test:unit": "gulp test:unit --once",
     "test:coverage": "npm run test:unit -- --coverage",
     "build": "gulp build:debug && gulp build:release",
     "prepublish-dist": "npm run build",
-    "publish-dist": "publish-dist --author-name \"Webcom\" --author-email \"webcom.ops@orange.com\" --skip-ci --skip-hooks",
+    "publish-dist": "git add dist && git commit --no-verify --author \"webcomOps <webcom.ops@orange.com>\" --message \"chore(publish): publish dist/ [ci skip]\" dist && git push --no-verify",
     "semantic-release": "semantic-release pre && npm run publish-dist && npm publish && semantic-release post"
   },
   "keywords": [
@@ -63,7 +62,6 @@
     "karma-webpack": "^1.7.0",
     "lodash": "^3.10.1",
     "minimist": "^1.2.0",
-    "publish-dist": "git+https://git@github.com/juliendelage/publish-dist.git#master",
     "require-dir": "^0.3.0",
     "semantic-release": "^4.3.5",
     "validate-commit-msg": "^1.0.0",
