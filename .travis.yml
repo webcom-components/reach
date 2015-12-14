@@ -7,10 +7,6 @@ script:
   - git checkout $TRAVIS_BRANCH
   - git reset --hard $TRAVIS_COMMIT
   - npm run test:coverage -- --sauce
-  - git status
-  - git reflog
-  - git branch --contains 5054daabaf78e429bdb1ec501895628bc83df99f
-  - git log -E -n 5 5054daabaf78e429bdb1ec501895628bc83df99f..HEAD
 after_script:
   - npm install -g codeclimate-test-reporter
   - codeclimate-test-reporter < coverage/lcov.info
