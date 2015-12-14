@@ -5,6 +5,7 @@ before_script:
   - npm prune
 script:
   - npm run test:coverage -- --sauce
+  - git status
 after_script:
   - npm install -g codeclimate-test-reporter
   - codeclimate-test-reporter < coverage/lcov.info
