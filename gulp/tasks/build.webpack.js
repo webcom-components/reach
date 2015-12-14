@@ -2,6 +2,11 @@ import gulp from 'gulp';
 import config from '../config';
 import webpack from 'webpack';
 import usage from '../util/usage';
+import { readFileSync } from 'fs';
+
+
+
+const pkg = JSON.parse(readFileSync(`${__dirname}/../../package.json`));
 
 const pack = (debug, exit) => {
 	return (done) => {
@@ -9,7 +14,7 @@ const pack = (debug, exit) => {
 			output: true,
 			debug,
 			release: !debug
-		}), (exitCode, stats) => {
+		}, pkg.version), (exitCode, stats) => {
 			console.log(stats.toString());
 			done(exitCode);
 			if(exit){

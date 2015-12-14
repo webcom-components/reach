@@ -11,8 +11,6 @@ import reach from './reach';
 import room from './room';
 import webrtcmngr from './webrtcmngr';
 
-const SDK_VERSION = '0.0.1';
-
 export class Reach {
 	constructor(url= 'http://webcom.orange.com/base/webrtc') {
 		this.datarefs = datarefs(url);
@@ -28,7 +26,7 @@ export class Reach {
 	}
 
 	static get version() {
-		return SDK_VERSION;
+		return SDK_VERSION; // eslint-disable-line no-undef
 	}
 	static get actions() {
 		return actions;

@@ -15,7 +15,7 @@ const
  * Initialize Babel to parse js files and resolve node dependencies
  * @returns {Object}
  */
-function getDefaultWebpackConfig() {
+function getDefaultWebpackConfig(version) {
 	return {
 		module: {
 			loaders: [
@@ -35,7 +35,10 @@ function getDefaultWebpackConfig() {
 			library: libName
 		},
 		plugins: [
-			new webpack.BannerPlugin(license)
+			new webpack.BannerPlugin(license),
+			new webpack.DefinePlugin({
+				SDK_VERSION: `'${version}'`
+			})
 		]
 	};
 }
@@ -63,9 +66,9 @@ export default {
 		release:false,
 		debug: false,
 		coverage: false,
-		output: false }) => {
+		output: false }, version = '0.0.0') => {
 
-		const config = getDefaultWebpackConfig();
+		const config = getDefaultWebpackConfig(version);
 
 		if (options.output) {
 			Object.assign(config, {
