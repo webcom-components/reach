@@ -1,12 +1,20 @@
+languages:
+  JavaScript: true
+
+exclude_paths:
+- "checkstyle/**"
+- "coverage/**"
+- "dist/**/*"
+- "gulp/**/*"
+- "gulpfile.js"
+
 ratings:
   paths:
-  - "src/**/*.js"
-  - "test/**/*.js"
+  - "src/**"
+  - "test/**"
+
 engines:
   eslint:
     enabled: true
   fixme:
     enabled: true
-exclude_paths:
-- "gulp/**/*"
-- "gulpfile.js"

@@ -1,3 +1,8 @@
 node_modules/
-gulp/
-gulpfile.js
+dist/
+bower.json
+package.json
+AUTHORS
+LICENSE
+.*
+*.md
