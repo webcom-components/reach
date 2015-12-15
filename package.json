@@ -3,6 +3,7 @@
   "description": "Create apps using WebRTC with Webcom",
   "main": "dist/reach.js",
   "scripts": {
+    "doc": "./node_modules/.bin/esdoc -c esdoc.json",
     "lint": "gulp lint",
     "test:unit": "gulp test:unit --once",
     "test:coverage": "npm run test:unit -- --coverage",
@@ -42,6 +43,7 @@
     "babel-preset-es2015": "^6.3.13",
     "babel-runtime": "^6.3.13",
     "cz-conventional-changelog": "^1.1.4",
+    "esdoc": "^0.4.3",
     "ghooks": "^1.0.1",
     "gulp": "^3.9.0",
     "gulp-eslint": "^1.0.0",
