@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "adapterjs": "^0.12.1",
-    "babel-core": "^6.3.15",
+    "babel-core": "^6.4.0",
     "babel-loader": "^6.2.0",
     "babel-plugin-transform-inline-environment-variables": "^6.3.13",
     "babel-plugin-transform-member-expression-literals": "^6.3.13",
