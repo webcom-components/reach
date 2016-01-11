@@ -11,6 +11,9 @@ Reach acts as a signaling framework for all your WebRTC needs.
 [![Dependency Status](https://img.shields.io/david/webcom-components/reach.svg)](https://david-dm.org/webcom-components/reach)
 [![devDependency Status](https://img.shields.io/david/dev/webcom-components/reach.svg)](https://david-dm.org/webcom-components/reach#info=devDependencies)
 
+
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/webcomOps.svg)](https://saucelabs.com/u/webcomOps)
+
 ### Get Started ###
 
 * [Discover Webcom][Quickstart] and learn how you can exchange data in real-time with a few lines of code.
