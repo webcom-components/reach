@@ -964,19 +964,19 @@ const reach = function (p_me, datarefs) {
 		on: (p_evt, p_cb) => {
 			switch (p_evt) {
 			case 'newRoomInvitation':
-				this.setOnNewRoomInvitation(p_cb);
+				_setOnNewRoomInvitation(p_cb);
 				break;
 			case 'roomInvitationChanged':
-				this.setOnRoomInvitationChanged(p_cb);
+				_setOnRoomInvitationChanged(p_cb);
 				break;
 			case 'userAdded':
-				this.setOnUserAdded(p_cb);
+				_setOnUserAdded(p_cb);
 				break;
 			case 'userChanged':
-				this.setOnUserChanged(p_cb);
+				_setOnUserChanged(p_cb);
 				break;
 			case 'userRemoved':
-				this.setOnUserRemoved(p_cb);
+				_setOnUserRemoved(p_cb);
 				break;
 			default:
 				console.error('reach.set: no such event');
