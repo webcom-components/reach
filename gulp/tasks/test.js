@@ -101,6 +101,15 @@ const
 			browserName: 'firefox',
 			version: '30',
 			proxy
+		},
+		sl_android_lollipop: {
+			base: 'SauceLabs',
+			browserName: 'android',
+			platform: 'Linux',
+			version: '5.1',
+			deviceName: 'Android Emulator',
+			deviceOrientation: 'portrait',
+			proxy
 		}
 	},
 
