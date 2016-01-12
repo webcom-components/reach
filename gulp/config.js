@@ -2,6 +2,7 @@
 
 import webpack from 'webpack';
 import {readFileSync} from 'fs';
+import packageInfo from '../package.json';
 
 const
 	distFolder = './dist',
@@ -37,7 +38,8 @@ function getDefaultWebpackConfig(version) {
 		plugins: [
 			new webpack.BannerPlugin(license),
 			new webpack.DefinePlugin({
-				SDK_VERSION: `'${version}'`
+				SDK_VERSION: `'${version}'`,
+				SCHEMA_VERSION: `'${packageInfo.schema.version}'`
 			})
 		]
 	};
@@ -72,7 +74,7 @@ export default {
 
 		if (options.output) {
 			Object.assign(config, {
-				entry: './src/index.js'
+				entry: './src/Reach.js'
 			});
 			config.output.path = './dist';
 			config.output.filename = options.release ? releaseOutputName : devOutputName;

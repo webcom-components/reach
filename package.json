@@ -2,6 +2,10 @@
   "name": "webcom-reach",
   "description": "Create apps using WebRTC with Webcom",
   "main": "dist/reach.js",
+  "schema": {
+    "version": "draft-00",
+    "url": "https://webcom-components.github.io/reach-schema/#draft-00"
+  },
   "scripts": {
     "doc": "./node_modules/.bin/esdoc -c esdoc.json",
     "lint": "gulp lint",

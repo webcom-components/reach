@@ -10,6 +10,7 @@ script:
 after_script:
   - npm install -g codeclimate-test-reporter
   - codeclimate-test-reporter < coverage/lcov.info
+  - bash ./deploy-esdoc-gh-pages.sh
 after_success:
   - npm run semantic-release
 branches:

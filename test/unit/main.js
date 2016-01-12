@@ -1,6 +1,4 @@
-'use strict';
-
-import Reach from '../../src/index';
+import Reach from '../../src/Reach';
 import {createNamespace, removeNamespace} from '../util/provisioning';
 
 describe('Reach Tests', () => {
@@ -40,11 +38,17 @@ describe('Reach Tests', () => {
 	});
 
 	it('Should have predefined actions', () => {
-		expect(Reach.actions).not.toBeNull();
-		expect(Reach.actions.ACTION_TYPE_AUDIO_VIDEO).toEqual('audio-video');
+		expect(Reach.STREAM_TYPE).not.toBeNull();
+		expect(Reach.STREAM_TYPE.AUDIO_VIDEO).toEqual('audio-video');
 	});
 
-	it('should Validate room data schema', (done) => {
+	it('Should have sdk & schema version', () => {
+		expect(Reach.VERSION).not.toBeNull();
+		expect(Reach.VERSION.sdk).toMatch(/^v?\d+\.\d+\.\d+$/);
+		expect(Reach.VERSION.schema).toMatch(/^(draft-\d+)|(legacy)$/);
+	});
+
+	xit('should Validate room data schema', (done) => {
 		const sdk = new Reach(config.namespaceUrl);
 		sdk.Room('Paul', 'room1');
 		ref.once('value', (snap) => {
