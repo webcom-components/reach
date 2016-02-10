@@ -1,13 +1,13 @@
 {
-    'presets': ['es2015'],
-    'comments': false,
-    'compact': true,
-    'plugins': [
-        'transform-inline-environment-variables',
-        'transform-member-expression-literals',
-        'transform-merge-sibling-variables',
-        'transform-property-literals',
-        'transform-remove-debugger',
-        'transform-runtime'
+    "presets": ["es2015"],
+    "comments": false,
+    "compact": true,
+    "plugins": [
+        "transform-inline-environment-variables",
+        "transform-member-expression-literals",
+        "transform-merge-sibling-variables",
+        "transform-property-literals",
+        "transform-remove-debugger",
+        "transform-runtime"
     ]
 }

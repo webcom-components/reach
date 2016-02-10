@@ -2,7 +2,7 @@
 
 /* global webdriver */
 
-let Webcom = (window || global).Webcom;
+const Webcom = (window || global).Webcom;
 
 const PersistentStorage = Webcom.INTERNAL.PersistentStorage;
 
@@ -36,7 +36,7 @@ function overrideNSUrl(namespace, originalDomain, url) {
  * @param {String} namespace
  * @param {String} originalDomain
  */
-function removeNSOverridenUrl(namespace, originalDomain="webcom.orange.com") {
+function removeNSOverridenUrl(namespace, originalDomain = 'webcom.orange.com') {
 	PersistentStorage.remove(`host:${originalDomain}/base/${namespace}`);
 }
 
@@ -102,4 +102,4 @@ export default {
 	overrideNSUrl,
 	removeNSOverridenUrl,
 	getBrowserWebDriver
-}
+};

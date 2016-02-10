@@ -5,8 +5,8 @@ exclude_paths:
 - "checkstyle/**"
 - "coverage/**"
 - "dist/**/*"
-- "gulp/**/*"
-- "gulpfile.js"
+- "dist/reach.js"
+- "dist/reach-debug.js"
 
 ratings:
   paths:
