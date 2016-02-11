@@ -1,14 +1,24 @@
+/*eslint max-len: [2, 120] */
 
 const
 	webpack = require('./webpack.config.js'),
 	minimist = require('minimist'),
+	child_process = require('child_process'),
 	args = minimist(process.argv.slice(2), {boolean: ['single-run', 'auto-watch', 'coverage']}),
 	coverage = args['coverage'],
 	singleRun = args['single-run'],
 	testConfig = process.env.CONFIG || 'production',
 	sauceLabs = process.env.SAUCE_USERNAME != null && process.env.SAUCE_ACCESS_KEY != null,
 	travisCI = process.env.CI === true || process.env.TRAVIS === true,
-
+	branchName = (() => {
+		if(travisCI) {
+			if(process.env.TRAVIS_PULL_REQUEST !== false) {
+				return `PR #${process.env.TRAVIS_PULL_REQUEST}`;
+			}
+			return process.env.TRAVIS_BRANCH;
+		}
+		return child_process.execSync('git rev-parse --abbrev-ref HEAD').toString();
+	})(),
 	sauceLabsBrowser = d => {
 		d.base = 'SauceLabs';
 		if(process.env.PROXY) {
@@ -121,7 +131,7 @@ module.exports = function(config) {
 			noInfo: true
 		},
 		sauceLabs: {
-			testName: '[Reach] Unit Tests',
+			testName: `[Reach][${branchName}] Unit Tests`,
 			connectOptions: {
 				proxy: process.env.PROXY,
 				vmVersion: 'dev-varnish',

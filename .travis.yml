@@ -4,8 +4,6 @@ node_js:
 before_script:
   - npm prune
 script:
-  - git checkout $TRAVIS_BRANCH
-  - git reset --hard $TRAVIS_COMMIT
   - npm run test:coverage
 after_script:
   - npm install -g codeclimate-test-reporter
