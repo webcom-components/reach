@@ -10,6 +10,12 @@ const
 	testConfig = process.env.CONFIG || 'production',
 	sauceLabs = process.env.SAUCE_USERNAME != null && process.env.SAUCE_ACCESS_KEY != null,
 	branchName = (() => {
+		console.info(
+			`\n\tTravis: ${process.env.TRAVIS === true}`,
+			`\n\tPullRequest: ${process.env.TRAVIS_PULL_REQUEST}`,
+			`\n\tTravis Branch: ${process.env.TRAVIS_BRANCH}`,
+			`\n\tBranch: ${child_process.execSync('git rev-parse --abbrev-ref HEAD').toString()}`
+		);
 		if(process.env.TRAVIS === true) {
 			if(process.env.TRAVIS_PULL_REQUEST) {
 				return `PR #${process.env.TRAVIS_PULL_REQUEST}`;
@@ -52,10 +58,10 @@ const
 			platform: 'Windows 10',
 			version: 'beta'
 		}),
-		sl_firefox_dev: sauceLabsBrowser({
+		sl_firefox_43: sauceLabsBrowser({
 			browserName: 'firefox',
 			platform: 'OS X 10.11',
-			version: 'dev'
+			version: '43'
 		}),
 		sl_firefox_30: sauceLabsBrowser({
 			browserName: 'firefox',
