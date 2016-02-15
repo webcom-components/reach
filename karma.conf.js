@@ -11,13 +11,13 @@ const
 	sauceLabs = process.env.SAUCE_USERNAME != null && process.env.SAUCE_ACCESS_KEY != null,
 	branchName = (() => {
 		console.info(
-			`\n\tTravis: ${process.env.TRAVIS === true}`,
+			`\n\tTravis: ${process.env.TRAVIS === 'true'}`,
 			`\n\tPullRequest: ${process.env.TRAVIS_PULL_REQUEST}`,
 			`\n\tTravis Branch: ${process.env.TRAVIS_BRANCH}`,
 			`\n\tBranch: ${child_process.execSync('git rev-parse --abbrev-ref HEAD').toString()}`
 		);
-		if(process.env.TRAVIS === true) {
-			if(process.env.TRAVIS_PULL_REQUEST) {
+		if(process.env.TRAVIS === 'true') {
+			if(process.env.TRAVIS_PULL_REQUEST !== 'false') {
 				return `PR #${process.env.TRAVIS_PULL_REQUEST}`;
 			}
 			return process.env.TRAVIS_BRANCH;
