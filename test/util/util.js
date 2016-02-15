@@ -9,17 +9,17 @@ const PersistentStorage = Webcom.INTERNAL.PersistentStorage;
 /**
  * Reset repos to force new persistent connection to be established
  */
-function resetLocalRepos() {
+export const resetLocalRepos = () => {
 	Webcom.Context.getInstance().repos_ = {};
-}
+};
 
 /**
  * Reset repo to force new persistent connection to be established
  * @param {String} name
  */
-function resetLocalRepo(name) {
+export const resetLocalRepo = name => {
 	delete Webcom.Context.getInstance().repos_[name];
-}
+};
 
 /**
  * Override url connection for a namespace
@@ -27,18 +27,18 @@ function resetLocalRepo(name) {
  * @param {String} domain - orginal domain to override
  * @param {String} url - new url to
  */
-function overrideNSUrl(namespace, originalDomain, url) {
+export const overrideNSUrl = (namespace, originalDomain, url) => {
 	PersistentStorage.set(`host:${originalDomain}/base/${namespace}`, url);
-}
+};
 
 /**
  * For a namespace, remove overriden url
  * @param {String} namespace
  * @param {String} originalDomain
  */
-function removeNSOverridenUrl(namespace, originalDomain = 'webcom.orange.com') {
+export const removeNSOverridenUrl = (namespace, originalDomain = 'webcom.orange.com') => {
 	PersistentStorage.remove(`host:${originalDomain}/base/${namespace}`);
-}
+};
 
 /**
  * Search script tag with src corresponding to reg and add it to iframe
@@ -46,8 +46,7 @@ function removeNSOverridenUrl(namespace, originalDomain = 'webcom.orange.com') {
  * @param {String} reg - regular expression to test src attribute of script tags
  * @returns {Promise}
  */
-function insertParentScriptToIframe(iframe, reg) {
-	let target;
+export const insertParentScriptToIframe = (iframe, reg) => {
 	const src = [].slice.call(document.querySelectorAll('script')).find((el) => {
 		return new RegExp(reg).test(el.getAttribute('src'));
 	});
@@ -55,21 +54,20 @@ function insertParentScriptToIframe(iframe, reg) {
 		if (!src) {
 			resolve(null);
 		}
-		target = document.createElement('script');
+		const target = document.createElement('script');
 		iframe.contentWindow.document.head.appendChild(target);
 		target.onload = () => {
 			resolve(src.getAttribute('src'));
 		};
 		target.src = src.getAttribute('src');
 	});
-}
+};
 
 /**
  * Create a iframe with Webcom SDK JS
  * @returns {WebDriver} Instance of webdriver to get control over iframe
  */
-function getBrowserWebDriver() {
-	let driver;
+export const getBrowserWebDriver = () => {
 	const iframe = document.createElement('iframe');
 
 	iframe.name= 'webdriver frame';
@@ -90,16 +88,8 @@ function getBrowserWebDriver() {
 			}
 		})
 	]).then(() => {
-		driver = webdriver.browser.createDriver(iframe.contentWindow);
+		const driver = webdriver.browser.createDriver(iframe.contentWindow);
 		driver.executor_.scriptTimeout_ = 10000;
 		return driver;
 	});
-}
-
-export default {
-	resetLocalRepos,
-	resetLocalRepo,
-	overrideNSUrl,
-	removeNSOverridenUrl,
-	getBrowserWebDriver
 };

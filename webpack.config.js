@@ -5,17 +5,15 @@ const
 	minimist = require('minimist'),
 	readFileSync = require('fs').readFileSync,
 	packageInfo = require('./package.json'),
-	args = minimist(process.argv.slice(2), {
-		'boolean': ['release'],
-		'default': {
-			'coverage': false,
-			'debug': false,
-			'output': true
-		}
-	});
+	defaultOptions = {
+		release: false,
+		coverage: false,
+		debug: false,
+		output: true
+	};
 
 /*eslint complexity: [2, 10] */
-const cfg = (options) => {
+const configure = (options) => {
 	const config = {
 		module: {
 			loaders: [
@@ -73,7 +71,10 @@ const cfg = (options) => {
 	return config;
 };
 
-module.exports = cfg(args);
+// Parse command line args when executing webpack
+const webpackOptions = minimist(process.argv.slice(2), {'boolean': ['release'], 'default': defaultOptions});
 
-// Export cfg function (for karma)
-module.exports.configure = cfg;
+module.exports = configure(webpackOptions);
+
+// Export configure function (for karma)
+module.exports.configure = configure;

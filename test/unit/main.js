@@ -1,40 +1,43 @@
 import Reach from '../../src/Reach';
-import {createNamespace, removeNamespace} from '../util/provisioning';
+// import {createNamespace, removeNamespace} from '../util/provisioning';
 
 describe('Reach Tests', () => {
 	let ref;
 
 	beforeAll((done) => {
 		jasmine.DEFAULT_TIMEOUT_INTERVAL = 10 * 1000;
-		if (config.createNS) {
-			createNamespace(config.namespace).then(() => {
-				ref = new Webcom(config.namespaceUrl);
-				done();
-			});
-		} else {
-			ref = new Webcom(config.namespaceUrl);
-			ref.set(null, () => {
-				ref.once('value', done);
-			});
-		}
+		// if (config.createNS) {
+		// 	createNamespace(config.namespace).then(() => {
+		// 		ref = new Webcom(config.namespaceUrl);
+		// 		done();
+		// 	});
+		// } else {
+		// 	ref = new Webcom(config.namespaceUrl);
+		// 	ref.set(null, () => {
+		// 		ref.once('value', done);
+		// 	});
+		// }
+		done();
 	});
 
 	beforeEach((done) => {
-		ref.set(null, () => {
-			ref.once('value', done);
-		});
+		// ref.set(null, () => {
+		// 	ref.once('value', done);
+		// });
+		done();
 	});
 
 	afterAll((done) => {
-		if (config.cleanUpNS) {
-			removeNamespace(config.namespace).then(() => {
-				ref.goOffline();
-				done();
-			});
-		} else {
-			ref.goOffline();
-			done();
-		}
+		// if (config.cleanUpNS) {
+		// 	removeNamespace(config.namespace).then(() => {
+		// 		ref.goOffline();
+		// 		done();
+		// 	});
+		// } else {
+		// 	ref.goOffline();
+		// 	done();
+		// }
+		done();
 	});
 
 	it('Should have predefined actions', () => {

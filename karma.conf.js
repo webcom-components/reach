@@ -9,16 +9,16 @@ const
 	singleRun = args['single-run'],
 	testConfig = process.env.CONFIG || 'production',
 	sauceLabs = process.env.SAUCE_USERNAME != null && process.env.SAUCE_ACCESS_KEY != null,
-	travisCI = process.env.CI === true || process.env.TRAVIS === true,
 	branchName = (() => {
-		if(travisCI) {
-			if(process.env.TRAVIS_PULL_REQUEST !== false) {
+		if(process.env.TRAVIS === true) {
+			if(process.env.TRAVIS_PULL_REQUEST) {
 				return `PR #${process.env.TRAVIS_PULL_REQUEST}`;
 			}
 			return process.env.TRAVIS_BRANCH;
 		}
 		return child_process.execSync('git rev-parse --abbrev-ref HEAD').toString();
 	})(),
+
 	sauceLabsBrowser = d => {
 		d.base = 'SauceLabs';
 		if(process.env.PROXY) {
@@ -99,11 +99,11 @@ module.exports = function(config) {
 		captureTimeout: 120000,
 		colors: true,
 		frameworks: ['jasmine'],
-		concurrency: travisCI ? 1 : 2,
+		concurrency: process.env.TRAVIS === true ? 1 : 2,
 		customLaunchers,
 		browsers,
 		reporters: (() => {
-			const list = ['progress', 'dots'];
+			const list = ['progress', 'dots', 'kjhtml'];
 			if(coverage) {
 				list.push('coverage');
 			}

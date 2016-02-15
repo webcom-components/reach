@@ -7,8 +7,9 @@ globals:
   getUserMedia: true
   detachMediaStream: true
 
-ecmaFeatures:
-  modules: true
+parserOptions:
+  ecmaVersion: 6
+  sourceType: module
 
 rules:
   strict: 0
@@ -71,7 +72,7 @@ rules:
     - 2
   no-else-return:
     - 2
-  no-empty-label:
+  no-labels:
     - 2
   no-lone-blocks:
     - 2

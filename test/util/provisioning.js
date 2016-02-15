@@ -1,5 +1,3 @@
-'use strict';
-
 /* global config */
 
 import util from './util';
@@ -13,7 +11,7 @@ let user;
  * @param {string} credentials.password
  * @paral {boolean} credentials.rememberMe
  */
-function login(credentials) {
+const login = credentials => {
 	const ref = new window.Webcom(`${config.url}/base/accounts`);
 
 	return new Promise((resolve) => {
@@ -46,7 +44,7 @@ function login(credentials) {
 			);
 		});
 	});
-}
+};
 
 /**
  * do the namespace creation request
@@ -55,15 +53,14 @@ function login(credentials) {
  * @param {string} namespace
  * @param {string} token
  */
-function _createNamespace(apiUrl, namespace, token){
+const _createNamespace = (apiUrl, namespace, token) => {
 	const
 		req = new XMLHttpRequest(),
 		formData = new FormData();
-	let p;
 
 	req.open('POST', `${apiUrl}/admin/base/${namespace}`);
 
-	p = new Promise((resolve, reject) => {
+	const p = new Promise((resolve, reject) => {
 		req.onreadystatechange = () => {
 			if (req.readyState === 4) {
 				if(req.status === 200) {
@@ -79,7 +76,7 @@ function _createNamespace(apiUrl, namespace, token){
 	req.send(formData);
 
 	return p;
-}
+};
 
 /**
  * do the namespace remove request
@@ -88,14 +85,14 @@ function _createNamespace(apiUrl, namespace, token){
  * @param {string} namespace
  * @param {string} token
  */
-function _removeNamespace(apiUrl, namespace, token){
+const _removeNamespace = (apiUrl, namespace, token) => {
 	const
 		req = new XMLHttpRequest(),
 		formData = new FormData();
-	let p;
 
 	req.open('POST', `${apiUrl}/admin/base/${namespace}`);
-	p = new Promise((resolve, reject) => {
+
+	const p = new Promise((resolve, reject) => {
 		req.onreadystatechange = () => {
 			if (req.readyState === 4) {
 				if (req.status === 200) {
@@ -114,13 +111,13 @@ function _removeNamespace(apiUrl, namespace, token){
 	req.send(formData);
 
 	return p;
-}
+};
 
 /**
  * Create a namespace
  * @param {string} name
  */
-export function createNamespace(name) {
+export const createNamespace = (name) => {
 	return new Promise((resolve) => {
 		let r;
 		login(config.credentials).then((ref) => {
@@ -134,13 +131,13 @@ export function createNamespace(name) {
 			});
 		});
 	});
-}
+};
 
 /**
  * Remove a namespace
  * @param {string} name
  */
-export function removeNamespace(name) {
+export const removeNamespace = (name) => {
 	return new Promise((resolve) => {
 		let r;
 		login(config.credentials).then((ref) => {
@@ -157,7 +154,7 @@ export function removeNamespace(name) {
 			});
 		});
 	});
-}
+};
 
 /**
  * Return admin token. Useful to modify security rules for example
@@ -166,14 +163,12 @@ export function removeNamespace(name) {
  * @param {String} token - authencated user token
  * @returns {Promise}
  */
-function getAdminToken(apiUrl, namespace, token) {
+const getAdminToken = (apiUrl, namespace, token) => {
 	const req = new XMLHttpRequest();
-	let p;
-
 	req.open('GET', `${apiUrl}/admin/base/${namespace}/token?token=${token}`);
 	req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
-	p = new Promise((resolve, reject) => {
+	const p = new Promise((resolve, reject) => {
 		req.onreadystatechange = () => {
 			if (req.readyState === 4) {
 				if (req.status === 200) {
@@ -188,7 +183,7 @@ function getAdminToken(apiUrl, namespace, token) {
 	req.send();
 
 	return p;
-}
+};
 
 /**
  * Set security rules on namespace
@@ -196,15 +191,13 @@ function getAdminToken(apiUrl, namespace, token) {
  * @param {String} namespace
  * @returns {*}
  */
-export function setRules(rules, namespace) {
+export const setRules = (rules, namespace) => {
 	return getAdminToken(config.url, namespace, user.webcomAuthToken).then((adminToken) => {
 		const req = new XMLHttpRequest();
-		let p;
-
 		req.open('PUT', `${config.url}/base/${namespace}/.settings/rules.json?auth=${adminToken}`);
 		req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
-		p = new Promise((resolve, reject) => {
+		const p = new Promise((resolve, reject) => {
 			req.onreadystatechange = function () {
 				if (req.readyState === 4) {
 					if (req.status === 200) {
@@ -220,10 +213,4 @@ export function setRules(rules, namespace) {
 
 		return p;
 	});
-}
-
-export default {
-	createNamespace,
-	removeNamespace,
-	setRules
 };
