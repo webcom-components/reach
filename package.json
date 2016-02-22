@@ -68,7 +68,7 @@
     "semantic-release": "^4.3.5",
     "validate-commit-msg": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "webpack": "^1.12.9"
+    "webpack": "^1.12.14"
   },
   "config": {
     "commitizen": {
