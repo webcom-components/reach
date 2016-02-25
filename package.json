@@ -8,7 +8,7 @@
   },
   "scripts": {
     "doc": "./node_modules/.bin/esdoc -c esdoc.json",
-	"serve": "node ./serve.esdoc.js",
+    "serve": "node ./serve.esdoc.js",
     "lint": "./node_modules/.bin/eslint src/** test/**",
     "build": "npm run build:debug && npm run build:release",
     "build:release": "./node_modules/.bin/webpack --release",
@@ -39,9 +39,8 @@
     "webcom": "~0.2.2"
   },
   "devDependencies": {
-    "adapterjs": "^0.12.1",
     "babel-core": "^6.5.2",
-    "babel-loader": "^6.2.2",
+    "babel-loader": "^6.2.3",
     "babel-plugin-transform-inline-environment-variables": "^6.5.0",
     "babel-plugin-transform-member-expression-literals": "^6.5.0",
     "babel-plugin-transform-merge-sibling-variables": "^6.5.0",
@@ -53,7 +52,7 @@
     "browser-sync": "^2.11.1",
     "cz-conventional-changelog": "^1.1.5",
     "esdoc": "^0.4.5",
-    "eslint": "^2.0.0",
+    "eslint": "^2.2.0",
     "ghooks": "^1.0.3",
     "isparta-loader": "^2.0.0",
     "jasmine": "^2.4.1",
@@ -71,8 +70,9 @@
     "lodash": "^3.10.1",
     "minimist": "^1.2.0",
     "semantic-release": "^4.3.5",
-    "validate-commit-msg": "^2.0.0",
-    "webpack": "^1.12.13"
+    "validate-commit-msg": "^2.1.0",
+    "webpack": "^1.12.14",
+    "webrtc-adapter": "^1.0.2"
   },
   "config": {
     "commitizen": {

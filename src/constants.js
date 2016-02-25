@@ -29,42 +29,6 @@ export const NOT_CONNECTED = 'NOT_CONNECTED';
  */
 export const WAS_CONNECTED = 'WAS_CONNECTED';
 /**
- * Audio communication service
- * @ignore
- * @type {string}
- */
-export const AUDIO = 'audio';
-/**
- * Video communication service
- * @ignore
- * @type {string}
- */
-export const VIDEO = 'video';
-/**
- * Chat communication service
- * @ignore
- * @type {string}
- */
-export const CHAT = 'chat';
-/**
- * Audio and video communication service
- * @ignore
- * @type {string}
- */
-export const AUDIO_VIDEO = 'audio-video';
-/**
- * Screen-sharing service
- * @ignore
- * @type {string}
- */
-export const SCREEN_SHARING = 'screen-sharing';
-/**
- * Call communication service
- * @ignore
- * @type {string}
- */
-export const CALL = 'call';
-/**
  * OWNER
  * @ignore
  * @type {string}
@@ -101,8 +65,8 @@ export const ACCEPTED = 'ACCEPTED';
  */
 export const REJECTED = 'REJECTED';
 /**
- * Cancelled invitation
+ * Canceled invitation
  * @ignore
  * @type {string}
  */
-export const CANCELLED = 'CANCELLED';
+export const CANCELED = 'CANCELED';

@@ -1,4 +1,6 @@
 import Reach from '../../src/Reach';
+import ReachConfig from '../../src/definitions/ReachConfig';
+
 // import {createNamespace, removeNamespace} from '../util/provisioning';
 
 describe('Reach Tests', () => {
@@ -40,15 +42,29 @@ describe('Reach Tests', () => {
 		done();
 	});
 
-	it('Should have predefined actions', () => {
-		expect(Reach.STREAM_TYPE).not.toBeNull();
-		expect(Reach.STREAM_TYPE.AUDIO_VIDEO).toEqual('audio-video');
+	it('Should expose possible stream types as static members', () => {
+		expect(Reach.t).not.toBeNull();
+		expect(Reach.t.AUDIO_VIDEO).toEqual('audio-video');
 	});
 
-	it('Should have sdk & schema version', () => {
-		expect(Reach.VERSION).not.toBeNull();
-		expect(Reach.VERSION.sdk).toMatch(/^v?\d+\.\d+\.\d+$/);
-		expect(Reach.VERSION.schema).toMatch(/^(draft-\d+)|(legacy)$/);
+	it('Should expose sdk & schema version as static members', () => {
+		expect(Reach.v).not.toBeNull();
+		expect(Reach.v.sdk).toMatch(/^v?\d+\.\d+\.\d+$/);
+		expect(Reach.v.schema).toMatch(/^(draft-\d+)|(legacy)$/);
+	});
+
+	it('Should use default configuration if no configuration is specified', () => {
+		// Only default
+		const sdk = new Reach(config.namespaceUrl);
+		expect(sdk.config).not.toBeNull();
+		expect(sdk.config).toEqual(ReachConfig);
+	});
+
+	it('Should fix configuration with default values for missing properties', () => {
+		// config + default values for missing props
+		const sdk = new Reach(config.namespaceUrl, {autoRequestMedia: false});
+		expect(sdk.config).not.toBeNull();
+		expect(sdk.config.autoRequestMedia).toBeFalsy();
 	});
 
 	xit('should Validate room data schema', (done) => {

@@ -1,9 +1,11 @@
 root: true
 
 globals:
+  Webcom: true
+  SDK_VERSION: true
+  SCHEMA_VERSION: true
   RTCPeerConnection: true
   attachMediaStream: true
-  Webcom: false
   getUserMedia: true
   detachMediaStream: true
 
@@ -29,7 +31,7 @@ rules:
     - 0
   complexity:
     - 2
-    - 5
+    - 10
   max-depth:
     - 2
     - 3

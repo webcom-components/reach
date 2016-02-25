@@ -9,7 +9,8 @@ const
 		release: false,
 		coverage: false,
 		debug: false,
-		output: true
+		output: true,
+		noedge: false
 	};
 
 /*eslint complexity: [2, 10] */
@@ -24,9 +25,7 @@ const configure = (options) => {
 			]
 		},
 		resolve: {
-			alias: {
-				'adapterjs':  '../node_modules/adapterjs/publish/adapter.min.js'
-			}
+			alias: {}
 		},
 		output: {
 			libraryTarget: 'umd',
@@ -40,6 +39,10 @@ const configure = (options) => {
 			})
 		]
 	};
+
+	if(options.noedge) {
+		config.resolve.alias['webrtc-adapter'] = `${__dirname}/node_modules/webrtc-adapter/out/adapter_no_edge.js`;
+	}
 
 	if(options.output) {
 		config.entry = './src/Reach.js';
@@ -72,7 +75,7 @@ const configure = (options) => {
 };
 
 // Parse command line args when executing webpack
-const webpackOptions = minimist(process.argv.slice(2), {'boolean': ['release'], 'default': defaultOptions});
+const webpackOptions = minimist(process.argv.slice(2), {'boolean': ['release', 'noedge'], 'default': defaultOptions});
 
 module.exports = configure(webpackOptions);
 
