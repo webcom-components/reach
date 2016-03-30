@@ -359,7 +359,7 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 		isVideoMute = mute;
 		const stream = isPublish && sentStream ? sentStream : (!isPublish && receivedStream ? receivedStream : null);
 		if(stream){
-			_muteTracks(!isAudioMute, stream.getVideoTracks());
+			_muteTracks(!isVideoMute, stream.getVideoTracks());
 		}
 	}
 
@@ -633,6 +633,7 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 				pc = null;
 				closeInProgress = false;
 				webrtcmngr.clearWebrtcStacks(webrtcStackId);
+				console.log(onCloseCb);
 				if (onCloseCb2 && typeof onCloseCb2 == 'function') {
 					onCloseCb2();
 				}
@@ -760,7 +761,7 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 			if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_DISCONNECTED) {
 				iceConnectionState = ICE_CONNECTION_STATE_DISCONNECTED;
 				console.log(`(ReachSDK::webrtc::oniceconnectionstatechange)stackId=${stackId}-remote disconnection, closing peer connection`);
-				_close();
+				// _close();
 			} else if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_CLOSED) {
 				console.debug(`(ReachSDK::webrtc::oniceconnectionstatechange)stackId=${stackId}-closed`);
 				iceConnectionState = ICE_CONNECTION_STATE_CLOSED;
@@ -768,7 +769,7 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 			} else if (!!pc && pc.iceConnectionState === ICE_CONNECTION_STATE_FAILED) {
 				console.debug(`(ReachSDK::webrtc::oniceconnectionstatechange)stackId=${stackId}-failed`);
 				iceConnectionState = ICE_CONNECTION_STATE_FAILED;
-				_close();
+				//_close();
 			} else {
 				if (pc) {
 					console.debug(`(ReachSDK::webrtc::oniceconnectionstatechange)stackId=${stackId}-${pc.iceConnectionState}`);

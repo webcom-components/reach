@@ -25,6 +25,11 @@ const webrtcmngr = function(datarefs) {
 	const virtualWebrtcStacks = [];
 
 	/**
+	* a work around to be able to get a self reference through setting myself through the Reach class
+	*/
+	let mwebrtcmngr_reference;
+
+	/**
 	 * Creates a WebRTC object
 	 * @param p_Vid - the video container linked to the peerconnection
 	 * @param p_remoteAppInstId - the remote application instance identifier
@@ -68,7 +73,7 @@ const webrtcmngr = function(datarefs) {
 		if (!webrtcStacks[webrtcStackId]) {
 			console.debug('ReachSDK::webrtcmngr::createWebrtc->create a new real webrtcStack');
 			// create the real webrtcstack
-			const webRtcStack = webrtc(this, p_isPublish, localDataRef, remoteDataRef, webrtcStackId, p_actionType, p_mutedAudio, p_muteVideo);
+			const webRtcStack = webrtc(mwebrtcmngr_reference, p_isPublish, localDataRef, remoteDataRef, webrtcStackId, p_actionType, p_mutedAudio, p_muteVideo);
 			webRtcStack.setOnClose(p_onCloseCb);
 			if (p_isPublish) {
 				webrtcStacks[webrtcStackId] = {
@@ -186,7 +191,6 @@ const webrtcmngr = function(datarefs) {
 			console.warn(`(ReachSDK::webrtcmngr::muteAudioWebrtcStack) virtualWebrtcStackId=${virtualWebrtcStackId} not found`);
 		}
 
-
 	}
 
 	/**
@@ -253,6 +257,13 @@ const webrtcmngr = function(datarefs) {
 		}
 
 	}
+	/**
+	 * Setting myself with webrtc manager object
+	 * @param webrtcmngr - The WebRTC manager object
+	 */
+	function _setWebrtcManger(webrtcmngr){
+		mwebrtcmngr_reference= webrtcmngr;
+	}
 
 	return {
 
@@ -265,8 +276,8 @@ const webrtcmngr = function(datarefs) {
 		 * @param p_actionType - The action type (audio, video, audio-video)
 		 * @param p_peercoId - The PeerConnection Id in the webrtc node
 		 */
-		createWebrtc: (p_Vid, p_remoteAppInstId, p_onCloseCb, p_isPublish, p_actionType, p_peercoId, p_mutedAudio, p_muteVideo, p_getStreamCb) => {
-			return  _createWebrtc.bind(this)(p_Vid, p_remoteAppInstId, p_onCloseCb, p_isPublish, p_actionType, p_peercoId, p_mutedAudio, p_muteVideo, p_getStreamCb);
+		createWebrtc: (p_Vid, p_remoteAppInstId, p_onCloseCb, p_isPublish, p_actionType, p_peercoId,p_peercoRef, p_mutedAudio, p_muteVideo, p_getStreamCb) => {
+			return _createWebrtc.bind(this)(p_Vid, p_remoteAppInstId, p_onCloseCb, p_isPublish, p_actionType, p_peercoId, p_peercoRef,p_mutedAudio, p_muteVideo, p_getStreamCb);
 		},
 
 		/**
@@ -301,7 +312,10 @@ const webrtcmngr = function(datarefs) {
 		 * video unmute the webrtc peerconnection
 		 * @param virtualWebrtcStackId - The WebRTC stack ID to unmute
 		 */
-		unmuteVideoWebrtcStack: _unmuteVideoWebrtcStack
+		unmuteVideoWebrtcStack: _unmuteVideoWebrtcStack,
+
+		setWebrtcManger : _setWebrtcManger
+
 	};
 };
 

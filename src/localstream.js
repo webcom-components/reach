@@ -274,7 +274,9 @@ const localstream = (function() {
 			mLocalStreamVideo=null;
 		}
 		if (streamAudioVideo) {
-			streamAudioVideo.stop();
+			streamAudioVideo.getTracks().forEach((track)=>{
+				track.stop();
+			});
 			streamAudioVideo=null;
 		}
 		if (streamVideo) {

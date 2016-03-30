@@ -74,10 +74,10 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     },
-    "ghooks": {
-      "pre-commit": "if [ $TRAVIS ] && [ $TRAVIS = 'true' ] ; then echo 'No need to lint here'; else npm run lint; fi",
+   "ghooks": {
+      "pre-commit": "npm run lint",
       "commit-msg": "validate-commit-msg",
-      "pre-push": "if [ $TRAVIS ] && [ $TRAVIS = 'true' ] ; then echo 'Already tested'; else npm run test:unit; fi"
+      "pre-push": "npm run test:unit"
     }
   }
 }
