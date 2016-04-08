@@ -57,7 +57,7 @@
     "karma-firefox-launcher": "^0.1.7",
     "karma-jasmine": "^0.3.6",
     "karma-jasmine-html-reporter": "^0.1.8",
-    "karma-junit-reporter": "^0.3.7",
+    "karma-junit-reporter": "^0.4.2",
     "karma-sauce-launcher": "^0.3.0",
     "karma-sourcemap-loader": "^0.3.5",
     "karma-webdriver-launcher": "^1.0.4",
