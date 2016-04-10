@@ -4,3 +4,4 @@ coverage
 checkstyle
 .idea
 esdoc
+dist

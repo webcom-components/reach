@@ -20,7 +20,7 @@ function getDefaultWebpackConfig(version) {
 		module: {
 			loaders: [
 				{
-					test:/(src)|(test)\/.*\.js/,
+					test:/(src)|(test)/,
 					loader: 'babel'
 				}
 			]

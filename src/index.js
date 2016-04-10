@@ -15,6 +15,7 @@ export class Reach {
 	constructor(url= 'http://webcom.orange.com/base/webrtc') {
 		this.datarefs = datarefs(url);
 		this.webrtcmngr = webrtcmngr(this.datarefs);
+		this.webrtcmngr.setWebrtcManger(this.webrtcmngr);
 	}
 
 	Room(...args) {
@@ -32,5 +33,7 @@ export class Reach {
 		return actions;
 	}
 }
+
+global.ComSDK = Reach;
 
 module.exports = Reach;
