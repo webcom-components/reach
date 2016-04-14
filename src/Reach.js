@@ -1,7 +1,31 @@
-import {browser} from './adapter';
+import {browser} from './util/adapter';
 import Events from './definitions/Events';
 import StreamTypes from './definitions/StreamTypes';
-import ReachConfig from './definitions/ReachConfig';
+import Config from './definitions/Config';
+import {initUser, listUsers, disconnectUser} from './core/User';
+import {createRoom, listRooms} from './core/Room';
+import {on, off} from './util/datasync';
+import ref from './util/ref';
+
+// TODO Add logger & logger level configuration
+
+/**
+ * Get the path to subcribe to for a specific event ({@link Reach#on})
+ * @access private
+ * @param {string} event The event name
+ * @returns {string}
+ */
+const eventPath = event => {
+	let path;
+	if(/^USER/.test(event)) {
+		path = 'users';
+	} else if(/^ROOM/.test(event)) {
+		path = 'rooms';
+	} else if(/^INVITE/.test(event) && this.current) {
+		path = `_/invites/${this.current.uid}`;
+	}
+	return path;
+};
 
 /**
  * Entry point for Reach SDK
@@ -12,20 +36,37 @@ export default class Reach {
 	 * Create Reach's data structure where the url points to (might not be the root of your namespace)
 	 * @public
 	 * @param {string|Webcom} [url=http://webcom.orange.com/base/reach] The url of your namespace or an existing Webcom reference.
-	 * @param {ReachConfig} [config] Reach configuration. You can pass constraints here
+	 * @param {Config} [cfg] Reach configuration. You can pass constraints here
 	 */
-	constructor(url = 'http://webcom.orange.com/base/reach', config = null) {
+	constructor(url = 'http://webcom.orange.com/base/reach', cfg = null) {
+		// Set shared reference
+		ref.base = url;
 		/**
-		 * The reference to the Reach data in your namespace
-		 * @private
+		 * Webcom DataSync reference
 		 * @type {Webcom}
 		 */
-		this._ref = url instanceof Webcom ? url : new Webcom(url);
+		this._base = ref.base;
 		/**
 		 * The configuration
-		 * @type {ReachConfig}
+		 * @type {Config}
 		 */
-		this.config = Object.assign({}, ReachConfig, config);
+		this.config = Object.assign({}, Config, cfg);
+		/**
+		 * The connected User
+		 * @type {User}
+		 */
+		this.current = ref.user = null;
+
+		// Resume session
+		if(Webcom.INTERNAL.PersistentStorage.get('session')){
+			ref.base.resume((error, auth) => {
+				if(auth && !this.current) {
+					initUser(auth.uid).then(u => {
+						this.current = ref.user = u;
+					}, console.warn.bind(console));
+				}
+			});
+		}
 	}
 
 	/**
@@ -54,9 +95,9 @@ export default class Reach {
 
 	/**
 	 * The browser's details
-	 * @return {BrowserDetails}
+	 * @return {Browser}
 	 */
-	static get browserDetails() {
+	static get b() {
 		return browser;
 	}
 
@@ -66,7 +107,9 @@ export default class Reach {
 	 */
 	set status(status) {
 		// Force User's status
-		return new Promise(status);
+		if(this.current) {
+			this.current.status = status;
+		}
 	}
 
 	/**
@@ -74,39 +117,68 @@ export default class Reach {
 	 * @type {string}
 	 */
 	get status() {
-		return '';
+		return this.current ? this.current.status : null;
 	}
 
 	/**
-	 * Register a new user
+	 * Register & Signin as a new user
 	 * @param {string} email The email of the user
 	 * @param {string} password The password of the user
 	 * @param {string} [name] The display name of the user (defaults to email)
-	 * @returns {Promise}
+	 * @param {boolean} [rememberMe=false] keep user connected ?
+	 * @returns {Promise<User, Error>}
 	 */
-	register(email, password, name) {
-		// Create user + login
-		return new Promise({email, password, name});
+	register(email, password, name, rememberMe) {
+		return ref.base.createUser(email, password)
+			.then(auth => {
+				if(auth) {
+					return this.login(email, password, name || email, rememberMe);
+				}
+			});
 	}
 
 	/**
 	 * Signin an existing user
 	 * @param {string} email The email of the user
 	 * @param {string} password The password of the user
-	 * @returns {Promise}
+ 	 * @param {string} [name] The name of the user. Defaults to the value in base.
+	 * @param {boolean} [rememberMe=false] keep user connected ?
+	 * @returns {Promise<User, Error>}
 	 */
-	login(email, password) {
-		// Update /users/{userId} & add current device in /_/devices/{userId}
-		return new Promise({email, password});
+	login(email, password, name, rememberMe = false) {
+		const method = email === null && password === null ? 'authAnonymously' : 'authWithPassword';
+		// Force logout to bypass Webcom bug
+		let p = Promise.resolve();
+		if(this.current && this.current.email !== email) {
+			p = this.logout();
+		}
+		return p
+			.then(() => {
+				return ref.base[method]({email, password, rememberMe});
+			})
+			.then(auth => {
+				return initUser(auth.uid, name);
+			})
+			.then(u => {
+				this.current = ref.user = u;
+				return u;
+			});
 	}
 
 	/**
 	 * Signin an anonymous user
-	 * @param {string} name The password of the user
-	 * @returns {Promise}
+	 * @param {string} name The display name of the user
+	 * @experimental Not compatible with security rules for now (waiting for anonymous login support from Webcom)
+	 * @returns {Promise<User, Error>}
 	 */
 	anonymous(name) {
-		return new Promise(name);
+		// TODO Uncomment this line when anonymous login is available #FEATURE #DATASYNC
+		// return this.login(null, null, name);
+		return initUser(`anonymous:${Date.now()}`, name)
+			.then(u => {
+				this.current = ref.user = u;
+				return u;
+			});
 	}
 
 	/**
@@ -114,16 +186,30 @@ export default class Reach {
 	 * @returns {Promise}
 	 */
 	logout() {
-		// Update /users/{userId} & remove current device in /_/devices/{userId}
-		return new Promise();
+		return new Promise(resolve => {
+			let p = Promise.resolve();
+			if(this.current != null) {
+				p = disconnectUser(this.current.uid);
+			}
+			p.then(() => {
+				Object.keys(this._callbacks).forEach(event => {
+					off(eventPath(event), event);
+				});
+				ref.base.logout(() => {
+					this.current = ref.user = null;
+					resolve();
+				});
+			});
+		});
 	}
 
 	/**
 	 * Get the list of registered users
+	 * @param {boolean} [include=false] Include current user in user's list
 	 * @return {Promise<User[], Error>}
 	 */
-	users() {
-		return new Promise();
+	users(include = false) {
+		return listUsers(include === true);
 	}
 
 	/**
@@ -131,34 +217,42 @@ export default class Reach {
 	 * @return {Promise<Room[], Error>}
 	 */
 	rooms() {
-		return new Promise();
+		return listRooms();
 	}
 
 	/**
 	 * Register a callback for a specific event
-	 * @param {string} event The event name.
-	 * @param {function} callback The callback for the event
+	 * @param {string} event The event name:
+	 * - USER_ADDED
+	 * - USER_CHANGED
+	 * - USER_REMOVED
+	 * - ROOM_ADDED
+	 * - ROOM_CHANGED
+	 * - ROOM_REMOVED
+	 * - INVITE_ADDED
+	 * - INVITE_CHANGED
+	 * @param {function} callback The callback for the event, the arguments depends on the type of event:
+	 * - USER_*: callback({@link User} u [, Error e])
+	 * - ROOM_*: callback({@link Room} r [, Error e])
+	 * - INVITE_*: callback({@link Invite} i [, Error e])
 	 */
 	on(event, callback) {
-		switch (event) {
-		case Events.USER_ADDED:
-			break;
-		case Events.USER_CHANGED:
-			break;
-		case Events.USER_REMOVED:
-			break;
-		case Events.ROOM_ADDED:
-			break;
-		case Events.ROOM_CHANGED:
-			break;
-		case Events.ROOM_REMOVED:
-			break;
-		case Events.INVITE_ADDED:
-			break;
-		case Events.INVITE_CHANGED:
-			break;
+		const path = eventPath(event);
+		if(path) {
+			on(path, event, callback);
+			// TODO Should we keep a list of the callbacks ?
+			this._callbacks[event].push(callback);
 		}
-		callback();
+	}
+
+	/**
+	 * Create a new room
+	 * @param {string} [name] The room name
+	 * @param {object} [extra] Extra informations
+	 * @returns {Promise<Room, Error>}
+	 */
+	createRoom(name, extra) {
+		return createRoom(name || `${this.current.name}-${Date.now()}`, extra);
 	}
 }
 

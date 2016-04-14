@@ -1,4 +1,5 @@
-import {ONGOING, ACCEPTED, REJECTED, CANCELED} from '../constants';
+import {ONGOING, ACCEPTED, REJECTED, CANCELED} from '../util/constants';
+import {get, update} from '../util/datasync';
 
 /**
  * Invitation
@@ -80,13 +81,14 @@ export default class Invite {
 	get reason() {
 		return null;
 	}
+
 	/**
 	 * Cancels the invitation. Only the sender can cancel the invitation.
 	 * @param {string} [reason] The reason the sender is canceling the invite
 	 * @return {Promise}
 	 */
 	cancel() {
-		return new Promise();
+		return Promise.resolve();
 	}
 
 	/**
@@ -95,7 +97,7 @@ export default class Invite {
 	 * @return {Promise}
 	 */
 	reject(reason) {
-		return new Promise(reason);
+		return Promise.resolve(reason);
 	}
 
 	/**
@@ -103,6 +105,44 @@ export default class Invite {
 	 * @return {Promise}
 	 */
 	accept() {
-		return new Promise();
+		return Promise.resolve();
 	}
 }
+
+/**
+ * List invites for a specific User
+ * @access protected
+ * @returns {Promise<Invite[], Error>}
+ */
+export const listInvites = (user) => {
+	return get(`_/invites/${user.uid}`).then(snapData => {
+		if(snapData) {
+			const invites = [];
+			snapData.forEach(childSnapData => {invites.push(new Invite(childSnapData));});
+			return invites;
+		}
+		return [];
+	});
+};
+
+/**
+ * Create the invitation & add the user to the participants list
+ * @access protected
+ * @param {User} invitee The user to invite
+ * @param {User} sender The room owner/moderator (will be the current user)
+ * @param {Room} room The room to invite the user to
+ */
+export const createInvite = (invitee, sender, room) => {
+	// TODO the sender will always be the current user so the 'sender' parameter might not be useful #API
+	return get(`_/invites/${invitee.uid}/${room.uid}`).then(snapData => {
+		if(snapData && snapData.val()) {
+			return new Invite();
+		}
+		return update(`_/invites/${invitee.uid}/${room.uid}`, {
+			from: sender.uid,
+			room: room.uid,
+			status: ONGOING,
+			_created: Date.now()
+		});
+	});
+};

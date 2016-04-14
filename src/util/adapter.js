@@ -10,6 +10,7 @@ const browserDetails = Object.assign(
 	{browser: 'Unsupported browser', version: null, minVersion: null},
 	adapter.browserDetails
 );
+browserDetails.name = browserDetails.browser;
 
 const version = `Reach v${SDK_VERSION} | Schema ${SCHEMA_VERSION} | Webcom v${Webcom.SDK_VERSION}`;
 const defaultMessage = `${browserDetails.browser} - ${browserDetails.version || 'n/a'}`;
@@ -39,6 +40,6 @@ console.log(...args);
 /**
  * Browser infos. Mixes adapter's browserDetails with compatible flag
  * @ignore
- * @type {BrowserDetails}
+ * @type {Browser}
  */
 export {browserDetails as browser};

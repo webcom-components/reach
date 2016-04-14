@@ -1,72 +1,78 @@
 /**
  * OPENED
- * @ignore
+ * @protected
  * @type {string}
  */
 export const OPENED = 'OPENED';
 /**
  * CLOSED
- * @ignore
+ * @protected
  * @type {string}
  */
 export const CLOSED = 'CLOSED';
 /**
  * CONNECTED
- * @ignore
+ * @protected
  * @type {string}
  */
 export const CONNECTED = 'CONNECTED';
 /**
  * NOT_CONNECTED
- * @ignore
+ * @protected
  * @type {string}
  */
 export const NOT_CONNECTED = 'NOT_CONNECTED';
 /**
  * WAS_CONNECTED
- * @ignore
+ * @protected
  * @type {string}
  */
 export const WAS_CONNECTED = 'WAS_CONNECTED';
 /**
  * OWNER
- * @ignore
+ * @protected
  * @type {string}
  */
 export const OWNER = 'OWNER';
 /**
  * MODERATOR
- * @ignore
+ * @protected
  * @type {string}
  */
 export const MODERATOR = 'MODERATOR';
 /**
  * PARTICIPANT
- * @ignore
+ * @protected
  * @type {string}
  */
 export const PARTICIPANT = 'PARTICIPANT';
 /**
+ * NONE
+ * @protected
+ * @type {string}
+ */
+export const NONE = 'NONE';
+/**
  * Ongoing invitation
- * @ignore
+ * @protected
  * @type {string}
  */
 export const ONGOING = 'ONGOING';
 /**
  * Accepted invitation
- * @ignore
+ * @protected
  * @type {string}
  */
 export const ACCEPTED = 'ACCEPTED';
 /**
  * Rejected invitation
- * @ignore
+ * @protected
  * @type {string}
  */
 export const REJECTED = 'REJECTED';
 /**
  * Canceled invitation
- * @ignore
+ * @protected
  * @type {string}
  */
 export const CANCELED = 'CANCELED';

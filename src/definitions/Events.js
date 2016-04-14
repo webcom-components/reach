@@ -1,5 +1,5 @@
 /**
- * The supported events by Reach#on, Room#on, Stream#on...
+ * The supported events by {@link Reach#on}, {@link Room#on}, {@link Stream#on}...
  * @typedef {Object} Events
  * @property {string} USER_ADDED='USER_ADDED'
  * @property {string} USER_CHANGED='USER_CHANGED'

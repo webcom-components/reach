@@ -1,6 +1,7 @@
+import MediaConstraints from './MediaConstraints';
 /**
  * Reach config object
- * @typedef {Object} ReachConfig
+ * @typedef {Object} Config
  * @property {string|Element} [localStreamElement] - The id/element dom element that will hold the local video/audio stream
  * @property {string|Element} [remoteStreamElement] - The id/element dom element that will hold the remote video/audio stream
  * @property {boolean} [autoRequestMedia=true] - Immediately ask for camera access
@@ -11,5 +12,5 @@ export default {
 	autoRequestMedia: true,
 	localStreamElement: null,
 	remoteStreamElement: null,
-	constraints: null
+	constraints: MediaConstraints
 };
