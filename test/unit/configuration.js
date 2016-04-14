@@ -8,6 +8,16 @@ export default () => {
 			expect(Reach.t.AUDIO_VIDEO).toEqual('audio-video');
 		});
 
+		it('Should expose subscribable events as static members', () => {
+			expect(Reach.e).not.toBeNull();
+			expect(Reach.e.USER_ADDED).toEqual('USER_ADDED');
+		});
+
+		it('Should expose browser\'s infos events as static members', () => {
+			expect(Reach.b).not.toBeNull();
+			expect(Reach.b.browser).not.toBeNull();
+		});
+
 		it('Should expose sdk & schema version as static members', () => {
 			expect(Reach.v).not.toBeNull();
 			expect(Reach.v.sdk).toMatch(/^v?\d+\.\d+\.\d+$/);
