@@ -4,21 +4,25 @@
   "main": "dist/reach.js",
   "schema": {
     "version": "draft-00",
-    "url": "https://webcom-components.github.io/reach-schema/#draft-00"
+    "url": "https://webcom-components.github.io/reach-schema/#draft-00",
+    "rules": "https://webcom-components.github.io/reach-schema/draft-00/security/rules.json"
   },
   "scripts": {
     "doc": "./node_modules/.bin/esdoc -c esdoc.json",
+    "doc:all": "./node_modules/.bin/esdoc -c esdoc.all.json",
     "serve": "node ./serve.esdoc.js",
     "lint": "./node_modules/.bin/eslint src/** test/**",
     "build": "npm run build:debug && npm run build:release",
     "build:release": "./node_modules/.bin/webpack --release",
     "build:debug": "./node_modules/.bin/webpack",
-    "start": "./node_modules/.bin/karma start --auto-watch",
-    "test": "./node_modules/.bin/karma start --single-run",
-    "test:coverage": "./node_modules/.bin/karma start --single-run --coverage",
+    "start": "NODE_ENV=development ./node_modules/.bin/karma start --auto-watch",
+    "jwt": "node ./jwt.js",
+    "test": "NODE_ENV=development ./node_modules/.bin/karma start --single-run",
+    "test:coverage": "NODE_ENV=production ./node_modules/.bin/karma start --single-run --coverage",
     "prepublish-dist": "npm run build",
     "publish-dist": "echo \"machine github.com login $GH_TOKEN\" >> ~/.netrc && git config user.name \"webcomOps\" && git config user.email \"webcom.ops@orange.com\" && git add dist && git commit --no-verify --message \"chore(publish): publish dist [ci skip]\" dist && git push --no-verify origin HEAD:master",
-    "semantic-release": "semantic-release pre && npm run publish-dist && npm publish && semantic-release post"
+    "semantic-release": "semantic-release pre && npm run publish-dist && npm publish && semantic-release post",
+    "postinstall": "node ./get.rules.js"
   },
   "keywords": [
     "signaling",
@@ -39,36 +43,39 @@
     "webcom": "~0.2.2"
   },
   "devDependencies": {
-    "babel-core": "^6.5.2",
-    "babel-loader": "^6.2.3",
+    "babel-core": "^6.6.4",
+    "babel-loader": "^6.2.4",
     "babel-plugin-transform-inline-environment-variables": "^6.5.0",
     "babel-plugin-transform-member-expression-literals": "^6.5.0",
     "babel-plugin-transform-merge-sibling-variables": "^6.5.0",
     "babel-plugin-transform-property-literals": "^6.5.0",
     "babel-plugin-transform-remove-debugger": "^6.5.0",
-    "babel-plugin-transform-runtime": "^6.5.2",
-    "babel-preset-es2015": "^6.5.0",
-    "babel-runtime": "^6.5.0",
+    "babel-plugin-transform-runtime": "^6.6.0",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-runtime": "^6.6.1",
     "browser-sync": "^2.11.1",
     "cz-conventional-changelog": "^1.1.5",
     "esdoc": "^0.4.5",
     "eslint": "^2.2.0",
     "ghooks": "^1.0.3",
+    "inquirer": "^0.12.0",
     "isparta-loader": "^2.0.0",
     "jasmine": "^2.4.1",
     "jasmine-core": "^2.4.1",
+    "jsonwebtoken": "^5.7.0",
     "karma": "^0.13.21",
     "karma-chrome-launcher": "^0.2.2",
-    "karma-coverage": "^0.5.3",
+    "karma-coverage": "^0.5.4",
     "karma-firefox-launcher": "^0.1.7",
     "karma-jasmine": "^0.3.7",
     "karma-jasmine-html-reporter": "^0.2.0",
-    "karma-sauce-launcher": "^0.3.0",
+    "karma-sauce-launcher": "^0.3.1",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webdriver-launcher": "^1.0.4",
     "karma-webpack": "^1.7.0",
     "lodash": "^3.10.1",
     "minimist": "^1.2.0",
+    "moment": "^2.12.0",
     "semantic-release": "^4.3.5",
     "validate-commit-msg": "^2.1.0",
     "webpack": "^1.12.14",
@@ -79,9 +86,9 @@
       "path": "./node_modules/cz-conventional-changelog"
     },
     "ghooks": {
-      "pre-commit": "if [ $TRAVIS ] && [ $TRAVIS = 'true' ] ; then echo 'No need to lint here'; else npm run lint -s; fi",
+      "pre-commit": "node ./git.hooks.js --hook pre-commit",
       "commit-msg": "validate-commit-msg",
-      "pre-push": "if [ $TRAVIS ] && [ $TRAVIS = 'true' ] ; then echo 'Already tested'; else npm run test -s; fi"
+      "pre-push": "node ./git.hooks.js --hook pre-push"
     }
   }
 }

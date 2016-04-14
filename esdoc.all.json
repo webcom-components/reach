@@ -2,5 +2,5 @@
   "source": "./src",
   "destination": "./esdoc",
   "title": "Reach",
-  "access": ["public"]
+  "access": ["public", "protected", "private"]
 }
