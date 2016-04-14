@@ -162,7 +162,7 @@ module.exports = function(config) {
 			if (coverage) {
 				return {
 					reporters: [
-						{type: 'lcovonly', subdir: '.', file: 'lcov.info' }
+						{type: 'lcov', subdir: '.', file: 'lcov.info' }
 					]
 				};
 			}
