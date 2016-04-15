@@ -2,7 +2,6 @@
 
 const
 	webpack = require('webpack'),
-	map = require('lodash/object/mapValues'),
 	minimist = require('minimist'),
 	readFileSync = require('fs').readFileSync,
 	packageInfo = require('./package.json'),
@@ -13,19 +12,6 @@ const
 		output: true,
 		noedge: false
 	};
-
-const account = map(Object.assign(
-	{
-		WEBCOM_EMAIL: process.env.WEBCOM_EMAIL,
-		WEBCOM_PASSWORD: process.env.WEBCOM_PASSWORD,
-		WEBCOM_TOKEN: process.env.WEBCOM_TOKEN,
-		WEBCOM_DOMAIN: process.env.WEBCOM_DOMAIN,
-		WEBCOM_PROTOCOL: process.env.WEBCOM_PROTOCOL,
-		WEBCOM_NAMESPACE: process.env.WEBCOM_NAMESPACE,
-		NODE_ENV: process.env.NODE_ENV
-	},
-	require('./.account.json')
-), v => v ? `'${v}'` : null);
 
 /*eslint complexity: [2, 15] */
 const configure = (options) => {
@@ -51,7 +37,7 @@ const configure = (options) => {
 				SDK_VERSION: `'${packageInfo.version || '0.0.0'}'`,
 				SCHEMA_VERSION: `'${packageInfo.schema.version || 'draft-00'}'`
 			}),
-			new webpack.DefinePlugin(account)
+			new webpack.DefinePlugin(require('./credentials'))
 		]
 	};
 
@@ -96,5 +82,3 @@ module.exports = configure(webpackOptions);
 
 // Export configure function (for karma)
 module.exports.configure = configure;
-// Export account
-module.exports.account = account;

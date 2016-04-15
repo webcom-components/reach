@@ -7,7 +7,6 @@ const
 	args = minimist(process.argv.slice(2), {boolean: ['single-run', 'auto-watch', 'coverage']}),
 	coverage = args['coverage'],
 	singleRun = args['single-run'],
-	testConfig = process.env.NODE_ENV || 'production',
 	testSuite = 'unit',
 	sauceLabs = process.env.SAUCE_USERNAME != null && process.env.SAUCE_ACCESS_KEY != null,
 	branchName = (() => {
@@ -99,7 +98,7 @@ const
 	customLaunchers = sauceLabs ? sauceLabsBrowsers : localBrowsers,
 	browsers = Object.keys(customLaunchers);
 
-const account = webpack.account;
+const account = require('./credentials');
 if(!(account && (account.WEBCOM_TOKEN || (account.WEBCOM_EMAIL && account.WEBCOM_PASSWORD)))) {
 	console.error('Missing Webcom credentials.');
 	console.error('\t- Use \'npm run jwt\' to generate a token and export it as a env variable named \'WEBCOM_TOKEN\'');
@@ -132,7 +131,7 @@ module.exports = function(config) {
 		})(),
 		files: [
 			'node_modules/webcom/webcom.js',
-			`test/config/${testConfig}.js`,
+			'test/config.js',
 			`test/suites.${testSuite}.js`,
 			'test/main.js',
 			{pattern: 'dist/rules.json', included: false}
