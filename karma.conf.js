@@ -4,7 +4,10 @@ const
 	webpack = require('./webpack.config.js'),
 	minimist = require('minimist'),
 	child_process = require('child_process'),
-	args = minimist(process.argv.slice(2), {boolean: ['single-run', 'auto-watch', 'coverage']}),
+	omit = require('lodash/object/omit'),
+	args = minimist(process.argv.slice(2), {boolean: ['single-run', 'auto-watch', 'coverage', 'chrome', 'firefox']}),
+	onlyChrome = args['chrome'] && !args['firefox'],
+	onlyFirefox = args['firefox'] && !args['chrome'],
 	coverage = args['coverage'],
 	singleRun = args['single-run'],
 	testSuite = 'unit',
@@ -76,7 +79,7 @@ const
 		})
 	},
 
-	localBrowsers = {
+	localBrowsers = omit({
 		Chrome_auto_allow_gum: {
 			base: 'Chrome',
 			flags: [
@@ -94,7 +97,7 @@ const
 				'media.navigator.permission.disabled': true
 			}
 		}
-	},
+	}, onlyChrome ? ['Firefox_auto_allow_gum'] : (onlyFirefox ? ['Chrome_auto_allow_gum'] : [])),
 	customLaunchers = sauceLabs ? sauceLabsBrowsers : localBrowsers,
 	browsers = Object.keys(customLaunchers);
 
