@@ -1,5 +1,6 @@
-import {get, update, push, onDisconnect} from '../util/datasync';
+import {get, set, update, push, onDisconnect} from '../util/datasync';
 import ref from '../util/ref';
+import createRoom from './Room';
 import {CONNECTED, NOT_CONNECTED} from '../util/constants';
 
 /**
@@ -46,7 +47,10 @@ export default class User {
 	 * @return {Promise<{room: Room, invite: Invite}, Error>}
 	 */
 	invite(message) {
-		return Promise.resolve(message);
+		return createRoom(`${ref.user.uid}-${this.uid}`)
+			.then(room => {
+				return room.invite([this], message);
+			});
 	}
 }
 
@@ -132,7 +136,7 @@ export const initUser = (uid, name) => {
  * @returns {Promise}
  */
 export const disconnectUser = uid => {
-	return update(`_/devices/${uid}/${ref.device}`, {status: NOT_CONNECTED})
+	return set(`_/devices/${uid}/${ref.device}/status`, NOT_CONNECTED)
 		.then(() => get(`_/devices/${uid}`))
 		.then(devices => {
 			// Only change user's status if no other device connected

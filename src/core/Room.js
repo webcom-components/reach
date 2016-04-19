@@ -1,7 +1,25 @@
-import {NONE, OPENED, CONNECTED, OWNER} from '../util/constants';
-import {get, on, push, update} from '../util/datasync';
+import {NONE, OPENED, CONNECTED, WAS_CONNECTED, OWNER} from '../util/constants';
+import {get, on, off, push, update, set} from '../util/datasync';
 import ref from '../util/ref';
 import StreamTypes from '../definitions/StreamTypes';
+
+/**
+ * Get the path associated to a Room for a specific event
+ * @param {string} event The event name
+ * @param {string} uid The room id
+ * @access private
+ */
+const eventPath = (event, uid) => {
+	let path;
+	if(/^PARTICIPANT/.test(event)) {
+		path = `_/rooms/${uid}/participants`;
+	} else if(/^MESSAGE/.test(event)) {
+		path = `_/rooms/${uid}/messages`;
+	} else if(/^STREAM/.test(event)) {
+		path = `_/rooms/${uid}/streams`;
+	}
+	return path;
+};
 
 /**
  * Room informations
@@ -10,7 +28,7 @@ import StreamTypes from '../definitions/StreamTypes';
 export default class Room {
 	/**
 	 * Create a room
-	 * @param {Webcom/api.DataSnapshot} snapData The data snapshot
+	 * @param {Webcom/api.DataSnapshot|Object} snapData The data snapshot
 	 * @access protected
 	 */
 	constructor(snapData) {
@@ -38,7 +56,12 @@ export default class Room {
 		 * @type {RoomStatus}
 		 */
 		this.status = values.status;
-		// TODO Add 'extra' property for unrestricted additional informations ?
+
+		/**
+		 * Additional room informations
+		 * @type {Object}
+		 */
+		this.extra = values.extra;
 	}
 
 	/**
@@ -98,17 +121,10 @@ export default class Room {
 	 * - STREAM_* : callback({@link Stream} s [, Error e])
 	 */
 	on(event, callback) {
-		let path;
-		if(/^PARTICIPANT/.test(event)) {
-			path = `_/rooms/${this.uid}/participants`;
-		} else if(/^MESSAGE/.test(event)) {
-			path = `_/rooms/${this.uid}/messages`;
-		} else if(/^STREAM/.test(event)) {
-			path = `_/rooms/${this.uid}/streams`;
-		}
+		const path = eventPath(event, this.uid);
 		if(path) {
 			on(path, event, callback);
-			// TODO Should we keep a list of the callbacks ?
+			// TODO Should we keep a list of the callbacks ? Or just a list of subscribed events ?
 			this._callbacks[event].push(callback);
 		}
 	}
@@ -200,15 +216,29 @@ export default class Room {
 	 * @return {Promise}
 	 */
 	join() {
-		return Promise.resolve();
+		return update(`_/rooms/${this.uid}/participants/${ref.user.uid}`, {
+			status: CONNECTED,
+			_joined: Date.now()
+		});
 	}
 
 	/**
-	 * Leave the room. Sets the connected status of the current participant to false, deletes medias and callbacks, then close WebRTC stacks in use.
+	 * Leave the room. Sets the connected status of the current participant to NOT_CONNECTED, deletes medias and callbacks, then close WebRTC stacks in use.
 	 * @return {Promise}
 	 */
 	leave() {
-		return Promise.resolve();
+		// Disconnect user's callbacks
+		Object.keys(this._callbacks).forEach(event => {
+			const path = eventPath(event, this.uid);
+			if(path) {
+				off(path, event);
+			}
+		});
+		// TODO Disconnect streams (both published & subscribed)
+
+		// Update status
+		// TODO remove instead ?
+		return set(`_/rooms/${this.uid}/participants/${ref.user.uid}/status`, WAS_CONNECTED);
 	}
 
 	/**
@@ -241,7 +271,7 @@ export const listRooms = () => {
 /**
  * Create a room
  * @access protected
- * @param {String} name The room name
+ * @param {String} [name] The room name
  * @param {object} [extra=null] Extra informations
  * @returns {Promise<Room, Error>}
  */
@@ -249,36 +279,34 @@ export const createRoom = (name, extra = null) => {
 	if(!ref.user) {
 		return Promise.reject(new Error('Cannot create a Room without a User being logged in.'));
 	}
-	// Create public room infos
-	return push('rooms', {
+	const roomMetaData = {
 		owner: ref.user.uid,
-		name,
-		extra,
 		status: OPENED,
-		_created: Date.now()
-	})
-	.then(roomRef => {
-		// Create private room infos
-		const roomId = roomRef.name();
-		return update(`_/rooms/${roomId}/meta`, {
-			owner: ref.user.uid,
-			name
-		}).then(() => roomId);
-	})
-	.then(roomId => {
-		// Join the room
-		// TODO move join to another helper & add onDisconnect actions
-		return update(`_/rooms/${roomId}/participants/${ref.user.uid}`, {
-			status: CONNECTED,
-			role: OWNER,
-			_joined: Date.now()
-		}).then(() => roomId);
-	}).then(roomId => {
-		// Get room data
-		return get(`rooms/${roomId}`);
-	}).then(snapData => {
-		if(snapData) {
-			return new Room(snapData);
-		}
-	});
+		_created: Date.now(),
+		name: name || `${ref.user.name}-${Date.now()}`,
+		extra
+	};
+
+	// Create public room infos
+	return push('rooms', roomMetaData)
+		.then(roomRef => {
+			// Create private room infos
+			const roomId = roomRef.name();
+			return update(`_/rooms/${roomId}/meta`, {
+				owner: ref.user.uid,
+				name
+			}).then(() => roomId);
+		})
+		.then(roomId => {
+			// Join the room
+			// TODO move join to another helper ?
+			// TODO add onDisconnect actions
+			return update(`_/rooms/${roomId}/participants/${ref.user.uid}`, {
+				status: CONNECTED,
+				role: OWNER,
+				_joined: Date.now()
+			}).then(() => roomId);
+		}).then(roomId => {
+			return new Room(Object.assign({uid: roomId}, roomMetaData));
+		});
 };

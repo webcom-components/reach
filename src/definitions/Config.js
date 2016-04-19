@@ -12,5 +12,6 @@ export default {
 	autoRequestMedia: true,
 	localStreamElement: null,
 	remoteStreamElement: null,
-	constraints: MediaConstraints
+	constraints: MediaConstraints,
+	logLevel: 'ERROR'
 };

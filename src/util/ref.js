@@ -29,7 +29,6 @@ class RefManager {
 	/**
 	 * The connected user
 	 * @param {User} user the connected user
-	 * @type {User}
 	 */
 	set user(user) {
 		this._user = user;
@@ -55,6 +54,25 @@ class RefManager {
 	 */
 	get device() {
 		return this._device;
+	}
+
+	/**
+	 * The current log level
+	 * @returns {String}
+	 */
+	get logLevel() {
+		return this._logLevel || 'ERROR';
+	}
+	/**
+	 * Set the current log level
+	 * @param {String} level The log level (DEBUG, INFO, WARN or ERROR)
+	 */
+	set logLevel(level) {
+		if(/^DEBUG|INFO|WARN|ERROR$/i.test(level)) {
+			this._logLevel = level;
+		} else {
+			throw new Error('Unsupported log level (DEBUG, INFO, WARN, ERROR)');
+		}
 	}
 }
 

@@ -7,8 +7,6 @@ import {createRoom, listRooms} from './core/Room';
 import {on, off} from './util/datasync';
 import ref from './util/ref';
 
-// TODO Add logger & logger level configuration
-
 /**
  * Get the path to subcribe to for a specific event ({@link Reach#on})
  * @access private
@@ -46,6 +44,11 @@ export default class Reach {
 		 * @type {Webcom}
 		 */
 		this._base = ref.base;
+		/**
+		 * List of declared callbacks
+		 * @type {Object}
+		 */
+		this._callbacks = {};
 		/**
 		 * The configuration
 		 * @type {Config}
@@ -87,7 +90,7 @@ export default class Reach {
 
 	/**
 	 * The supported events
-	 * @returns {Events}
+	 * @return {Events}
 	 */
 	static get e() {
 		return Events;
@@ -99,6 +102,22 @@ export default class Reach {
 	 */
 	static get b() {
 		return browser;
+	}
+
+	/**
+	 * Set the current log level
+	 * @param {string} level
+	 */
+	static set logLevel(level) {
+		ref.logLevel = level;
+	}
+
+	/**
+	 * Get the current log level
+	 * @return {string}
+	 */
+	static get logLevel() {
+		return ref.logLevel;
 	}
 
 	/**
@@ -121,7 +140,7 @@ export default class Reach {
 	}
 
 	/**
-	 * Register & Signin as a new user
+	 * Register & Sign-in as a new user
 	 * @param {string} email The email of the user
 	 * @param {string} password The password of the user
 	 * @param {string} [name] The display name of the user (defaults to email)
@@ -138,7 +157,7 @@ export default class Reach {
 	}
 
 	/**
-	 * Signin an existing user
+	 * Sign-in an existing user
 	 * @param {string} email The email of the user
 	 * @param {string} password The password of the user
  	 * @param {string} [name] The name of the user. Defaults to the value in base.
@@ -166,7 +185,7 @@ export default class Reach {
 	}
 
 	/**
-	 * Signin an anonymous user
+	 * Sign-in an anonymous user
 	 * @param {string} name The display name of the user
 	 * @experimental Not compatible with security rules for now (waiting for anonymous login support from Webcom)
 	 * @returns {Promise<User, Error>}
@@ -186,21 +205,21 @@ export default class Reach {
 	 * @returns {Promise}
 	 */
 	logout() {
-		return new Promise(resolve => {
+		return new Promise((resolve => {
 			let p = Promise.resolve();
 			if(this.current != null) {
 				p = disconnectUser(this.current.uid);
 			}
-			p.then(() => {
+			p.then((() => {
 				Object.keys(this._callbacks).forEach(event => {
 					off(eventPath(event), event);
 				});
-				ref.base.logout(() => {
+				ref.base.logout((() => {
 					this.current = ref.user = null;
 					resolve();
-				});
-			});
-		});
+				}).bind(this));
+			}).bind(this));
+		}).bind(this));
 	}
 
 	/**
@@ -252,7 +271,7 @@ export default class Reach {
 	 * @returns {Promise<Room, Error>}
 	 */
 	createRoom(name, extra) {
-		return createRoom(name || `${this.current.name}-${Date.now()}`, extra);
+		return createRoom(name, extra);
 	}
 }
 
