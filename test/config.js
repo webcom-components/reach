@@ -4,6 +4,7 @@
 const config = {
 	protocol: 'https',
 	domain: 'webcom.orange.com',
+	logLevel: 'info',
 	get token() {
 		return WEBCOM_TOKEN;
 	},
@@ -35,6 +36,5 @@ if(WEBCOM_DOMAIN && /^[a-z:0-9\.]+$/.test(WEBCOM_DOMAIN)) {
 }
 
 if(window) {
-	console.log(config);
 	window.config = config;
 }

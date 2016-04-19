@@ -2,7 +2,7 @@ import Reach from '../../src/Reach';
 import Config from '../../src/definitions/Config';
 
 export default () => {
-	describe('Reach entry point', () => {
+	describe('Reach entry point /', () => {
 		it('Should expose possible stream types as static members', () => {
 			expect(Reach.t).not.toBeNull();
 			expect(Reach.t.AUDIO_VIDEO).toEqual('audio-video');
