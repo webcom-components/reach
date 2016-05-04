@@ -1,4 +1,4 @@
-const map = require('lodash/object/mapValues');
+const map = require('lodash/mapValues');
 
 // Mixes ENV variables & .account.json content for tests configuration
 module.exports = map(Object.assign(

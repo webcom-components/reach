@@ -2,7 +2,7 @@
 
 const BrowserSync = require('browser-sync').create();
 const child_process = require('child_process');
-const throttle = require('lodash/function/throttle');
+const throttle = require('lodash/throttle');
 const args = require('minimist')(process.argv.slice(2), {boolean: ['all']});
 
 const runESdoc = throttle(() => {

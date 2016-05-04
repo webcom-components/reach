@@ -4,10 +4,11 @@ const
 	webpack = require('./webpack.config.js'),
 	minimist = require('minimist'),
 	child_process = require('child_process'),
-	omit = require('lodash/object/omit'),
-	args = minimist(process.argv.slice(2), {boolean: ['single-run', 'auto-watch', 'coverage', 'chrome', 'firefox']}),
+	omit = require('lodash/omit'),
+	args = minimist(process.argv.slice(2), {boolean: ['single-run', 'auto-watch', 'coverage', 'chrome', 'firefox', 'none']}),
 	onlyChrome = args['chrome'] && !args['firefox'],
 	onlyFirefox = args['firefox'] && !args['chrome'],
+	noBrowser = args['none'],
 	coverage = args['coverage'],
 	singleRun = args['single-run'],
 	testSuite = 'unit',
@@ -79,7 +80,7 @@ const
 		})
 	},
 
-	localBrowsers = omit({
+	localBrowsers = noBrowser ? [] : omit({
 		Chrome_auto_allow_gum: {
 			base: 'Chrome',
 			flags: [
