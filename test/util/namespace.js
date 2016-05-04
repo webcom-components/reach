@@ -16,9 +16,10 @@ export const create = () => {
 					if (req.readyState === 4) {
 						if (req.status === 200) {
 							config.tempNamespace = ns;
-							log.i(`Created one namespace: ${config.namespaceUrl}`);
+							log.g('info', 'Created 1 namespace', [config.namespaceUrl]);
 							resolve(ns);
 						} else {
+							log.e('Creating namespace failed', req);
 							reject(req.status);
 						}
 					}
@@ -39,11 +40,10 @@ export const remove = () => {
 			const
 				req = new XMLHttpRequest(),
 				formData = new FormData();
-			log.d(`Removing namespace ${config.tempNamespace}`);
 			req.onreadystatechange = () => {
 				if (req.readyState === 4) {
 					if(req.status === 200) {
-						log.i(`Removed one namespace: ${config.namespaceUrl}`);
+						log.g('info', 'Removed 1 namespace', [config.namespaceUrl]);
 						resolve(config.tempNamespace);
 					} else {
 						reject(req.status);
@@ -83,5 +83,16 @@ export const set = (path, data) => {
 		}))
 		.then(() => new Promise((resolve, reject) => {
 			config.base.child(path).set(data, error => {error ? reject(error) : resolve();});
+		}));
+};
+
+export const get = (path) => {
+	return account.login()
+		.then(auth => account.admin(auth.token, config.namespace || config.tempNamespace))
+		.then(token => new Promise((resolve, reject) => {
+			config.base.auth(token, resolve, reject);
+		}))
+		.then(() => new Promise((resolve, reject) => {
+			config.base.child(path).once('value', resolve, reject);
 		}));
 };

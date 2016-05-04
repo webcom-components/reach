@@ -52,17 +52,15 @@ export const w = logger.bind(undefined, 'warn', levels[2]);
 export const e = console.error.bind(console);
 /**
  * Open group console messages
- * @param level The log level
- * @param args The group description
+ * @param {string}level The log level
+ * @param {string} message The group description
+ * @param {Object[]} items The items to log
  * @access protected
  * @see https://developer.mozilla.org/fr/docs/Web/API/Console/group
  */
-export const g = (level, ...args) => {
-	logger.bind(undefined, console.group ? 'group' : level, level)(...args);
+export const g = (level, message, items) => {
+	logger.bind(undefined, console.group ? 'group' : level, level)(message);
+	const values = items  ? (items instanceof Array && typeof items.length !== undefined ? items : [items]): [];
+	values.forEach(item => logger.bind(undefined, level, level)(item));
+	console.groupEnd && console.groupEnd();
 };
-/**
- * Close group
- * @access protected
- * @see https://developer.mozilla.org/fr/docs/Web/API/Console/groupEnd
- */
-export const ge = console.groupEnd ? console.groupEnd.bind(console) : () => {};

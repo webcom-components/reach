@@ -23,7 +23,7 @@ const config = {
 	}
 };
 
-if(WEBCOM_NAMESPACE && /^[a-z0-9]+$/.test(WEBCOM_NAMESPACE)) {
+if(WEBCOM_NAMESPACE && /^[a-z0-9\-_]+$/i.test(WEBCOM_NAMESPACE)) {
 	config.namespace = WEBCOM_NAMESPACE;
 }
 

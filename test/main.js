@@ -1,14 +1,39 @@
 /*global config*/
 
-import {NOT_CONNECTED} from '../src/util/constants';
 import * as namespace from './util/namespace';
 import * as rules from './util/rules';
 import * as log from './util/logger';
+import data from './data';
 
-describe('/', () => {
+const customMatchers = {
+	toBePermissionDenied: ()  => ({
+		compare: actual => {
+			log.d('customMatchers#toBePermissionDenied', actual);
+			const result = {
+				pass: actual && actual.code && /^permission_denied$/i.test(actual.code)
+			};
+			result.message = actual.message || `Permission ${result.pass ? 'Denied' : 'Granted'}`;
+			return result;
+		}
+	}),
+	toBeAnArrayOf: () => ({
+		compare: (actual, expected) => {
+			const result = {
+				pass: actual && actual instanceof Array && actual.every(i => i instanceof expected)
+			};
+			result.message = result.pass ?
+				'All elements of the array are of the expected type' :
+				'Some elements of the array are not of the expected type';
+			return result;
+		}
+	})
+};
+
+describe('Reach /', () => {
 
 	beforeAll(done => {
 		log.d('main#beforeAll');
+		jasmine.addMatchers(customMatchers);
 		jasmine.DEFAULT_TIMEOUT_INTERVAL = 15 * 1000;
 		(config.namespace ? Promise.resolve() : namespace.create())
 			.then(() => {
@@ -22,9 +47,10 @@ describe('/', () => {
 			})
 			.then(() => {
 				config.createdUsers = [];
+				const ts = Date.now();
 				return Promise.all(Array(5).fill().map((_, i) => {
 					const user = {
-						email: `new.user${i}@reach.io`,
+						email: `new.user.${i}@${ts}.reach.io`,
 						password: 'password'
 					};
 					return config.base.createUser(user.email, user.password)
@@ -32,28 +58,23 @@ describe('/', () => {
 							if(auth) {
 								user.uid = auth.uid;
 								config.createdUsers.push(user);
-								return namespace.set(`users/${auth.uid}`, {
-									status: NOT_CONNECTED,
-									name: `user ${i}`,
-									lastSeen: Date.now()
-								});
+								return user;
 							}
 						});
 				}));
 			})
 			.then(() => {
-				log.g('info', `Created ${config.createdUsers.length} users:`);
-				config.createdUsers.forEach(user => {
-					log.i(`${user.email} (${user.uid})`);
-				});
-				log.ge();
+				log.g('info', `Created ${config.createdUsers.length} users`, config.createdUsers.map(JSON.stringify));
 			})
 			.then(() => {
-				// Populate Data (Rooms...)
+				const d = data(config.createdUsers, Date.now());
+				log.g('info', 'Populate namespace', [d]);
+				return namespace.set('/', d);
 			})
 			.then(() => {
 				config.base.logout();
-				Webcom.INTERNAL.PersistentStorage.remove('session');
+				localStorage.clear();
+				// Webcom.INTERNAL.PersistentStorage.remove('session');
 				// Reset repos to force new persistent connection to be established
 				Webcom.Context.getInstance().repos_ = {};
 				done();
@@ -66,7 +87,7 @@ describe('/', () => {
 
 	beforeEach(() => {
 		log.d('main#beforeEach');
-		expect(config.base).toBeDefined('Missing base. Server of namespace pb.');
+		expect(config.base).toBeDefined('Missing base. Server or namespace pb.');
 		// Reset repos to force new persistent connection to be established
 		Webcom.Context.getInstance().repos_ = {};
 		Webcom.INTERNAL.PersistentStorage.remove('session');
@@ -75,14 +96,17 @@ describe('/', () => {
 	afterAll(done => {
 		log.d('main#afterAll');
 		// Force logout
-		config.base.logout();
+		config.base && config.base.logout();
 
 		Promise.all(config.createdUsers.map(user => config.base.removeUser(user.email, user.password)))
 			.then(() => {
 				config.createdUsers.length = 0;
 				return config.namespace ? Promise.resolve() : namespace.remove();
 			})
-			.then(done)
+			.then(() => {
+				localStorage.clear();
+			})
+			.then(() => done())
 			.catch(e => {
 				log.e(e);
 				done(e);
@@ -92,6 +116,6 @@ describe('/', () => {
 	// Load test suites
 	const suites = global.suites;
 	suites.keys().forEach(suite => {
-		suites(suite).default(config.base);
+		suites(suite).default();
 	});
 });
