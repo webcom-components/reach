@@ -151,11 +151,13 @@ const webrtcmngr = function(datarefs) {
 			console.warn('ReachSDK::webrtcmngr::closeWebrtc cannot found real stack');
 		}
 
-		if (virtualWebrtcStacks[id].localVid) {
-			localstream.close();
-			detachMediaStream(virtualWebrtcStacks[id].localVid);
-		}
+		// if (virtualWebrtcStacks[id].localVid) {
+		// 	localstream.close();
+		// 	detachMediaStream(virtualWebrtcStacks[id].localVid);
+		// }
 		if (virtualWebrtcStacks[id].remoteVid) { detachMediaStream(virtualWebrtcStacks[id].remoteVid);}
+
+		virtualWebrtcStacks.splice(id,1);
 
 		return true;
 	}
