@@ -336,7 +336,8 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 					subscriberId: _subscriberId,
 					isPublish: true,
 					peercoId: _peercoId,
-					peercoRef: _peercoRef
+					peercoRef: _peercoRef,
+					streamId
 				});
 				//delete roomWebrtcStacks[streamId+"_pub"];
 				//$("div#videoButton_"+roomId+".videoButton, div#micButton_"+roomId+".micButton").removeClass("disabled");
@@ -345,7 +346,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			// subscribe to stream updates for remove
 			const removeSubscribersListCb = (snapshot) => {
 				const
-					subscriberId = snapshot.name(),
+					subscriberId = snapshot.val().userId,
 					streamStacks = roomWebrtcStacks[`${streamId}_pub`];
 
 				if (subscriberId && streamStacks) {
@@ -353,9 +354,10 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 					for (let i = streamStacks.length - 1; i >= 0; i--) {
 						if (streamStacks[i].subscriberId === subscriberId) {
 							webrtcmngr.closeWebrtc(streamStacks[i].stackId, true);
+							roomWebrtcStacks[`${streamId}_pub`].splice(i,1);
 						}
 					}
-					delete roomWebrtcStacks[`${streamId}_pub`];
+					//delete roomWebrtcStacks[`${streamId}_pub`];
 				}
 			};
 
@@ -446,6 +448,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			for (let i = nbStack - 1; i >= 0; i--) {
 				webrtcmngr.closeWebrtc(roomWebrtcStacks[streamStacksId][i].stackId, true, closeCb);
 			}
+			localstream.close();
 		} else {
 			delete roomWebrtcStacks[streamStacksId];
 			if (callback && typeof callback == 'function') {
@@ -548,7 +551,9 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 		//handle remote unpublish
 		if (!remoteUnpublishedCb) {
 			remoteUnpublishedCb = function (snapshot) {
-				const removedStreamId = `${Object.keys(snapshot)[0]}_sub`;
+				const streamId = `${snapshot.val().from}-stream`;
+				const removedStreamId = `${streamId}_sub`;
+				console.log(`(ReachSDK::room[${roomId}]::remoteUnpublishedCb)streamId ${removedStreamId}`);
 				if (roomWebrtcStacks[removedStreamId]) {
 					let i = 0;
 					while (i < roomWebrtcStacks[removedStreamId].length) {
@@ -565,7 +570,8 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 			stackId: mStackId,
 			isPublish: false,
 			peercoId: _peercoId,
-			peercoRef: _peercoRef
+			peercoRef: _peercoRef,
+			streamId
 		});
 
 		return streamId;
@@ -798,22 +804,33 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 		// close all webrtc stacks
 		Object.keys(roomWebrtcStacks).forEach((streamStacksId) => {
 			roomWebrtcStacks[streamStacksId].forEach((stack) => {
-				if(stack){
-					webrtcmngr.closeWebrtc(stack.stackId, stack.isPublish);
-					webrtcmngr.clearWebrtcStacks(stack.stackId);
+				if (streamStacksId && stack) {
+					const _streamId=stack.streamId;
+					const _stackId=stack.stackId;
+					const _isPublish=stack.isPublish;
+					if (_isPublish) {
+						_unPublishStream(_streamId);
+					} else {
+						_unSubscribeFromStream(_streamId);
+					}	    
+					setTimeout(() => { 
+						webrtcmngr.clearWebrtcStacks(_stackId);
+					}, 1000);
 				}
 			});
 		});
-		roomWebrtcStacks = {};
-
-
-		mMutedStreams = [];
-
-		_removeAllAvailableStreams();
+		setTimeout(() => {
+			roomWebrtcStacks={};
+			mMutedStreams=[];    	        
+			_removeAllAvailableStreams();
+		}, 1100);
+		
 		if (updateRoomStatusToClose && updateRoomStatusToClose === true) {
 			dataref.child('commonDataList/status').set(ROOM_STATUS_CLOSE);
 		}
 
+		// Force localstream close
+		localstream.close();
 	}
 
 	init();
