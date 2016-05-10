@@ -82,11 +82,11 @@ const
 			version: '35',
 			proxy
 		},
-		sl_firefox_beta: {
+		sl_firefox_42: {
 			base: 'SauceLabs',
 			browserName: 'firefox',
 			platform: 'Windows 10',
-			version: 'beta',
+			version: '42',
 			proxy
 		},
 		sl_firefox_46: {
