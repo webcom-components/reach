@@ -704,6 +704,7 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 		mMutedStreams[streamId].video = true;
 
 		if(roomWebrtcStacks){
+			console.log(roomWebrtcStacks[`${streamId}_pub`]);
 			[roomWebrtcStacks[`${streamId}_pub`], roomWebrtcStacks[`${streamId}_sub`]].forEach((stacks) => {
 				if(stacks && stacks.length > 0) {
 					for (let i = stacks.length - 1; i >= 0; i--) {
@@ -833,6 +834,24 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 		localstream.close();
 	}
 
+	/**
+	 * Switches between cameras.
+	 */
+	function _switchCamera(){
+		localstream.switchCamera();
+	}
+	/**
+	 * retrieving all of the video sources/cameras connected to the device & seen by the browser 
+	 */
+	function _getAllVideoSources(){
+		return localstream.getAllVideoSources();
+	}
+	/**
+	 * retrieving the number of video sources/cameras connected to the current device.
+	 */
+	function _getVideoSourceNumber(){
+		return localstream.getVideoSourceNumber();
+	}
 	init();
 
 	return {
@@ -968,6 +987,18 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 				console.err(`(ReachSDK::room[${roomId}]::on)unsupported ${evt} event`);
 				break;
 			}
-		}
+		},
+		/**
+		 * Switches between cameras.
+		 */
+		switchCamera: _switchCamera,
+		/**
+		 * getting all of video sources/cameras connected to the current device and accessible by the browser
+		 */
+		getAllVideoSources: _getAllVideoSources,
+		/**
+		 * getting the number of the video sources/cameras connect to the current device
+		 */
+		getVideoSourceNumber: _getVideoSourceNumber
 	};
 }
