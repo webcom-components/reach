@@ -780,10 +780,6 @@ const reach = function (p_me, datarefs) {
 		});
 	}
 
-
-
-
-
 	/**
 	 * Close the reach service,
 	 * disables and deletes any listeners/callback defined.
@@ -851,6 +847,38 @@ const reach = function (p_me, datarefs) {
 			mDeviceId = null;
 		}
 
+	}
+	/**
+	 * test if userId is present & connected in the participant list of the room roomId
+	 *
+	 * @param {string} roomId - The room used as the name of a branch in the database
+	 * @param {string} userId - The user Id
+	 * @param {function} callback - the callback function to tigger to get the result. It will containts a parameter = true is already present & connected, false either.
+	 */
+	function _isUserPresent(roomId,userId,callback){
+		console.log(`(ReachSDK::reach::_isUserPresent) userId=${userId}`);
+		if (!(userId && typeof userId == 'string')) {
+			console.error('(ReachSDK::reach::_isUserPresent)parameter userId is incorrect. Expecting non empty string');
+			return;
+		}
+
+		if (!(callback && typeof callback == 'function')) {
+			console.error('(ReachSDK::reach::_isUserPresent)parameter callback is incorrect. if defined, expecting a function');
+			return;
+		}
+		const participantListRef = datarefs.getRooms().child(`${roomId}/participantList`);
+
+		participantListRef.child(`${userId}/connected`).once('value', (snapshot) => {
+			const isConnected = snapshot.val();
+			console.log(isConnected);
+			console.log(`(ReachSDK::reach::_isUserPresent)userId=${userId},result=${isConnected}`);
+			if(isConnected===null){
+				callback(false);
+			}
+			else{
+				callback(isConnected);
+			}
+		});
 	}
 
 	init();
@@ -986,7 +1014,11 @@ const reach = function (p_me, datarefs) {
 		/**
 		 * Closes and removes callbacks
 		 */
-		close: _close
+		close: _close,
+		/**
+		 * checks if there's a user with the same ID/name already present in the room
+		 */
+		isUserPresent:_isUserPresent
 	};
 };
 
