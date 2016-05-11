@@ -380,7 +380,107 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 		console.log(`(ReachSDK::webrtc::_unmuteVideo)stackId=${stackId}`);
 		_muteVideoTracks(false);
 	}
-
+	/**
+	 * Prepares the SDP callbacks.
+	 * Remote description will by defined for the peer connection and callbacks are defined for SDP answser and response management.
+	 * If there is no publishing, local description will be defined.
+	 */
+	function _initSdpCallbacks(isPublish) {
+		console.debug(`(ReachSDK::webrtc::_initSdpCallbacks)stackId=${stackId}`);
+		if (sdpOfferCb) {
+			remoteDataRef.off('child_added', sdpOfferCb);
+			sdpOfferCb=undefined;
+		}
+		if (sdpAnswerCb) {
+			remoteDataRef.off('child_added', sdpAnswerCb);
+			sdpAnswerCb=undefined;
+		}
+		console.debug(`(ReachSDK::webrtc::_initSdpCallbacks)isPublish=${isPublish}`);
+		if (isPublish) {
+			sdpAnswerCb = (snapshot) => {
+				if (!isClosed && snapshot.name() === 'sdpAnswer') {
+					const data = snapshot.val();
+					console.debug(`(ReachSDK::webrtc::sdpAnswerCb)stackId=${stackId}-received sdpAnswer: ${JSON.stringify(data)}`);
+					pc.setRemoteDescription(new myRTCSessionDescription(data), () => {
+						console.debug(`(ReachSDK::webrtc::sdpAnswerCb)stackId=${stackId}-remote description set`);
+						// remove sdpAnswer from webcom
+						//snapshot.ref().remove();
+						startListeningToRemoteIceCandidate();
+					}, onError);
+					remoteDataRef.off('child_added', sdpAnswerCb);
+					sdpAnswerCb=undefined;
+					snapshot.ref().remove();
+					_initSdpCallbacks(false);
+				}
+			};
+			remoteDataRef.on('child_added', sdpAnswerCb);
+		} else {
+			sdpOfferCb = function (snapshot) {
+				if (!isClosed && snapshot.name() === 'sdpOffer') {
+					const data = snapshot.val();
+					console.debug(`(ReachSDK::webrtc::sdpOfferCb)stackId=${stackId}-received sdpOffer: ${JSON.stringify(data)}`);
+					pc.setRemoteDescription(new myRTCSessionDescription(data), () => {
+						console.debug(`(ReachSDK::webrtc::setRemoteDescription)`);
+						pc.createAnswer((description) => {
+							console.log(`(ReachSDK::webrtc::sdpOfferCb)stackId=${stackId}-sending answer`);
+							pc.setLocalDescription(description, () => {
+								console.debug(`(ReachSDK::webrtc::sdpOfferCb)stackId=${stackId}-set sdpAnswer in base : ${JSON.stringify(description)}`);
+								localDataRef.child('sdpAnswer').set(JSON.parse(JSON.stringify(description))); // decoding/encoding because of Firefox bug
+								// remove sdpOffer from webcom
+								//snapshot.ref().remove();
+								startListeningToRemoteIceCandidate();
+							}, onError);
+							setTimeout(() => {
+								receivedStream = pc.getRemoteStreams()[0];
+								if (isAudioMute) {
+									_muteAudio();
+								}
+								if (isVideoMute) {
+									_muteVideo();
+								}
+								if ((pc.iceConnectionState===ICE_CONNECTION_STATE_CONNECTED || pc.iceConnectionState===ICE_CONNECTION_STATE_COMPLETED || pc.iceConnectionState===ICE_CONNECTION_STATE_OTHER) && receivedStream ) {
+									for (let i=0;i<remoteStreams.length;i++) {
+										if (remoteStreams[i]) {
+											//console.debug(`(webcomSDK::webrtc::onaddstream)pc.onaddstream stackId=${stackId}-rendering remote vid to ${remoteStreams[i].id}`);
+											attachMediaStream( remoteStreams[i],receivedStream);
+										}
+									}
+									for (let j=0;j<remoteStreamsCb.length;j++) {
+										if (remoteStreamsCb[j]) {
+											remoteStreamsCb[j](receivedStream);
+										}
+									}
+									remoteStreamsCb=[];
+								}
+							}, 1100);
+						}, onError, subscriberMediaConstraints);
+					}, onError);
+					remoteDataRef.off('child_added', sdpOfferCb);
+					sdpOfferCb=undefined;
+					snapshot.ref().remove();
+					_initSdpCallbacks(false);
+				}
+			};
+			remoteDataRef.on('child_added', sdpOfferCb);
+		}
+	}
+	/**
+	 * Sends an SDP offer through the peer connection.
+	 * An SDP offer is created, with a local description, and is sent.
+	 * The description is both decoded and encoded because of Firefox bugs.
+	 */
+	function sendOffer() {
+		// ------------------------------------------------------------------
+		// publie l'offre initiale
+		// ------------------------------------------------------------------
+		console.log(`(webrtc::sendOffer)stackid=${stackId}-creating sdpOffer`);
+		pc.createOffer((description) => {
+			pc.setLocalDescription(description, () => {
+				console.debug(`(ReachSDK::webrtc::createOffer)stackId=${stackId}-set sdpOffer in base : ${JSON.stringify(description)}`);
+				localDataRef.child('sdpOffer').set(JSON.parse(JSON.stringify(description))); // decoding/encoding because of Firefox bug
+			}, onError);
+		}, onError, publisherMediaConstraints);
+	}
 	/**
 	 * Initializes the local stream
 	 * @param callback - A callback to trigger when the initialisation is done
@@ -453,11 +553,42 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 			} else if (actionType === actions.ACTION_TYPE_AUDIO_VIDEO) {
 				initlocalStream = () => {
 					console.log('(ReachSDK::webrtc::_initlocalStream)initlocalStream_audio_video');
-					if (localstream.getAudioVideoStream() && localstream.getAudioVideoStream().clone && typeof localstream.getAudioVideoStream().clone == 'function') {
-						sentStream = localstream.getAudioVideoStream().clone();
-					} else {
-						sentStream = localstream.getAudioVideoStream();
-					}
+					// if (localstream.getAudioVideoStream() && localstream.getAudioVideoStream().clone && typeof localstream.getAudioVideoStream().clone == 'function') {
+					// 	sentStream = localstream.getAudioVideoStream().clone();
+					// } else {
+					sentStream = localstream.getAudioVideoStream();
+					// }
+					localstream.addStreamAudioVideoListener((stream) => {
+						console.log('(ReachSDK::webrtc::addStreamAudioVideoListener)');
+						if (pc) {					
+							if(webrtcDetectedBrowser ==='firefox'){
+								console.log(webrtcDetectedBrowser);
+								pc.getSenders().forEach(sender =>
+								sentStream.getTracks().includes(sender.track) && 
+								pc.removeTrack(sender));
+							}
+							else{
+								pc.removeStream(sentStream);
+							}
+							sentStream=stream;
+							if (isAudioMute) {
+								_muteAudio();
+							}
+							if (isVideoMute) {
+								_muteVideo();
+							}
+							console.log(stream);
+							pc.addStream(stream);
+
+							for (let i = 0; i < localStreams.length; i++) {
+								console.log(`(ReachSDK::webrtc::addStreamAudioVideoListener)stackId=${stackId} rendering local AudioVideo to ${localStreams[i].id}`);
+								attachMediaStream(localStreams[i], stream);
+							}
+							
+							_initSdpCallbacks(true);
+							sendOffer();	
+						}
+					});
 					if (isAudioMute) {
 						_muteAudio();
 					}
@@ -492,58 +623,6 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 	}
 
 	/**
-	 * Prepares the SDP callbacks.
-	 * Remote description will by defined for the peer connection and callbacks are defined for SDP answser and response management.
-	 * If there is no publishing, local description will be defined.
-	 */
-	function _initSdpCallbacks() {
-		console.debug(`(ReachSDK::webrtc::_initSdpCallbacks)stackId=${stackId}`);
-		if (isPublish) {
-			if (sdpOfferCb) {
-				remoteDataRef.off('child_added', sdpOfferCb);
-			}
-			sdpAnswerCb = (snapshot) => {
-				if (!isClosed && snapshot.name() === 'sdpAnswer') {
-					const data = snapshot.val();
-					console.debug(`(ReachSDK::webrtc::sdpAnswerCb)stackId=${stackId}-received sdpAnswer: ${JSON.stringify(data)}`);
-					pc.setRemoteDescription(new myRTCSessionDescription(data), () => {
-						console.debug(`(ReachSDK::webrtc::sdpAnswerCb)stackId=${stackId}-remote description set`);
-						// remove sdpAnswer from webcom
-						//snapshot.ref().remove();
-						startListeningToRemoteIceCandidate();
-					}, onError);
-					remoteDataRef.off('child_added', sdpAnswerCb);
-				}
-			};
-			remoteDataRef.on('child_added', sdpAnswerCb);
-		} else {
-			if (sdpAnswerCb) {
-				remoteDataRef.off('child_added', sdpAnswerCb);
-			}
-			sdpOfferCb = function (snapshot) {
-				if (!isClosed && snapshot.name() === 'sdpOffer') {
-					const data = snapshot.val();
-					console.debug(`(ReachSDK::webrtc::sdpOfferCb)stackId=${stackId}-received sdpOffer: ${JSON.stringify(data)}`);
-					pc.setRemoteDescription(new myRTCSessionDescription(data), () => {
-						pc.createAnswer((description) => {
-							console.log(`(ReachSDK::webrtc::sdpOfferCb)stackId=${stackId}-sending answer`);
-							pc.setLocalDescription(description, () => {
-								console.debug(`(ReachSDK::webrtc::sdpOfferCb)stackId=${stackId}-set sdpAnswer in base : ${JSON.stringify(description)}`);
-								localDataRef.child('sdpAnswer').set(JSON.parse(JSON.stringify(description))); // decoding/encoding because of Firefox bug
-								// remove sdpOffer from webcom
-								//snapshot.ref().remove();
-								startListeningToRemoteIceCandidate();
-							}, onError);
-						}, onError, subscriberMediaConstraints);
-					}, onError);
-					remoteDataRef.off('child_added', sdpOfferCb);
-				}
-			};
-			remoteDataRef.on('child_added', sdpOfferCb);
-		}
-	}
-
-	/**
 	 * Closes the SDP callbacks by disabling callbacks for the "child_added" event and by defining them to null.
 	 */
 	function _closeSdpCallbacks() {
@@ -555,24 +634,6 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 			remoteDataRef.off('child_added', sdpOfferCb);
 			sdpOfferCb = null;
 		}
-	}
-
-	/**
-	 * Sends an SDP offer through the peer connection.
-	 * An SDP offer is created, with a local description, and is sent.
-	 * The description is both decoded and encoded because of Firefox bugs.
-	 */
-	function sendOffer() {
-		// ------------------------------------------------------------------
-		// publie l'offre initiale
-		// ------------------------------------------------------------------
-		console.log(`(webrtc::sendOffer)stackid=${stackId}-creating sdpOffer`);
-		pc.createOffer((description) => {
-			pc.setLocalDescription(description, () => {
-				console.debug(`(ReachSDK::webrtc::createOffer)stackId=${stackId}-set sdpOffer in base : ${JSON.stringify(description)}`);
-				localDataRef.child('sdpOffer').set(JSON.parse(JSON.stringify(description))); // decoding/encoding because of Firefox bug
-			}, onError);
-		}, onError, publisherMediaConstraints);
 	}
 
 	/**
@@ -719,14 +780,20 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 					_muteVideo();
 				}
 			}
-//            _remoteStream = e.stream;
-//
-//			for (var i=0;i<remoteStreams.length;i++) {
-//			    if (remoteStreams[i]) {
-//			    	  console.debug("(ReachSDK::webrtc::onaddstream)pc.onaddstream stackId="+stackId + "-" +"rendering remote vid to "+remoteStreams[i].id);
-//			    	  attachMediaStream( remoteStreams[i],_remoteStream);
-//			    }
-//			}
+			if ((pc.iceConnectionState===ICE_CONNECTION_STATE_CONNECTED || pc.iceConnectionState===ICE_CONNECTION_STATE_COMPLETED || pc.iceConnectionState===ICE_CONNECTION_STATE_OTHER) && receivedStream ) {
+				for (let i=0;i<remoteStreams.length;i++) {
+					if (remoteStreams[i]) {
+						//console.debug(`(webcomSDK::webrtc::onaddstream)pc.onaddstream stackId=${stackId}-rendering remote vid to ${remoteStreams[i].id}`);
+						attachMediaStream( remoteStreams[i],receivedStream);
+					}
+				}
+				for (let j=0;j<remoteStreamsCb.length;j++) {
+					if (remoteStreamsCb[j]) {
+						remoteStreamsCb[j](receivedStream);
+					}
+				}
+				remoteStreamsCb=[];
+			}
 		};
 
 		pc.oniceconnectionstatechange = () => {
@@ -812,11 +879,11 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 
 		if (isPublish) {
 			_initlocalStream(() => {
-				_initSdpCallbacks();
+				_initSdpCallbacks(isPublish);
 				sendOffer();
 			});
 		} else {
-			_initSdpCallbacks();
+			_initSdpCallbacks(false);
 		}
 	}
 
