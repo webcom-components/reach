@@ -6,6 +6,7 @@ globals:
   Webcom: false
   getUserMedia: true
   detachMediaStream: true
+  webrtcDetectedBrowser: true
 
 ecmaFeatures:
   modules: true
