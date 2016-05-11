@@ -24,7 +24,7 @@ const localstream = (function() {
 	/**
 	 * @description The local audio and video streams, as HTML video objects, in an array
 	 */
-	let localAudioVideoStreams = [];
+	const localAudioVideoStreams = [];
 	/**
 	 * @description The video stream object
 	 */
@@ -73,7 +73,39 @@ const localstream = (function() {
 	 * @description Flag indicating if the audio and video initialisation is in progress
 	 */
 	let initAudioVideoProgress = false;
+	/**
+	 * @description videoSources array indicating the avaliable video sources
+	 */
+	const videoSources=[];
+	/**
+	 * @description currentVideoSource index indicating the currently used video sources
+	 */
+	let currentVideoSource=0;
+	/**
+	 *@description An array containing audio and video listeners as functions. These listeners will be triggered in case of initiating video/audio by switching camera.
+	 */
+	const streamListenersAudioVideo=[];
 
+	/**
+	 * Call back method for enumerateDevices 
+	 * that is used to get the sources attached to the currently used device/browser
+	*/
+	function gotSources(sourceInfos) {
+		for (let i = 0; i < sourceInfos.length; i++) {
+			const sourceInfo = sourceInfos[i];
+			if (sourceInfo.kind === 'videoinput') {
+				videoSources.push(sourceInfo);
+			} 
+		}
+	}
+	/**
+	 * a method to reterive all of the video sources avaliable connected to the current device.
+	 */
+	function _getAllVideoSources(){
+		if (videoSources.length===0) {
+			navigator.mediaDevices.enumerateDevices().then(gotSources);	
+		}
+	}
 	/**
 	 * Initializes the video local stream.
 	 * The web browser's user media will be called, so the browser in use must be recent (Firefox 17, Chrome 21, Opera 18 and later versions).
@@ -209,24 +241,42 @@ const localstream = (function() {
 		console.log('(ReachSDK::localstream::initAudioVideo)');
 		if (!initAudioVideoProgress) {
 			initAudioVideoProgress=true;
+			_getAllVideoSources();
 
 			navigator.getMedia = getUserMedia;
 			mLocalStreamAudioVideo = document.createElement('AUDIOVIDEO');
 			mLocalStreamAudioVideo.muted= true;
-			localAudioVideoStreams.push(mLocalStreamAudioVideo);
+			//localAudioVideoStreams.push(mLocalStreamAudioVideo);
 
-			if(streamAudioVideo === null){
-				navigator.getMedia({audio : true,video : true},
+			let audioSource;
+			let videoSource;
+
+			if(videoSources[currentVideoSource]){
+				videoSource = videoSources[currentVideoSource].deviceId;
+			}
+
+			const constraints = {
+				audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
+				video: {deviceId: videoSource ? {exact: videoSource} : undefined}
+			};
+
+			if(streamAudioVideo === null || videoSource){
+
+				navigator.getMedia(constraints,
 					(s) => {
 						streamAudioVideo = s;
 
 						localAudioVideoStreams.forEach((localAudioVideoStream) => {
 							attachMediaStream(localAudioVideoStream, streamAudioVideo);
 						});
-						localAudioVideoStreams = [];
+						//localAudioVideoStreams = [];
 
 						listenersAudioVideo.forEach((listenerAudioVideo) => {
 							listenerAudioVideo(streamAudioVideo);
+						});
+
+						streamListenersAudioVideo.forEach((streamListenerAudioVideo) => {
+							streamListenerAudioVideo(streamAudioVideo);
 						});
 						listenersAudioVideo = [];
 
@@ -250,7 +300,7 @@ const localstream = (function() {
 				localAudioVideoStreams.forEach((localAudioVideoStream) => {
 					attachMediaStream(localAudioVideoStream, streamAudioVideo);
 				});
-				localAudioVideoStreams = [];
+				//localAudioVideoStreams = [];
 
 				listenersAudioVideo.forEach((listenerAudioVideo) => {
 					listenerAudioVideo(streamAudioVideo);
@@ -260,6 +310,24 @@ const localstream = (function() {
 				initAudioVideoProgress = false;
 			}
 
+		}
+	}
+	/**
+	 * a function used to switch camera source with the next avaliable one
+	*/
+	function _switchCamera() {
+		console.log('(ReachSDK::localstream::_switchCamera)');
+		if (videoSources.length>0) {
+			currentVideoSource++;
+			if (currentVideoSource>=videoSources.length){
+				currentVideoSource=0;
+			} 
+			if (streamAudioVideo) {
+				streamAudioVideo.getTracks().forEach((track)=>{
+					track.stop();
+				});
+			}
+			initAudioVideo();
 		}
 	}
 
@@ -489,6 +557,33 @@ const localstream = (function() {
 		 */
 		close: () => {
 			close();
+		},
+		/**
+		 * Switches between cameras.
+		 */
+		switchCamera: () => {
+			_switchCamera();
+		},
+		/**
+		 * Adds the audio-and-video listener which will be called after the audio-and-video stream is established used by switching camera feature
+		 * @param cb - The audio and video listener to add 
+		 */
+		addStreamAudioVideoListener: (cb) => {
+			streamListenersAudioVideo.push(cb);
+		},
+        /**
+         * getting all of the video sources/cameras that are connected to the current device/browser
+         */
+		getAllVideoSources:() =>{
+			_getAllVideoSources();
+			return videoSources;
+		},
+        /**
+         * getting the number of all of the video sources/cameras that are connected to the current device/browser
+         */
+		getVideoSourceNumber:() =>{
+			_getAllVideoSources();
+			return videoSources.length;
 		}
 	};
 
