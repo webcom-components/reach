@@ -6,3 +6,4 @@ AUTHORS
 LICENSE
 .*
 *.md
+src/adapter.js
