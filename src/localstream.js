@@ -76,7 +76,7 @@ const localstream = (function() {
 	/**
 	 * @description videoSources array indicating the avaliable video sources
 	 */
-	const videoSources=[];
+	let videoSources=[];
 	/**
 	 * @description currentVideoSource index indicating the currently used video sources
 	 */
@@ -94,21 +94,25 @@ const localstream = (function() {
 	 * Call back method for enumerateDevices 
 	 * that is used to get the sources attached to the currently used device/browser
 	*/
-	function gotSources(sourceInfos) {
-		for (let i = 0; i < sourceInfos.length; i++) {
-			const sourceInfo = sourceInfos[i];
-			if (sourceInfo.kind === 'videoinput') {
-				videoSources.push(sourceInfo);
-			} 
-		}
-	}
+	// function gotSources(sourceInfos) {
+	// 	for (let i = 0; i < sourceInfos.length; i++) {
+	// 		const sourceInfo = sourceInfos[i];
+	// 		if (sourceInfo.kind === 'videoinput') {
+	// 			videoSources.push(sourceInfo);
+	// 		} 
+	// 	}
+	// }
 	/**
 	 * a method to reterive all of the video sources avaliable connected to the current device.
 	 */
 	function _getAllVideoSources(){
-		if (videoSources.length===0) {
-			navigator.mediaDevices.enumerateDevices().then(gotSources);	
+		if(videoSources.length > 0) {
+			return Promise.resolve(videoSources);
 		}
+		return navigator.mediaDevices.enumerateDevices().then((sourceInfos)=>{
+			videoSources= sourceInfos.filter(sourceInfo => /^videoinput$/.test(sourceInfo.kind));
+			return videoSources;
+		});	
 	}
 	/**
 	 * Initializes the video local stream.
@@ -120,7 +124,9 @@ const localstream = (function() {
 		console.log('(ReachSDK::localstream::initVideo)');
 		if (! initVideoProgress) {
 			initVideoProgress=true;
-			_getAllVideoSources();
+			_getAllVideoSources().then((sources)=>{
+				videoSources=sources;
+			});
 
 			navigator.getMedia = getUserMedia;
 			mLocalStreamVideo = document.createElement('VIDEO');
@@ -264,7 +270,9 @@ const localstream = (function() {
 		console.log('(ReachSDK::localstream::initAudioVideo)');
 		if (!initAudioVideoProgress) {
 			initAudioVideoProgress=true;
-			_getAllVideoSources();
+			_getAllVideoSources().then((sources)=>{
+				videoSources=sources;
+			});
 
 			navigator.getMedia = getUserMedia;
 			mLocalStreamAudioVideo = document.createElement('AUDIOVIDEO');
@@ -341,10 +349,7 @@ const localstream = (function() {
 	function _switchCamera() {
 		console.log('(ReachSDK::localstream::_switchCamera)');
 		if (videoSources.length>0) {
-			currentVideoSource++;
-			if (currentVideoSource>=videoSources.length){
-				currentVideoSource=0;
-			} 
+			currentVideoSource = ++currentVideoSource % videoSources.length;
 			if (streamAudioVideo) {
 				console.log('(ReachSDK::localstream::_switchCamera)::streamAudioVideo');
 				streamAudioVideo.getTracks().forEach((track)=>{
@@ -614,16 +619,20 @@ const localstream = (function() {
         /**
          * getting all of the video sources/cameras that are connected to the current device/browser
          */
-		getAllVideoSources:() =>{
-			_getAllVideoSources();
-			return videoSources;
+		getAllVideoSources:(cb) =>{
+			_getAllVideoSources().then((sources)=>{
+				videoSources = sources;
+				cb(videoSources);
+			});
 		},
         /**
          * getting the number of all of the video sources/cameras that are connected to the current device/browser
          */
-		getVideoSourceNumber:() =>{
-			_getAllVideoSources();
-			return videoSources.length;
+		getVideoSourceNumber:(cb) =>{
+			_getAllVideoSources().then((sources)=>{
+				videoSources = sources;
+				cb(videoSources.length);
+			});
 		}
 	};
 
