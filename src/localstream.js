@@ -16,7 +16,7 @@ const localstream = (function() {
 	/**
 	 * @description The local video streams, as HTML video objects, in an array
 	 */
-	let localVideoStreams = [];
+	const localVideoStreams = [];
 	/**
 	 * @description The local audio streams, as HTML video objects, in an array
 	 */
@@ -85,6 +85,10 @@ const localstream = (function() {
 	 *@description An array containing audio and video listeners as functions. These listeners will be triggered in case of initiating video/audio by switching camera.
 	 */
 	const streamListenersAudioVideo=[];
+	/**
+	 *@description An array containing video listeners as functions. These listeners will be triggered in case of initiating video by switching camera.
+	 */
+	const streamListenersVideo=[];
 
 	/**
 	 * Call back method for enumerateDevices 
@@ -116,25 +120,44 @@ const localstream = (function() {
 		console.log('(ReachSDK::localstream::initVideo)');
 		if (! initVideoProgress) {
 			initVideoProgress=true;
+			_getAllVideoSources();
 
 			navigator.getMedia = getUserMedia;
 			mLocalStreamVideo = document.createElement('VIDEO');
 			mLocalStreamVideo.muted= true;
-			localVideoStreams.push(mLocalStreamVideo);
+			// localVideoStreams.push(mLocalStreamVideo);
 
-			if(streamVideo === null){
-				navigator.getMedia({audio : false,video : true},
+			let audioSource;
+			let videoSource;
+
+			if(videoSources[currentVideoSource]){
+				videoSource = videoSources[currentVideoSource].deviceId;
+			}
+
+			const constraints = {
+				audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
+				video: {deviceId: videoSource ? {exact: videoSource} : undefined}
+			};
+
+			if(streamVideo === null || videoSource){
+				navigator.getMedia(constraints,
 					(s) => {
+						console.log(s);
 						streamVideo = s;
 
 						localVideoStreams.forEach((localVideoStream) => {
 							attachMediaStream(localVideoStream, streamVideo);
 						});
-						localVideoStreams = [];
+						// localVideoStreams = [];
 
 						listenersVideo.forEach((listenerVideo) => {
 							listenerVideo(streamVideo);
 						});
+
+						streamListenersVideo.forEach((streamListenerVideo) => {
+							streamListenerVideo(streamVideo);
+						});
+
 						listenersVideo = [];
 
 						initVideoProgress=false;
@@ -157,7 +180,7 @@ const localstream = (function() {
 				localVideoStreams.forEach((localVideoStream) => {
 					attachMediaStream(localVideoStream, streamVideo);
 				});
-				localVideoStreams = [];
+				// localVideoStreams = [];
 
 				listenersVideo.forEach((listenerVideo) => {
 					listenerVideo(streamVideo);
@@ -323,11 +346,19 @@ const localstream = (function() {
 				currentVideoSource=0;
 			} 
 			if (streamAudioVideo) {
+				console.log('(ReachSDK::localstream::_switchCamera)::streamAudioVideo');
 				streamAudioVideo.getTracks().forEach((track)=>{
 					track.stop();
 				});
+				initAudioVideo();
 			}
-			initAudioVideo();
+			if (streamVideo) {
+				console.log('(ReachSDK::localstream::_switchCamera)::streamVideo');
+				streamVideo.getTracks().forEach((track)=>{
+					track.stop();
+				});
+				initVideo();
+			}
 		}
 	}
 
@@ -348,7 +379,9 @@ const localstream = (function() {
 			streamAudioVideo=null;
 		}
 		if (streamVideo) {
-			streamVideo.stop();
+			streamVideo.getTracks().forEach((track)=>{
+				track.stop();
+			});
 			streamVideo = null;
 		}
 		initVideoProgress=false;
@@ -570,6 +603,13 @@ const localstream = (function() {
 		 */
 		addStreamAudioVideoListener: (cb) => {
 			streamListenersAudioVideo.push(cb);
+		},
+		/**
+		 * Adds the video listener which will be called after the video stream is established used by switching camera feature
+		 * @param cb - The video listener to add 
+		 */
+		addStreamVideoListener: (cb) => {
+			streamListenersVideo.push(cb);
 		},
         /**
          * getting all of the video sources/cameras that are connected to the current device/browser

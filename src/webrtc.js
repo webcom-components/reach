@@ -493,11 +493,42 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 			if (actionType === vars.ACTION_TYPE_VIDEO) {
 				initlocalStream = () => {
 					console.log('(ReachSDK::webrtc::_initlocalStream)initlocalStream_video');
-					if (localstream.getVideoStream() && localstream.getVideoStream().clone && typeof localstream.getVideoStream().clone == 'function') {
-						sentStream = localstream.getVideoStream().clone();
-					} else {
-						sentStream = localstream.getVideoStream();
-					}
+					// if (localstream.getVideoStream() && localstream.getVideoStream().clone && typeof localstream.getVideoStream().clone == 'function') {
+					// 	sentStream = localstream.getVideoStream().clone();
+					// } else {
+					sentStream = localstream.getVideoStream();
+					// }
+					localstream.addStreamVideoListener((stream) => {
+						console.log('(ReachSDK::webrtc::addStreamVideoListener)');
+						if (pc) {					
+							if(webrtcDetectedBrowser ==='firefox'){
+								console.log(webrtcDetectedBrowser);
+								pc.getSenders().forEach(sender =>
+								sentStream.getTracks().includes(sender.track) && 
+								pc.removeTrack(sender));
+							}
+							else{
+								pc.removeStream(sentStream);
+							}
+							sentStream=stream;
+							if (isAudioMute) {
+								_muteAudio();
+							}
+							if (isVideoMute) {
+								_muteVideo();
+							}
+							console.log(stream);
+							pc.addStream(stream);
+
+							for (let i = 0; i < localStreams.length; i++) {
+								console.log(`(ReachSDK::webrtc::addStreamVideoListener)stackId=${stackId} rendering local AudioVideo to ${localStreams[i].id}`);
+								attachMediaStream(localStreams[i], stream);
+							}
+							
+							_initSdpCallbacks(true);
+							sendOffer();	
+						}
+					});
 					if (isAudioMute) {
 						_muteAudio();
 					}
