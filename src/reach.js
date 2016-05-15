@@ -866,18 +866,12 @@ const reach = function (p_me, datarefs) {
 			console.error('(ReachSDK::reach::_isUserPresent)parameter callback is incorrect. if defined, expecting a function');
 			return;
 		}
-		const participantListRef = datarefs.getRooms().child(`${roomId}/participantList`);
-
-		participantListRef.child(`${userId}/connected`).once('value', (snapshot) => {
+		
+		datarefs.getRooms().child(`${roomId}/participantList/${userId}/connected`)
+		.once('value', (snapshot) => {
 			const isConnected = snapshot.val();
-			console.log(isConnected);
 			console.log(`(ReachSDK::reach::_isUserPresent)userId=${userId},result=${isConnected}`);
-			if(isConnected===null){
-				callback(false);
-			}
-			else{
-				callback(isConnected);
-			}
+			callback(!!isConnected);
 		});
 	}
 
