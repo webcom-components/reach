@@ -843,14 +843,14 @@ export default function (p_me, p_roomId, datarefs, webrtcmngr) {
 	/**
 	 * retrieving all of the video sources/cameras connected to the device & seen by the browser 
 	 */
-	function _getAllVideoSources(cb){
-		return localstream.getAllVideoSources(cb);
+	function _getAllVideoSources(){
+		return localstream.getAllVideoSources();
 	}
 	/**
 	 * retrieving the number of video sources/cameras connected to the current device.
 	 */
-	function _getVideoSourceNumber(cb){
-		return localstream.getVideoSourceNumber(cb);
+	function _getVideoSourceNumber(){
+		return localstream.getVideoSourceNumber();
 	}
 	init();
 

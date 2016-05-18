@@ -125,76 +125,74 @@ const localstream = (function() {
 		if (! initVideoProgress) {
 			initVideoProgress=true;
 			_getAllVideoSources().then((sources)=>{
-				videoSources=sources;
+				navigator.getMedia = getUserMedia;
+				mLocalStreamVideo = document.createElement('VIDEO');
+				mLocalStreamVideo.muted= true;
+				// localVideoStreams.push(mLocalStreamVideo);
+
+				let audioSource;
+				let videoSource;
+
+				if(sources[currentVideoSource]){
+					videoSource = sources[currentVideoSource].deviceId;
+				}
+
+				const constraints = {
+					audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
+					video: {deviceId: videoSource ? {exact: videoSource} : undefined}
+				};
+
+				if(streamVideo === null || videoSource){
+					navigator.getMedia(constraints,
+						(s) => {
+							console.log(s);
+							streamVideo = s;
+
+							localVideoStreams.forEach((localVideoStream) => {
+								attachMediaStream(localVideoStream, streamVideo);
+							});
+							// localVideoStreams = [];
+
+							listenersVideo.forEach((listenerVideo) => {
+								listenerVideo(streamVideo);
+							});
+
+							streamListenersVideo.forEach((streamListenerVideo) => {
+								streamListenerVideo(streamVideo);
+							});
+
+							listenersVideo = [];
+
+							initVideoProgress=false;
+
+							if (callback) {
+								callback();
+							}
+						},
+						(error) => {
+							console.error('Error on webrtcLocalStream - webkitGetUserMedia : error=');
+							console.dir(error);
+							initVideoProgress = false;
+
+							if (callback) {
+								callback(error);
+							}
+						}
+					);
+				} else {
+					localVideoStreams.forEach((localVideoStream) => {
+						attachMediaStream(localVideoStream, streamVideo);
+					});
+					// localVideoStreams = [];
+
+					listenersVideo.forEach((listenerVideo) => {
+						listenerVideo(streamVideo);
+					});
+					listenersVideo = [];
+
+					initVideoProgress = false;
+				}
 			});
-
-			navigator.getMedia = getUserMedia;
-			mLocalStreamVideo = document.createElement('VIDEO');
-			mLocalStreamVideo.muted= true;
-			// localVideoStreams.push(mLocalStreamVideo);
-
-			let audioSource;
-			let videoSource;
-
-			if(videoSources[currentVideoSource]){
-				videoSource = videoSources[currentVideoSource].deviceId;
-			}
-
-			const constraints = {
-				audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
-				video: {deviceId: videoSource ? {exact: videoSource} : undefined}
-			};
-
-			if(streamVideo === null || videoSource){
-				navigator.getMedia(constraints,
-					(s) => {
-						console.log(s);
-						streamVideo = s;
-
-						localVideoStreams.forEach((localVideoStream) => {
-							attachMediaStream(localVideoStream, streamVideo);
-						});
-						// localVideoStreams = [];
-
-						listenersVideo.forEach((listenerVideo) => {
-							listenerVideo(streamVideo);
-						});
-
-						streamListenersVideo.forEach((streamListenerVideo) => {
-							streamListenerVideo(streamVideo);
-						});
-
-						listenersVideo = [];
-
-						initVideoProgress=false;
-
-						if (callback) {
-							callback();
-						}
-					},
-					(error) => {
-						console.error('Error on webrtcLocalStream - webkitGetUserMedia : error=');
-						console.dir(error);
-						initVideoProgress = false;
-
-						if (callback) {
-							callback(error);
-						}
-					}
-				);
-			} else {
-				localVideoStreams.forEach((localVideoStream) => {
-					attachMediaStream(localVideoStream, streamVideo);
-				});
-				// localVideoStreams = [];
-
-				listenersVideo.forEach((listenerVideo) => {
-					listenerVideo(streamVideo);
-				});
-				listenersVideo = [];
-
-				initVideoProgress = false;
-			}
 		}
 	}
 
@@ -271,76 +269,73 @@ const localstream = (function() {
 		if (!initAudioVideoProgress) {
 			initAudioVideoProgress=true;
 			_getAllVideoSources().then((sources)=>{
-				videoSources=sources;
+				navigator.getMedia = getUserMedia;
+				mLocalStreamAudioVideo = document.createElement('AUDIOVIDEO');
+				mLocalStreamAudioVideo.muted= true;
+				//localAudioVideoStreams.push(mLocalStreamAudioVideo);
+
+				let audioSource;
+				let videoSource;
+
+				if(sources[currentVideoSource]){
+					videoSource = sources[currentVideoSource].deviceId;
+				}
+
+				const constraints = {
+					audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
+					video: {deviceId: videoSource ? {exact: videoSource} : undefined}
+				};
+
+				if(streamAudioVideo === null || videoSource){
+
+					navigator.getMedia(constraints,
+						(s) => {
+							streamAudioVideo = s;
+
+							localAudioVideoStreams.forEach((localAudioVideoStream) => {
+								attachMediaStream(localAudioVideoStream, streamAudioVideo);
+							});
+							//localAudioVideoStreams = [];
+
+							listenersAudioVideo.forEach((listenerAudioVideo) => {
+								listenerAudioVideo(streamAudioVideo);
+							});
+
+							streamListenersAudioVideo.forEach((streamListenerAudioVideo) => {
+								streamListenerAudioVideo(streamAudioVideo);
+							});
+							listenersAudioVideo = [];
+
+							initAudioVideoProgress = false;
+
+							if (callback) {
+								callback();
+							}
+						},
+						(error) => {
+							console.error('(ReachSDK::localstream::initAudioVideo::Error on webrtcLocalStream - webkitGetUserMedia : error=');
+							console.dir(error);
+							initAudioVideoProgress=false;
+
+							if (callback) {
+								callback(error);
+							}
+						}
+					);
+				} else {
+					localAudioVideoStreams.forEach((localAudioVideoStream) => {
+						attachMediaStream(localAudioVideoStream, streamAudioVideo);
+					});
+					//localAudioVideoStreams = [];
+
+					listenersAudioVideo.forEach((listenerAudioVideo) => {
+						listenerAudioVideo(streamAudioVideo);
+					});
+					listenersAudioVideo = [];
+
+					initAudioVideoProgress = false;
+				}
 			});
-
-			navigator.getMedia = getUserMedia;
-			mLocalStreamAudioVideo = document.createElement('AUDIOVIDEO');
-			mLocalStreamAudioVideo.muted= true;
-			//localAudioVideoStreams.push(mLocalStreamAudioVideo);
-
-			let audioSource;
-			let videoSource;
-
-			if(videoSources[currentVideoSource]){
-				videoSource = videoSources[currentVideoSource].deviceId;
-			}
-
-			const constraints = {
-				audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
-				video: {deviceId: videoSource ? {exact: videoSource} : undefined}
-			};
-
-			if(streamAudioVideo === null || videoSource){
-
-				navigator.getMedia(constraints,
-					(s) => {
-						streamAudioVideo = s;
-
-						localAudioVideoStreams.forEach((localAudioVideoStream) => {
-							attachMediaStream(localAudioVideoStream, streamAudioVideo);
-						});
-						//localAudioVideoStreams = [];
-
-						listenersAudioVideo.forEach((listenerAudioVideo) => {
-							listenerAudioVideo(streamAudioVideo);
-						});
-
-						streamListenersAudioVideo.forEach((streamListenerAudioVideo) => {
-							streamListenerAudioVideo(streamAudioVideo);
-						});
-						listenersAudioVideo = [];
-
-						initAudioVideoProgress = false;
-
-						if (callback) {
-							callback();
-						}
-					},
-					(error) => {
-						console.error('(ReachSDK::localstream::initAudioVideo::Error on webrtcLocalStream - webkitGetUserMedia : error=');
-						console.dir(error);
-						initAudioVideoProgress=false;
-
-						if (callback) {
-							callback(error);
-						}
-					}
-				);
-			} else {
-				localAudioVideoStreams.forEach((localAudioVideoStream) => {
-					attachMediaStream(localAudioVideoStream, streamAudioVideo);
-				});
-				//localAudioVideoStreams = [];
-
-				listenersAudioVideo.forEach((listenerAudioVideo) => {
-					listenerAudioVideo(streamAudioVideo);
-				});
-				listenersAudioVideo = [];
-
-				initAudioVideoProgress = false;
-			}
-
 		}
 	}
 	/**
@@ -619,19 +614,15 @@ const localstream = (function() {
         /**
          * getting all of the video sources/cameras that are connected to the current device/browser
          */
-		getAllVideoSources:(cb) =>{
-			_getAllVideoSources().then((sources)=>{
-				videoSources = sources;
-				cb(videoSources);
-			});
+		getAllVideoSources:() =>{
+			return _getAllVideoSources();
 		},
         /**
          * getting the number of all of the video sources/cameras that are connected to the current device/browser
          */
-		getVideoSourceNumber:(cb) =>{
-			_getAllVideoSources().then((sources)=>{
-				videoSources = sources;
-				cb(videoSources.length);
+		getVideoSourceNumber:() =>{
+			return _getAllVideoSources().then((sources)=>{
+				return sources.length;
 			});
 		}
 	};
