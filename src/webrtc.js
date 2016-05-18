@@ -430,6 +430,10 @@ const webrtc = function (p_webrtcmngr, p_isPublish, p_localDataRef, p_remoteData
 								//snapshot.ref().remove();
 								startListeningToRemoteIceCandidate();
 							}, onError);
+							//Used to solve a problem occurred when re-negotiating SDP offer between chrome & Firefox as a result of switch camera between both browsers.
+							//setTimeout is used to ensure that the SDP offer at Chrome side has arrived when switching camera from Firefox side without it the re-negotiation process will not be completed 							
+							//same logic as pc.onaddstream as it was not fired upon SDP offer creation. 							
+							//1100 interval is tuneable
 							setTimeout(() => {
 								receivedStream = pc.getRemoteStreams()[0];
 								if (isAudioMute) {
