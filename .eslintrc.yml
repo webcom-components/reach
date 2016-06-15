@@ -18,6 +18,7 @@ rules:
   indent:
     - 2
     - tab
+    - SwitchCase: 1
   quotes:
     - 2
     - single
