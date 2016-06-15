@@ -1,10 +1,12 @@
 import Reach from '../../src/Reach';
-import {get} from '../../src/util/datasync';
+import * as datasync from '../../src/core/util/DataSync';
 import * as rules from '../util/rules';
 import * as log from '../util/logger';
-import {CONNECTED} from '../../src/util/constants';
+import * as namespace from '../util/namespace';
+import {CONNECTED, NOT_CONNECTED} from '../../src/core/util/constants';
+import Device from '../../src/core/Device';
 
-const uidRegExp = /^[a-z0-9\-]+$/;
+const uidRegExp = /^[a-z0-9\-:]+$/;
 
 const testUser = (done, action, userInfos, ereg = uidRegExp) => {
 	action
@@ -12,15 +14,14 @@ const testUser = (done, action, userInfos, ereg = uidRegExp) => {
 			expect(user.name).toEqual(userInfos.name || userInfos.email);
 			expect(user.status).toEqual(CONNECTED);
 			expect(user.uid).toMatch(ereg);
-			return get(`users/${user.uid}`);
+			return datasync.get(`users/${user.uid}`);
 		})
 		.then(snapData => {
 			const val = snapData.val();
+			expect(val).not.toBeNull();
 			expect(val.name).toEqual(userInfos.name || userInfos.email);
 			expect(val.lastSeen).toMatch(/^\d+$/);
-			expect(parseInt(val.lastSeen, 10)).toBeLessThan(Date.now());
-			expect(parseInt(val.lastSeen, 10)).toBeGreaterThan(Date.now() - 10 * 1000);
-			return get(`_/devices/${snapData.name()}`);
+			return datasync.get(`_/devices/${snapData.name()}`);
 		})
 		.then(snapData => {
 			const devices = snapData.val();
@@ -31,14 +32,26 @@ const testUser = (done, action, userInfos, ereg = uidRegExp) => {
 		})
 		.then(done)
 		.catch(e => {
-			expect(e.code).not.toEqual('permission_denied');
+			fail(e.message);
 			done(e);
 		});
 };
 
 export default () => {
 	describe('Register & Login /', () => {
+		let ref;
+
+		beforeEach(done => {
+			ref = new Reach(config.base);
+			done();
+		});
+
+		afterEach(done => {
+			ref.logout().then(done, done);
+		});
+
 		describe('Authenticated Users /', () => {
+
 			it('Should be able to register a new user', done => {
 				const newUser = {
 					email: `register.user.${Date.now()}@reach.io`,
@@ -47,7 +60,7 @@ export default () => {
 				config.createdUsers.push(newUser);
 				testUser(
 					done,
-					(new Reach(config.base)).register(
+					ref.register(
 						newUser.email,
 						newUser.password
 					),
@@ -58,9 +71,9 @@ export default () => {
 			it('Should be able to login as an existing user', done => {
 				testUser(
 					done,
-					(new Reach(config.base)).login(
-						config.createdUsers[0].email,
-						config.createdUsers[0].password,
+					ref.login(
+						config.createdUsers[1].email,
+						config.createdUsers[1].password,
 						'Homer'
 					),
 					Object.assign({name: 'Homer'}, config.createdUsers[0])
@@ -68,37 +81,80 @@ export default () => {
 			});
 	
 			it('Should be able to logout', done => {
-				const ref = new Reach(config.base);
 				ref.login(
-					config.createdUsers[0].email,
-					config.createdUsers[0].password,
+					config.createdUsers[1].email,
+					config.createdUsers[1].password,
 					'Homer'
 				).then(user => {
 					expect(ref.current).toEqual(user);
 					return ref.logout();
 				}).then(() => {
 					expect(ref.current).toBeNull();
-					done();
-				}).catch(e => {
+					return namespace.get(`users/${config.createdUsers[1].uid}/status`);
+				}).then(snap => {
+					if (snap) {
+						expect(snap.val()).toBe(NOT_CONNECTED);
+					} else {
+						fail('Cannot get User\'s status');
+					}
+				})
+				.then(() => done())
+				.catch(e => {
 					log.e(e);
 					done(e);
 				});
 			});
 	
 			it('Should be able to resume a previous session', done => {
-				config.base.authWithPassword(Object.assign({rememberMe: true}, config.createdUsers[0])).then(() => {
-					config.base.logout();
-					const ref = new Reach(config.base);
+				config.base.authWithPassword(Object.assign({rememberMe: true}, config.createdUsers[3])).then(() => {
+					config.base.unauth();
+					// Reset repos to force new persistent connection to be established
+					Webcom.Context.getInstance().repos_ = {};
 					testUser(
 						done,
-						Promise.resolve(ref.current),
-						Object.assign({name: 'Homer'}, config.createdUsers[0])
+						ref.resume(),
+						Object.assign({name: config.createdUsers[3].email}, config.createdUsers[3])
 					);
+				});
+			});
+
+			it('Should be CONNECTED after logout if at least one device is connected', done => {
+				ref.login(
+					config.createdUsers[0].email,
+					config.createdUsers[0].password,
+					'Homer'
+				)
+				.then(user => {
+					expect(ref.current).toEqual(user);
+					return user.devices();
+				})
+				.then(devices => {
+					expect(devices).toBeAnArrayOf(Device);
+					expect(devices.length).toBe(3);
+					expect(devices.filter(device => device.status === CONNECTED).length).toBe(3);
+				})
+				.then(() => ref.logout())
+				.then(() => {
+					expect(ref.current).toBeNull();
+					return namespace.get(`users/${config.createdUsers[0].uid}/status`);
+				})
+				.then(snap => {
+					if (snap) {
+						expect(snap.val()).toBe(CONNECTED);
+					} else {
+						fail('Cannot get User\'s status');
+					}
+				})
+				.then(() => done())
+				.catch(e => {
+					log.e(e);
+					done(e);
 				});
 			});
 		});
 	
 		describe('Anonymous Users /', () => {
+
 			beforeAll(done => {
 				log.d('login#anon#beforeAll');
 				rules.set({'.read': true, '.write': true})
@@ -112,16 +168,16 @@ export default () => {
 						done(e);
 					});
 			});
-	
+
 			it('Should be able to login as an anonymous user', done => {
 				testUser(
 					done,
-					(new Reach(config.base)).anonymous('Homer'),
+					ref.anonymous('Homer'),
 					{name: 'Homer'},
 					/^anonymous:\d+$/
 				);
 			});
-	
+
 			afterAll(done => {
 				log.d('login#anon#afterAll');
 				rules.set(config.rules)

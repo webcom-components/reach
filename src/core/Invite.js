@@ -1,29 +1,99 @@
-import {ONGOING, ACCEPTED, REJECTED, CANCELED} from '../util/constants';
-import {get, update} from '../util/datasync';
+import {ONGOING, ACCEPTED, REJECTED, CANCELED} from './util/constants';
+import * as DataSync from './util/DataSync';
+import * as Log from './util/Log';
+import cache from './util/cache';
+import Room from './Room';
+
+/**
+ * Update
+ * @param {Invite} invite The invite
+ * @param {string} status The new status
+ * @param {string} [reason=null] The reason (a message)
+ * @param {object} [_ended=null]
+ * @access private
+ * @returns {Promise<Invite, Error>}
+ */
+const update = (invite, status, reason = null, _ended = null) => {
+	const values = {
+		status,
+		reason,
+		_ended
+	};
+
+	if(invite.status !== ONGOING) {
+		return Promise.reject(new Error('This invitation has already been answered'));
+	}
+	return DataSync.update(`_/invites/${invite.to}/${invite.uid}`, values)
+		.then(() => {
+			Object.keys(values).forEach(prop => {
+				invite[prop] = values[prop];
+			});
+			return Room.get(invite.room);
+		})
+		.then(room => ({room, invite}))
+		.catch(Log.r);
+};
 
 /**
  * Invitation
- * @access protected
+ * @public
  */
 export default class Invite {
-	/**
-	 * The room associated to the invite
-	 * @type {Room}
-	 */
-	get room() {
-		return null;
-	}
 
 	/**
-	 * The invitation status :
-	 * - ONGOING - The receiver has not yet responded to the invitation
-	 * - ACCEPTED - The receiver has accepted the invitation
-	 * - REJECTED - The receiver has rejected the invitation
-	 * - CANCELED - The sender canceled the invitation
-	 * @type {string}
+	 * Create an invite
+	 * @param {Webcom/api.DataSnapshot|object} snapData The data snapshot
+	 * @access protected
 	 */
-	get status() {
-		return '';
+	constructor(snapData) {
+		let values = snapData;
+		if(snapData && snapData.val && typeof snapData.val === 'function'){
+			values = Object.assign(snapData.val() || {}, {uid: snapData.name(), to: snapData.ref().parent().name()});
+		}
+		/**
+		 * Invite's unique id
+		 * @type string
+		 */
+		this.uid = values.uid;
+		/**
+		 * Invite's sender uid
+		 * @type {string}
+		 */
+		this.from = values.from;
+		/**
+		 * Invitee's uid
+		 * @type {string}
+		 */
+		this.to = values.to;
+		/**
+		 * The id of the room associated to the invite
+		 * @type {string}
+		 */
+		this.room = values.room;
+		/**
+		 * The invitation status :
+		 * - ONGOING - The receiver has not yet responded to the invitation
+		 * - ACCEPTED - The receiver has accepted the invitation
+		 * - REJECTED - The receiver has rejected the invitation
+		 * - CANCELED - The sender canceled the invitation
+		 * @type {string}
+		 */
+		this.status = values.status;
+		/**
+		 * Invite message. This will be either a custom message if the status is ONGOING or a reason when status is CANCELED|REJECTED.
+		 * @type {string}
+		 */
+		this.topic = values.topic;
+		/**
+		 * Invite creation timestamp
+		 * @type {number}
+		 */
+		this._created = values._created;
+		/**
+		 * Invite expiration timestamp
+		 * @type {number}
+		 */
+		this._ended = values._ended;
 	}
 
 	/**
@@ -59,90 +129,56 @@ export default class Invite {
 	}
 
 	/**
-	 * The invitation sender
-	 * @type {string}
-	 */
-	get from() {
-		return '';
-	}
-
-	/**
-	 * The invitation receiver
-	 * @type {string}
-	 */
-	get to() {
-		return '';
-	}
-
-	/**
-	 * The invitation cancel/reject reason if present
-	 * @type {?string}
-	 */
-	get reason() {
-		return null;
-	}
-
-	/**
 	 * Cancels the invitation. Only the sender can cancel the invitation.
 	 * @param {string} [reason] The reason the sender is canceling the invite
-	 * @return {Promise}
+	 * @return {Promise<Invite>}
 	 */
-	cancel() {
-		return Promise.resolve();
+	cancel(reason) {
+		return update(this, CANCELED, reason, DataSync.ts());
 	}
 
 	/**
-	 * Rejects the invitation. Only the reveicer can reject the invitation.
+	 * Rejects the invitation. Only the receiver can reject the invitation.
 	 * @param {string} [reason] The reason the receiver is rejecting the invite
-	 * @return {Promise}
+	 * @return {Promise<Invite>}
 	 */
 	reject(reason) {
-		return Promise.resolve(reason);
+		return update(this, REJECTED, reason);
 	}
 
 	/**
-	 * Accept the invitation. Only the reveicer can accept the invitation.
-	 * @return {Promise}
+	 * Accept the invitation. Only the receiver can accept the invitation.
+	 * @return {Promise<Invite>}
 	 */
 	accept() {
-		return Promise.resolve();
+		return update(this, ACCEPTED);
 	}
-}
 
-/**
- * List invites for a specific User
- * @access protected
- * @returns {Promise<Invite[], Error>}
- */
-export const listInvites = (user) => {
-	return get(`_/invites/${user.uid}`).then(snapData => {
-		if(snapData) {
-			const invites = [];
-			snapData.forEach(childSnapData => {invites.push(new Invite(childSnapData));});
-			return invites;
+	/**
+	 * Create the invitation & add the user to the participants list
+	 * @access protected
+	 * @param {User} invitee The user to invite
+	 * @param {Room} room The room to invite the user to
+	 * @param {string} [message] A message for the invitee
+	 */
+	static send(invitee, room, message = null) {
+		if(!cache.user) {
+			return Promise.reject(new Error('Cannot send an Invite without a User being logged in.'));
 		}
-		return [];
-	});
-};
 
-/**
- * Create the invitation & add the user to the participants list
- * @access protected
- * @param {User} invitee The user to invite
- * @param {User} sender The room owner/moderator (will be the current user)
- * @param {Room} room The room to invite the user to
- */
-export const createInvite = (invitee, sender, room) => {
-	// TODO the sender will always be the current user so the 'sender' parameter might not be useful #API
-	return get(`_/invites/${invitee.uid}/${room.uid}`).then(snapData => {
-		if(snapData && snapData.val()) {
-			return new Invite();
-		}
-		return update(`_/invites/${invitee.uid}/${room.uid}`, {
-			from: sender.uid,
+		const inviteMetaData = {
+			from: cache.user.uid,
 			room: room.uid,
 			status: ONGOING,
-			_created: Date.now()
-		});
-	});
-};
+			_created: DataSync.ts(),
+			topic: message
+		};
+
+		return DataSync.push(`_/invites/${invitee.uid}`, inviteMetaData)
+			.then(inviteRef => {
+				const inviteId = inviteRef.name();
+				return new Invite(Object.assign({uid: inviteId, to: invitee.uid}, inviteMetaData));
+			})
+			.catch(Log.r);
+	}
+}

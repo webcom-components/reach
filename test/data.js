@@ -1,12 +1,12 @@
-import {OPENED, ONGOING, CONNECTED, NOT_CONNECTED, OWNER, MODERATOR, NONE} from '../src/util/constants';
+import {OPENED, ONGOING, CONNECTED, NOT_CONNECTED, OWNER, MODERATOR, NONE} from '../src/core/util/constants';
 
 export const data = (users, timestamp) => {
 	const d = {
 		_: {
 			ice: [
-				{url: 'turns:turn1.webcom.orange.com:443', username: 'admin', credential: 'webcom1234'},
-				{url: 'turns:turn2.webcom.orange.com:443', username: 'admin', credential: 'webcom1234'},
-				{url: 'turns:turn3.webcom.orange.com:443', username: 'admin', credential: 'webcom1234'}
+				{urls: 'turns:turn1.webcom.orange.com:443', username: 'admin', credential: 'webcom1234'},
+				{urls: 'turns:turn2.webcom.orange.com:443', username: 'admin', credential: 'webcom1234'},
+				{urls: 'turns:turn3.webcom.orange.com:443', username: 'admin', credential: 'webcom1234'}
 			],
 			devices: {},
 			invites: {},

@@ -4,7 +4,7 @@
 const config = {
 	protocol: 'https',
 	domain: 'webcom.orange.com',
-	logLevel: 'info',
+	logLevel: 'debug',
 	get token() {
 		return WEBCOM_TOKEN;
 	},

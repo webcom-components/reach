@@ -1,7 +1,11 @@
-import {get, set, update, push, onDisconnect} from '../util/datasync';
-import ref from '../util/ref';
-import createRoom from './Room';
-import {CONNECTED, NOT_CONNECTED} from '../util/constants';
+import * as DataSync from './util/DataSync';
+import cache from './util/cache';
+import * as Log from './util/Log';
+import Room from './Room';
+import Device from './Device';
+import {CONNECTED, NOT_CONNECTED} from './util/constants';
+
+let initializing = false;
 
 /**
  * User informations
@@ -38,7 +42,7 @@ export default class User {
 		 * @type {number}
 		 */
 		this.lastSeen = values.lastSeen;
-		// TODO Add 'extra' property for unrestricted additional informations ?
+		// TODO Add 'extra' property for unrestricted additional information ?
 	}
 
 	/**
@@ -47,126 +51,120 @@ export default class User {
 	 * @return {Promise<{room: Room, invite: Invite}, Error>}
 	 */
 	invite(message) {
-		return createRoom(`${ref.user.uid}-${this.uid}`)
+		return Room.create(`${cache.user.uid}-${this.uid}`)
 			.then(room => {
-				return room.invite([this], message);
-			});
+				return room.invite([this], null, message);
+			})
+			.then(data => {
+				return {room: data.room, invite: data.invites[0]};
+			})
+			.catch(Log.r);
+	}
+
+	/**
+	 * List Users's devices. Only for current user.
+	 * @access protected
+	 * @return {Promise<Device[], Error>}
+	 */
+	devices() {
+		return DataSync.list(`_/devices/${this.uid}`, Device);
+	}
+
+	/**
+	 * Init the current user
+	 * @access protected
+	 * @param {string} uid The user's uid
+	 * @param {string} [name] The user's display name
+	 * @returns {Promise<User, Error>}
+	 */
+	static init (uid, name) {
+		if(!initializing) {
+			initializing = true;
+			const d = {status: CONNECTED, lastSeen: DataSync.ts()};
+			if(name) {
+				Object.assign(d, {name});
+			}
+			let deviceId = Webcom.INTERNAL.PersistentStorage.get(uid);
+			return DataSync.update(`users/${uid}`, d)
+				// Register current device
+				.then(() => {
+					const deviceMetadata = {
+						status: CONNECTED,
+						sdk: {
+							reach: SDK_VERSION,
+							webcom: Webcom.SDK_VERSION
+						},
+						userAgent: navigator.userAgent
+					};
+					if(deviceId) {
+						return DataSync.update(`_/devices/${uid}/${deviceId}`, deviceMetadata);
+					}
+					return DataSync.push(`_/devices/${uid}`, deviceMetadata);
+				})
+				// Add Disconnect actions
+				.then(deviceRef => {
+					if(!deviceId) {
+						deviceId = deviceRef.name();
+						Webcom.INTERNAL.PersistentStorage.set(uid, deviceId);
+					}
+					cache.device = deviceId;
+					// Remove device
+					// TODO change status only ? Archive ?
+					DataSync.onDisconnect(`_/devices/${uid}/${deviceId}`).update({
+						status: NOT_CONNECTED
+					});
+					// Update user status
+					DataSync.onDisconnect(`users/${uid}`).update({
+						status: NOT_CONNECTED,
+						lastSeen: DataSync.ts()
+					});
+				})
+				// Get user
+				.then(() => User.get(uid))
+				.then(user => {
+					initializing = false;
+					return user;
+				})
+				.catch(e => {
+					Log.e(e);
+					initializing = false;
+					return Promise.reject(e);
+				});
+		}
+		return User.get(uid);
+	}
+
+	/**
+	 * Disconnect the current user
+	 * @access protected
+	 * @param {string} uid The user's uid
+	 * @returns {Promise}
+	 */
+	static disconnect(uid) {
+		return DataSync.set(`_/devices/${uid}/${cache.device}/status`, NOT_CONNECTED)
+			.then(() => DataSync.get(`_/devices/${uid}`))
+			.then(devices => {
+				// Only change user's status if no other device connected
+				const hasConnectedDevices = devices.forEach(device => {
+					return (new RegExp(`^${CONNECTED}$`)).test(device.val().status);
+				});
+				if(!hasConnectedDevices) {
+					return DataSync.update(`users/${uid}`, {status: NOT_CONNECTED});
+				}
+				return true;
+			})
+			.catch(Log.r);
+	}
+
+	/**
+	 * Get a user by its uid
+	 * @access private
+	 * @param {string} uid The user's uid
+	 * @returns {Promise<User, Error>}
+	 */
+	static get(uid) {
+		return DataSync.get(`users/${uid}`)
+		.then(snapData => snapData ? new User(snapData) : null)
+		.catch(Log.r);
 	}
 }
-
-/**
- * Get a user by its uid
- * @access protected
- * @param {string} uid The user's uid
- * @returns {Promise<User, Error>}
- */
-export const getUser = (uid) => {
-	return get(`users/${uid}`).then(snapData => {
-		return snapData ? new User(snapData) : null;
-	});
-};
-
-/**
- * Update a user
- * @access protected
- * @param {string} uid The user's uid
- * @param {object} data The data
- * @returns {Promise<*, Error>}
- */
-export const updateUser = (uid, data) => {
-	return update(`users/${uid}`, data);
-};
-
-let initializing = false;
-/**
- * Init the current user
- * @access protected
- * @param {string} uid The user's uid
- * @returns {Promise<User, Error>}
- */
-export const initUser = (uid, name) => {
-	if(!initializing) {
-		initializing = true;
-		const d = {status: CONNECTED, lastSeen: Date.now()};
-		if(name) {
-			Object.assign(d, {name});
-		}
-		return updateUser(uid, d)
-			// Register current device
-			.then(() => {
-				return push(`_/devices/${uid}`, {
-					status: CONNECTED,
-					sdk: {
-						reach: SDK_VERSION,
-						webcom: Webcom.SDK_VERSION
-					},
-					userAgent: navigator.userAgent
-				});
-			})
-			// Add Disconnect actions
-			.then(deviceRef => {
-				ref.device = deviceRef.name();
-				// Remove device
-				// TODO change status only ? Archive ?
-				deviceRef.onDisconnect().remove();
-				// Update user status
-				onDisconnect(`users/${uid}`).update({
-					status: NOT_CONNECTED,
-					lastSeen: Date.now()
-				});
-			})
-			// Get user
-			.then(() => getUser(uid))
-			.then(user => {
-				initializing = false;
-				return user;
-			})
-			.catch(e => {
-				initializing = false;
-				return Promise.reject(e);
-			});
-	}
-	return getUser(uid);
-};
-
-/**
- * Disconnect the current user
- * @access protected
- * @param {string} uid The user's uid
- * @returns {Promise}
- */
-export const disconnectUser = uid => {
-	return set(`_/devices/${uid}/${ref.device}/status`, NOT_CONNECTED)
-		.then(() => get(`_/devices/${uid}`))
-		.then(devices => {
-			// Only change user's status if no other device connected
-			const hasConnectedDevices = devices.forEach(device => {
-				return (new RegExp(`^${CONNECTED}$`)).test(device.val().status);
-			});
-			if(!hasConnectedDevices) {
-				return updateUser(uid, {status: NOT_CONNECTED});
-			}
-			return true;
-		});
-};
-
-/**
- * List the users
- * @access protected
- * @param {boolean} include Include current user in user's list
- * @returns {Promise<User[], Error>}
- */
-export const listUsers = (include) => {
-	return get('users').then(snapData => {
-		if(snapData) {
-			const users = [];
-			snapData.forEach(childSnapData => {
-				if(include || childSnapData.name() !== ref.user.uid) {
-					users.push(new User(childSnapData));
-				}
-			});
-			return users;
-		}
-		return [];
-	});
-};

@@ -1,41 +1,150 @@
 import Reach from '../../src/Reach';
-import Config from '../../src/definitions/Config';
+import media from '../../src/core/util/Media';
+import * as log from '../util/logger';
+
 
 export default () => {
-	describe('Reach entry point /', () => {
-		it('Should expose possible stream types as static members', () => {
-			expect(Reach.t).not.toBeNull();
-			expect(Reach.t.AUDIO_VIDEO).toEqual('audio-video');
+	describe('Entry point /', () => {
+		describe('Static /', () => {
+			it('Should expose possible stream types', () => {
+				expect(Reach.types).not.toBeNull();
+				expect(Reach.types.AUDIO_VIDEO).toEqual('audio-video');
+			});
+
+			it('Should expose subscribable events', () => {
+				expect(Reach.events).not.toBeNull();
+				expect(Reach.events.reach.USER_ADDED).toEqual('USER_ADDED');
+			});
+
+			it('Should expose browser\'s infos', () => {
+				expect(Reach.browser).not.toBeNull();
+				expect(Reach.browser.browser).not.toBeNull();
+			});
+
+			it('Should expose sdk & schema version', () => {
+				expect(Reach.version).not.toBeNull();
+				expect(Reach.version.sdk).toMatch(/^v?\d+\.\d+\.\d+$/);
+				expect(Reach.version.schema).toMatch(/^(draft-\d+)|(legacy)$/);
+			});
+
+			it('Should expose media constraints utility fuction', () => {
+				expect(Reach.media.constraints).not.toBeNull();
+				const constraints = Reach.media.constraints();
+				expect(constraints).toEqual(
+					jasmine.objectContaining({
+						video:{width:{min:720,ideal:1280,max:1920},height:{min:576,ideal:720,max:1080}},
+						audio:true
+					})
+				);
+			});
+
+			it('Should expose utility function to list devices', done => {
+				expect(Reach.media.devices).not.toBeNull();
+				Reach.media.devices()
+					.then(devices => {
+						expect(devices).toBeDefined();
+						['audio', 'video'].every(type => {
+							return ['input', 'output'].every(io => {
+								if(devices[`${type}${io}`]){
+									expect(devices[`${type}${io}`].length).toBeDefined();
+									return devices[`${type}${io}`].every(device => {
+										expect(device.kind).toBe(`${type}${io}`);
+										expect(device.deviceId).toBeDefined();
+										expect(device.deviceId).toMatch(/^[a-z0-9]+$/i);
+										return true;
+									});
+								}
+								return true;
+							});
+						});
+						done();
+					})
+					.catch(e => {
+						log.e(e);
+						fail(e.message);
+						done(e);
+					});
+			});
 		});
 
-		it('Should expose subscribable events as static members', () => {
-			expect(Reach.e).not.toBeNull();
-			expect(Reach.e.USER_ADDED).toEqual('USER_ADDED');
-		});
+		describe('Configuration / ', () => {
+			it('Should use default configuration if no configuration is specified', () => {
+				// Only default
+				const sdk = new Reach(config.namespaceUrl);
+				expect(sdk.config).not.toBeNull();
+				expect(sdk.config.constraints).toEqual(jasmine.objectContaining(media.constraints()));
+				sdk.config.reset();
+			});
 
-		it('Should expose browser\'s infos events as static members', () => {
-			expect(Reach.b).not.toBeNull();
-			expect(Reach.b.browser).not.toBeNull();
-		});
+			it('Should fix configuration with default values for missing properties', () => {
+				// config + default values for missing props
+				const sdk = new Reach(config.namespaceUrl, {
+					constraints: media.constraints()
+				});
+				expect(sdk.config).not.toBeNull();
+				expect(sdk.config.logLevel).toEqual('ERROR');
+			});
 
-		it('Should expose sdk & schema version as static members', () => {
-			expect(Reach.v).not.toBeNull();
-			expect(Reach.v.sdk).toMatch(/^v?\d+\.\d+\.\d+$/);
-			expect(Reach.v.schema).toMatch(/^(draft-\d+)|(legacy)$/);
-		});
+			it('Should retrieve ICE server configuration', done => {
+				const sdk = new Reach(config.namespaceUrl);
+				expect(sdk.config).not.toBeNull();
 
-		it('Should use default configuration if no configuration is specified', () => {
-			// Only default
-			const sdk = new Reach(config.namespaceUrl);
-			expect(sdk.config).not.toBeNull();
-			expect(sdk.config).toEqual(Config);
-		});
+				let nbCalls = 0;
+				const check = (resolve, reject) => () => {
+					log.w(sdk.config.iceServers, nbCalls);
+					if(sdk.config.iceServers.length > 1) {
+						resolve(sdk.config.iceServers);
+					} else if (++nbCalls === 20) {
+						reject(new Error(`Not able to retrieve ICEServer in ${nbCalls * 50} ms`));
+					} else {
+						setTimeout(check(resolve, reject), 50);
+					}
+				};
 
-		it('Should fix configuration with default values for missing properties', () => {
-			// config + default values for missing props
-			const sdk = new Reach(config.namespaceUrl, {autoRequestMedia: false});
-			expect(sdk.config).not.toBeNull();
-			expect(sdk.config.autoRequestMedia).toBeFalsy();
+				const p = new Promise((resolve, reject) => {
+					check(resolve, reject)();
+				});
+				p.then(iceServers => {
+					log.g('info', `ICEServers loaded from server (waited ${nbCalls * 50} ms)`, iceServers);
+					expect(iceServers.length).toBeCloseTo(3, 1);
+					expect(iceServers[0]).toEqual(jasmine.objectContaining({
+						urls: 'turns:turn1.webcom.orange.com:443',
+						username: 'admin',
+						credential: 'webcom1234'
+					}));
+					done();
+				})
+				.catch(e => {
+					log.e(e);
+					fail(e.message);
+					done();
+				});
+			});
+
+			it('Should be able to modify logLevel', done => {
+				const sdk = new Reach(config.namespaceUrl);
+				expect(sdk.config).not.toBeNull();
+				expect(sdk.config.logLevel).toBe('ERROR');
+
+				const setLogLevel = level => {
+					sdk.config.logLevel = level;
+				};
+				setLogLevel('INFO');
+				expect(sdk.config.logLevel).toBe('INFO');
+
+				try {
+					expect(setLogLevel('FAKE')).toThrow(new Error('Unsupported log level (DEBUG, INFO, WARN, ERROR)'));
+				} catch (e) {
+					log.d(e);
+				}
+				// try {
+				// 	sdk.config.logLevel = 'FAKE';
+				// } catch (e) {
+				// 	log.d(e);
+				// 	expect(e.message).toBe('Unsupported log level (DEBUG, INFO, WARN, ERROR)');
+				// }
+				done();
+			});
 		});
 	});
 };

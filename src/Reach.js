@@ -1,29 +1,13 @@
-import {browser} from './util/adapter';
-import Events from './definitions/Events';
+import {browser} from './definitions/Browser';
 import StreamTypes from './definitions/StreamTypes';
-import Config from './definitions/Config';
-import {initUser, listUsers, disconnectUser} from './core/User';
-import {createRoom, listRooms} from './core/Room';
-import {on, off} from './util/datasync';
-import ref from './util/ref';
-
-/**
- * Get the path to subcribe to for a specific event ({@link Reach#on})
- * @access private
- * @param {string} event The event name
- * @returns {string}
- */
-const eventPath = event => {
-	let path;
-	if(/^USER/.test(event)) {
-		path = 'users';
-	} else if(/^ROOM/.test(event)) {
-		path = 'rooms';
-	} else if(/^INVITE/.test(event) && this.current) {
-		path = `_/invites/${this.current.uid}`;
-	}
-	return path;
-};
+import * as Events from './definitions/Events';
+import User from './core/User';
+import Room from './core/Room';
+import Invite from './core/Invite';
+import * as DataSync from './core/util/DataSync';
+import cache from './core/util/cache';
+import * as Log from './core/util/Log';
+import Media from './core/util/Media';
 
 /**
  * Entry point for Reach SDK
@@ -35,48 +19,31 @@ export default class Reach {
 	 * @public
 	 * @param {string|Webcom} [url=http://webcom.orange.com/base/reach] The url of your namespace or an existing Webcom reference.
 	 * @param {Config} [cfg] Reach configuration. You can pass constraints here
+	 * @example <caption>Init with the default configuration</caption>
+	 * var myReach = new Reach('https://io.datasync.orange.com/base/<my_namespace>');
+	 * @example <caption>Init and set constraints for SD video and logLevel to 'info'</caption>
+	 * var myReach = new Reach('https://io.datasync.orange.com/base/<my_namespace>', {
+	 *  constraints: Reach.media.constraints('SD'),
+	 *  logLevel: 'INFO'
+	 * });
 	 */
 	constructor(url = 'http://webcom.orange.com/base/reach', cfg = null) {
 		// Set shared reference
-		ref.base = url;
-		/**
-		 * Webcom DataSync reference
-		 * @type {Webcom}
-		 */
-		this._base = ref.base;
+		cache.base = url;
+		// Set shared configuration
+		cache.config = cfg;
 		/**
 		 * List of declared callbacks
 		 * @type {Object}
 		 */
 		this._callbacks = {};
-		/**
-		 * The configuration
-		 * @type {Config}
-		 */
-		this.config = Object.assign({}, Config, cfg);
-		/**
-		 * The connected User
-		 * @type {User}
-		 */
-		this.current = ref.user = null;
-
-		// Resume session
-		if(Webcom.INTERNAL.PersistentStorage.get('session')){
-			ref.base.resume((error, auth) => {
-				if(auth && !this.current) {
-					initUser(auth.uid).then(u => {
-						this.current = ref.user = u;
-					}, console.warn.bind(console));
-				}
-			});
-		}
 	}
 
 	/**
 	 * Get versions of SDK and DataModel.The Schema version can be used to determine compatibility with the Android & iOS SDK.
 	 * @return {{sdk: string, schema: string}}
 	 */
-	static get v() {
+	static get version() {
 		return {sdk: SDK_VERSION, schema: SCHEMA_VERSION};
 	}
 
@@ -84,59 +51,56 @@ export default class Reach {
 	 * The supported stream types
 	 * @returns {StreamTypes}
 	 */
-	static get t() {
+	static get types() {
 		return StreamTypes;
 	}
 
 	/**
 	 * The supported events
-	 * @return {Events}
+	 * @return {{room: Events/Room, reach: Events/Reach, stream: Events/Stream}}
 	 */
-	static get e() {
-		return Events;
+	static get events() {
+		return {room: Events.room, reach: Events.reach, stream: Events.stream};
 	}
 
 	/**
 	 * The browser's details
 	 * @return {Browser}
 	 */
-	static get b() {
+	static get browser() {
 		return browser;
 	}
 
 	/**
-	 * Set the current log level
-	 * @param {string} level
+	 * Media utility functions
+	 * @return {Media}
 	 */
-	static set logLevel(level) {
-		ref.logLevel = level;
+	static get media() {
+		return Media;
 	}
 
 	/**
-	 * Get the current log level
-	 * @return {string}
+	 * DataSync reference
+	 * @type {Webcom}
 	 */
-	static get logLevel() {
-		return ref.logLevel;
+	get base() {
+		return cache.base;
 	}
 
 	/**
-	 * Force current User's connected status
-	 * @type {string}
+	 * The configuration
+	 * @type {Config}
 	 */
-	set status(status) {
-		// Force User's status
-		if(this.current) {
-			this.current.status = status;
-		}
+	get config() {
+		return cache.config;
 	}
 
 	/**
-	 * Get current User's connected status
-	 * @type {string}
+	 * The connected User
+	 * @type {User}
 	 */
-	get status() {
-		return this.current ? this.current.status : null;
+	get current() {
+		return cache.user;
 	}
 
 	/**
@@ -145,15 +109,16 @@ export default class Reach {
 	 * @param {string} password The password of the user
 	 * @param {string} [name] The display name of the user (defaults to email)
 	 * @param {boolean} [rememberMe=false] keep user connected ?
-	 * @returns {Promise<User, Error>}
+	 * @returns {Promise<User>}
 	 */
 	register(email, password, name, rememberMe) {
-		return ref.base.createUser(email, password)
+		return cache.base.createUser(email, password)
 			.then(auth => {
 				if(auth) {
 					return this.login(email, password, name || email, rememberMe);
 				}
-			});
+			})
+			.catch(Log.r);
 	}
 
 	/**
@@ -162,7 +127,7 @@ export default class Reach {
 	 * @param {string} password The password of the user
  	 * @param {string} [name] The name of the user. Defaults to the value in base.
 	 * @param {boolean} [rememberMe=false] keep user connected ?
-	 * @returns {Promise<User, Error>}
+	 * @returns {Promise<User>}
 	 */
 	login(email, password, name, rememberMe = false) {
 		const method = email === null && password === null ? 'authAnonymously' : 'authWithPassword';
@@ -172,32 +137,53 @@ export default class Reach {
 			p = this.logout();
 		}
 		return p
-			.then(() => {
-				return ref.base[method]({email, password, rememberMe});
-			})
-			.then(auth => {
-				return initUser(auth.uid, name);
-			})
+			.then(() => cache.base[method]({email, password, rememberMe}))
+			.then(auth => User.init(auth.uid, name))
 			.then(u => {
-				this.current = ref.user = u;
+				cache.user = u;
 				return u;
-			});
+			})
+			.catch(Log.r);
+	}
+
+	/**
+	 * Resume previous session
+	 * @returns {Promise<User>}
+	 */
+	resume() {
+		return new Promise((resolve, reject) => {
+			// Resume session
+			if(Webcom.INTERNAL.PersistentStorage.get('session')){
+				cache.base.resume((error, auth) => {
+					if(auth && !this.current) {
+						User.init(auth.uid).then(u => {
+							cache.user = u;
+							resolve(u);
+						}, reject);
+					}
+				});
+			} else {
+				// TODO resolve with NULL instead of reject with Error when no previous session ?
+				reject(new Error('No session to resume'));
+			}
+		});
 	}
 
 	/**
 	 * Sign-in an anonymous user
 	 * @param {string} name The display name of the user
 	 * @experimental Not compatible with security rules for now (waiting for anonymous login support from Webcom)
-	 * @returns {Promise<User, Error>}
+	 * @returns {Promise<User>}
 	 */
 	anonymous(name) {
 		// TODO Uncomment this line when anonymous login is available #FEATURE #DATASYNC
 		// return this.login(null, null, name);
-		return initUser(`anonymous:${Date.now()}`, name)
+		return User.init(`anonymous:${Date.now()}`, name)
 			.then(u => {
-				this.current = ref.user = u;
+				cache.user = u;
 				return u;
-			});
+			})
+			.catch(Log.r);
 	}
 
 	/**
@@ -205,30 +191,38 @@ export default class Reach {
 	 * @returns {Promise}
 	 */
 	logout() {
-		return new Promise((resolve => {
+		return new Promise((resolve, reject) => {
 			let p = Promise.resolve();
 			if(this.current != null) {
-				p = disconnectUser(this.current.uid);
+				p = User.disconnect(this.current.uid);
 			}
-			p.then((() => {
-				Object.keys(this._callbacks).forEach(event => {
-					off(eventPath(event), event);
-				});
-				ref.base.logout((() => {
-					this.current = ref.user = null;
+			p.then(() => {
+				Object.keys(this._callbacks).forEach(
+					event => DataSync.off(Events.reach.toPath(event)(cache.user), event)
+				);
+				cache.base.logout(() => {
+					cache.user = null;
 					resolve();
-				}).bind(this));
-			}).bind(this));
-		}).bind(this));
+				});
+			})
+			.catch(e => {
+				Log.e(e);
+				reject(e);
+			});
+		});
 	}
 
 	/**
 	 * Get the list of registered users
+	 * @experimental Since 'search' and 'paging' features are not yet implemented in DataSync, this call can lead to a lot data being exchanged over the WebSocket.
+	 * Avoid it if your users base is pretty large.
 	 * @param {boolean} [include=false] Include current user in user's list
 	 * @return {Promise<User[], Error>}
 	 */
-	users(include = false) {
-		return listUsers(include === true);
+	users(include) {
+		return DataSync.list('users', User).then(users => {
+			return !include && users && this.current ? users.filter(user => user.uid !== this.current.uid) : users;
+		}).catch(Log.r);
 	}
 
 	/**
@@ -236,12 +230,23 @@ export default class Reach {
 	 * @return {Promise<Room[], Error>}
 	 */
 	rooms() {
-		return listRooms();
+		return DataSync.list('rooms', Room).catch(Log.r);
+	}
+
+	/**
+	 * Get the list of invites
+	 * @return {Promise<Invite[], Error>}
+	 */
+	invites() {
+		if(!this.current) {
+			return Promise.reject(new Error('Cannot list invites without a User being logged in.'));
+		}
+		return DataSync.list(`_/invites/${this.current.uid}`, Invite).catch(Log.r);
 	}
 
 	/**
 	 * Register a callback for a specific event
-	 * @param {string} event The event name:
+	 * @param {string} event The event name ({@link Events/Reach}). Can be:
 	 * - USER_ADDED
 	 * - USER_CHANGED
 	 * - USER_REMOVED
@@ -251,16 +256,25 @@ export default class Reach {
 	 * - INVITE_ADDED
 	 * - INVITE_CHANGED
 	 * @param {function} callback The callback for the event, the arguments depends on the type of event:
-	 * - USER_*: callback({@link User} u [, Error e])
-	 * - ROOM_*: callback({@link Room} r [, Error e])
-	 * - INVITE_*: callback({@link Invite} i [, Error e])
+	 * - USER_*: callback({@link User} u)
+	 * - ROOM_*: callback({@link Room} r)
+	 * - INVITE_*: callback({@link Invite} i)
+	 * @param {Webcom/api.Query~cancelCallback} cancelCallback The error callback for the event, takes an Error as only argument
 	 */
-	on(event, callback) {
-		const path = eventPath(event);
+	on(event, callback, cancelCallback) {
+		const path = Events.reach.toPath(event)(cache.user);
 		if(path) {
-			on(path, event, callback);
-			// TODO Should we keep a list of the callbacks ?
-			this._callbacks[event].push(callback);
+			const cls = Events.reach.toClass(event);
+			const cb = snapData => {
+				const d = cls ? new cls(snapData) : null;
+				Log.i(`Reach~on(${event})`, d);
+				callback(d);
+			};
+			DataSync.on(path, event, cb, cancelCallback);
+			if(!this._callbacks[event]) {
+				this._callbacks[event] = [];
+			}
+			this._callbacks[event].push(cb);
 		}
 	}
 
@@ -268,10 +282,39 @@ export default class Reach {
 	 * Create a new room
 	 * @param {string} [name] The room name
 	 * @param {object} [extra] Extra informations
-	 * @returns {Promise<Room, Error>}
+	 * @returns {Promise<Room>}
 	 */
 	createRoom(name, extra) {
-		return createRoom(name, extra);
+		if(!this.current) {
+			return Promise.reject(new Error('Cannot create a Room without a User being logged in.'));
+		}
+		return Room.create(name, extra);
+	}
+
+	/**
+	 * Get a list of all opened {@link PeerConnection}s
+	 * @return {*}
+	 */
+	get peerConnections () {
+		return cache.peerConnections.stacks;
+	}
+
+	/**
+	 * Get a {@link Room} from its `uid`
+	 * @param {string} uid The room's UID
+	 * @returns {Promise.<Room>}
+	 */
+	getRoom (uid) {
+		return Room.get(uid);
+	}
+
+	/**
+	 * Get a {@link User} from its `uid`
+	 * @param {string} uid The user's UID
+	 * @returns {Promise.<User>}
+	 */
+	getUser (uid) {
+		return User.get(uid);
 	}
 }
 

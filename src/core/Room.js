@@ -1,28 +1,15 @@
-import {NONE, OPENED, CONNECTED, WAS_CONNECTED, OWNER} from '../util/constants';
-import {get, on, off, push, update, set} from '../util/datasync';
-import ref from '../util/ref';
-import StreamTypes from '../definitions/StreamTypes';
+import {NONE, OPENED, CLOSED, CONNECTED, NOT_CONNECTED, WAS_CONNECTED, OWNER} from './util/constants';
+import * as DataSync from './util/DataSync';
+import cache from './util/cache';
+import Participant from './Participant';
+import Message from './Message';
+import Local from './stream/Local';
+import Invite from './Invite';
+import * as Events from '../definitions/Events';
+import * as Log from './util/Log';
 
 /**
- * Get the path associated to a Room for a specific event
- * @param {string} event The event name
- * @param {string} uid The room id
- * @access private
- */
-const eventPath = (event, uid) => {
-	let path;
-	if(/^PARTICIPANT/.test(event)) {
-		path = `_/rooms/${uid}/participants`;
-	} else if(/^MESSAGE/.test(event)) {
-		path = `_/rooms/${uid}/messages`;
-	} else if(/^STREAM/.test(event)) {
-		path = `_/rooms/${uid}/streams`;
-	}
-	return path;
-};
-
-/**
- * Room informations
+ * Room information
  * @access public
  */
 export default class Room {
@@ -52,8 +39,10 @@ export default class Room {
 		 */
 		this.owner = values.owner;
 		/**
-		 * The room status
-		 * @type {RoomStatus}
+		 * The room status:
+		 * - OPENED
+		 * - CLOSED
+		 * @type {string}
 		 */
 		this.status = values.status;
 
@@ -62,6 +51,12 @@ export default class Room {
 		 * @type {Object}
 		 */
 		this.extra = values.extra;
+
+		/**
+		 * List of declared callbacks
+		 * @type {Object}
+		 */
+		this._callbacks = {};
 	}
 
 	/**
@@ -70,7 +65,7 @@ export default class Room {
 	 * @returns {Promise<Participant[], Error>}
 	 */
 	participants() {
-		return get(`_/rooms/${this.uid}/participants`);
+		return DataSync.list(`_/rooms/${this.uid}/participants`, Participant, this.uid);
 	}
 
 	/**
@@ -79,16 +74,50 @@ export default class Room {
 	 * @return {Promise<Message[], Error>}
 	 */
 	messages() {
-		return get(`_/rooms/${this.uid}/messages`);
+		return DataSync.list(`_/rooms/${this.uid}/messages`, Message, this.uid);
 	}
 
 	/**
-	 * Get the list of published streams.
+	 * Get the list of streams
+	 * @returns {Promise.<TResult>}
+	 * @access private
+	 */
+	_streams() {
+		return DataSync.get(`_/rooms/${this.uid}/streams`)
+			.then(snapData => {
+				const values = snapData.val();
+				Log.d('Rooms~_streams', values);
+				return Object.keys(values).map(key => Object.assign({uid: key, roomId: this.uid}, values[key]));
+			});
+	}
+
+	/**
+	 * Get the list of locally published streams. The streams published with another device won't be visible here
+	 * This will only work if the user is either a participant or the owner of the room.
+	 * @return {Promise<Local[], Error>}
+	 */
+	localStreams() {
+		return this._streams()
+			.then(streams =>
+				streams
+					.filter(stream => stream.from === cache.user.uid && stream.device === cache.device)
+					.map(sharedStream => cache.streams.getShared(sharedStream))
+					.filter(sharedStream => sharedStream !== null)
+			).catch(Log.r);
+	}
+
+	/**
+	 * Get the list of remotely published streams.
 	 * This will only work if the user is either a participant or the owner of the room.
 	 * @return {Promise<Stream[], Error>}
 	 */
-	streams() {
-		return get(`_/rooms/${this.uid}/streams`);
+	remoteStreams() {
+		return this._streams()
+			.then(streams =>
+				streams
+					.filter(stream => stream.from !== cache.user.uid || stream.device !== cache.device)
+					.map(remoteStream => cache.streams.getRemote(remoteStream))
+			).catch(Log.r);
 	}
 
 	/**
@@ -97,118 +126,93 @@ export default class Room {
 	 * @param {User[]} users the users to invite
 	 * @param {string} [role='NONE'] the role of the invitee
 	 * @param {string} [message] a message to add to the invite
-	 * @return {Promise<{room: Room, invite: Invite}, Error>}
+	 * @return {Promise<{room: Room, invites: Invite[]}, Error>}
 	 */
 	invite(users, role = NONE, message) {
-		return Promise.resolve({users, role, message});
+		// Add users as participant so they can join the room
+		const _participants = users.map(user => DataSync.set(
+			`_/rooms/${this.uid}/participants/${user.uid}`,
+			{
+				status: NOT_CONNECTED,
+				role
+			}
+		));
+		// Send invites
+		const _invites = users.map(user => Invite.send(user, this, message));
+		// TODO Should we remove added participants if Invite.send fails ?
+
+		return Promise.all(_participants)
+			.then(() => Promise.all(_invites), e => {
+				Log.e(e);
+				users.forEach(user => DataSync.remove(`_/rooms/${this.uid}/participants/${user.uid}`));
+			})
+			.then(invites => ({room: this, invites}))
+			.catch(Log.r);
 	}
 
 	/**
 	 * Register a callback for a specific event
-	 * @param {string} event The event name:
+	 * @param {string} event The event name ({@link Events/Room}):
 	 * - PARTICIPANT_ADDED: a participant is added to the room
 	 * - PARTICIPANT_CHANGED: a participant changes his status (join)
 	 * - PARTICIPANT_REMOVED: a participant leave the room
 	 * - MESSAGE_ADDED: new instant message
 	 * - MESSAGE_CHANGED: an existing message has been modified (moderation)
 	 * - MESSAGE_REMOVED: a message has been removed (moderation)
-	 * - STREAM_PUBLISHED: a participant puslished a new Stream
-	 * - STREAM_CHANGED: a participant changes his published Stream (moderation, type...)
+	 * - STREAM_PUBLISHED: a participant published a new Stream
+	 * - STREAM_CHANGED: a participant changes his published Stream (moderation, type, mute...)
 	 * - STREAM_UNPUBLISHED: a participant stops the publication of his Stream
 	 * @param {function} callback The callback for the event, the arguments depends on the type of event:
 	 * - PARTICIPANT_* : callback({@link Participant} p [, Error e])
 	 * - MESSAGE_* : callback({@link Message} m [, Error e])
-	 * - STREAM_* : callback({@link Stream} s [, Error e])
+	 * - STREAM_* : callback({@link Remote} s [, Error e])
+	 * @param {Webcom/api.Query~cancelCallback} cancelCallback The error callback for the event, takes an Error as only argument
 	 */
-	on(event, callback) {
-		const path = eventPath(event, this.uid);
-		if(path) {
-			on(path, event, callback);
-			// TODO Should we keep a list of the callbacks ? Or just a list of subscribed events ?
-			this._callbacks[event].push(callback);
+	on(event, callback, cancelCallback) {
+		const
+			path = Events.room.toPath(event)(this),
+			obj = Events.room.toClass(event);
+		if(path && obj) {
+			const typedCallback = snapData => {
+				if(!/^STREAM_/.test(event) || !snapData) {
+					Log.i(`Room~on(${event})`, snapData ? new obj(snapData) : null);
+					callback(snapData ? new obj(snapData) : null);
+				} else {
+					const streamData = Object.assign({uid: snapData.name(), roomId: this.uid}, snapData.val());
+					if(streamData.from !== cache.user.uid || streamData.device !== cache.device) {
+						const remoteStream = cache.streams.getRemote(streamData);
+						Log.i(`Room~on(${event})`, remoteStream);
+						callback(remoteStream);
+					}
+				}
+			};
+			DataSync.on(path, event, typedCallback, cancelCallback);
+			if(!this._callbacks[event]) {
+				this._callbacks[event] = [];
+			}
+			this._callbacks[event].push(typedCallback);
 		}
 	}
 
 	/**
 	 * Send an instant message
-	 * @param {string} message The message to senda
-	 * @return {Promise}
+	 * @param {string} message The message to send
+	 * @return {Promise<Message>}
 	 */
 	sendMessage(message) {
-		return Promise.resolve(message);
+		return Message.send(this, message);
 	}
 
 	/**
 	 * Publish a local stream
 	 * @param {string} type The stream type, see {@link StreamTypes} for possible values
-	 * @param {?Element} localStreamElement The element the stream is attached to. Can be null if already specified in ReachConfig.
-	 * @param {?MediaConstraints} constraints The stream constraints. If not defined the constraints defined in ReachConfig will be used.
-	 * @returns {Promise<Stream, Error>}
+	 * @param {MediaStreamConstraints} [constraints] The stream constraints. If not defined, the constraints defined in {@link Config} will be used.
+	 * @param {Element} [localStreamElement] The element the stream is attached to. Can be null if already specified in {@link Config}.
+	 * @returns {Promise<Local, Error>}
 	 */
-	publishStream(type, localStreamElement, constraints) {
-		return Promise.resolve({type, localStreamElement, constraints});
-	}
-
-	/**
-	 * Unpublish a local stream
-	 * @param {Stream|string} stream The stream to unpublish or the id of Stream
-	 * @returns {Promise}
-	 */
-	unPublishStream(stream) {
-		return Promise.resolve(stream);
-	}
-
-	/**
-	 * Mute a track of a Stream
-	 * @param {Stream|string} stream The stream to unpublish or the id of Stream
-	 * @param {string} track The track to mute. (AUDIO, VIDEO)
-	 * @param {boolean} [state=true] true for mute & false for unmute
-	 */
-	mute(stream, track, state = true) {
-		console.info(state ? 'mute' : 'unmute', stream, track, state);
-	}
-
-	/**
-	 * Unmute a track of a Stream
-	 * @param {Stream|string} stream The stream to unpublish or the id of Stream
-	 * @param {string} track The track to mute. (audio, video)
-	 */
-	unmute(stream, type) {
-		this.mute(stream, type, false);
-	}
-
-	/**
-	 * Mute audio of a Stream
-	 * @param {Stream|string} stream The stream to unpublish or the id of Stream
-	 * @param {boolean} [state=true] true for mute & false for unmute
-	 */
-	muteAudio(stream, state = true) {
-		this.mute(stream, StreamTypes.AUDIO, state);
-	}
-
-	/**
-	 * Unmute audio of a Stream
-	 * @param {Stream|string} stream The stream to unpublish or the id of Stream
-	 */
-	unmuteAudio(stream) {
-		this.muteAudio(stream, false);
-	}
-
-	/**
-	 * Mute video of a Stream
-	 * @param {Stream|string} stream The stream to unpublish or the id of Stream
-	 * @param {boolean} [state=true] true for mute & false for unmute
-	 */
-	muteVideo(stream, state = true) {
-		this.mute(stream, StreamTypes.VIDEO, state);
-	}
-
-	/**
-	 * Unmute video of a Stream
-	 * @param {Stream|string} stream The stream to unpublish or the id of Stream
-	 */
-	unmuteVideo(stream) {
-		this.muteVideo(stream, false);
+	share(type, constraints, localStreamElement) {
+		Log.d('Room~share', {type, localStreamElement, constraints});
+		return Local.share(this.uid, type, constraints, localStreamElement);
 	}
 
 	/**
@@ -216,97 +220,101 @@ export default class Room {
 	 * @return {Promise}
 	 */
 	join() {
-		return update(`_/rooms/${this.uid}/participants/${ref.user.uid}`, {
+		Log.i('Room~join', this);
+		return DataSync.update(`_/rooms/${this.uid}/participants/${cache.user.uid}`, {
 			status: CONNECTED,
-			_joined: Date.now()
-		});
+			_joined: DataSync.ts()
+		})
+		.then(() => {return this;})
+		.catch(Log.r);
 	}
 
 	/**
-	 * Leave the room. Sets the connected status of the current participant to NOT_CONNECTED, deletes medias and callbacks, then close WebRTC stacks in use.
+	 * Leave the room. Sets the connected status of the current participant to WAS_CONNECTED, deletes medias and callbacks, closes WebRTC stacks in use.
 	 * @return {Promise}
 	 */
 	leave() {
 		// Disconnect user's callbacks
 		Object.keys(this._callbacks).forEach(event => {
-			const path = eventPath(event, this.uid);
-			if(path) {
-				off(path, event);
-			}
+			DataSync.off(Events.room.toPath(event)(this), event);
 		});
-		// TODO Disconnect streams (both published & subscribed)
-
+		// Unpublish all local streams
+		this.localStreams().then(localStreams => localStreams.forEach(localStream => localStream.unPublish()));
+		// Unsubscribe all remote streams
+		this.remoteStreams().then(remoteStreams => remoteStreams.forEach(remoteStream => remoteStream.unSubscribe()));
 		// Update status
-		// TODO remove instead ?
-		return set(`_/rooms/${this.uid}/participants/${ref.user.uid}/status`, WAS_CONNECTED);
+		return DataSync.set(`_/rooms/${this.uid}/participants/${cache.user.uid}/status`, WAS_CONNECTED).catch(Log.r);
 	}
 
 	/**
-	 * Close the Room. Only the owner/moderator can close a room.
-	 * @param {boolean} [archive=true] Archive all room infos
+	 * Leaves & close the Room. Only the owner/moderator can close a room.
 	 * @return {Promise}
 	 */
-	close(archive = true) {
-		return Promise.resolve(archive);
+	close() {
+		return this.leave()
+			.then(() => DataSync.update(`rooms/${this.uid}`, {
+				status: CLOSED,
+				_closed: DataSync.ts()
+			}))
+			.then(() => DataSync.remove(`_/rooms/${this.uid}`))
+			.catch(Log.r);
+	}
+
+	/**
+	 * Create a room
+	 * @access protected
+	 * @param {String} [name] The room name
+	 * @param {object} [extra=null] Extra informations
+	 * @returns {Promise<Room, Error>}
+	 */
+	static create (name, extra = null) {
+		if(!cache.user) {
+			return Promise.reject(new Error('Cannot create a Room without a User being logged in.'));
+		}
+
+		const roomMetaData = {
+			owner: cache.user.uid,
+			status: OPENED,
+			_created: DataSync.ts(),
+			name: name || `${cache.user.name}-${Date.now()}`,
+			extra
+		};
+
+		let roomId = null;
+		// Create public room infos
+		return DataSync.push('rooms', roomMetaData)
+		// Create private room infos
+			.then(roomRef => {
+				roomId = roomRef.name();
+				return DataSync.update(`_/rooms/${roomId}/meta`, {
+					owner: cache.user.uid,
+					name
+				});
+			})
+			// Join the room
+			.then(() => DataSync.update(`_/rooms/${roomId}/participants/${cache.user.uid}`,
+				{
+					status: CONNECTED,
+					role: OWNER,
+					_joined: DataSync.ts()
+				}
+			))
+			.then(() => new Room(Object.assign({uid: roomId}, roomMetaData)))
+			.catch(Log.r);
+	}
+
+	/**
+	 * Get a {@link Room} from its `uid`
+	 * @access protected
+	 * @param uid
+	 * @returns {Promise.<Room>}
+	 */
+	static get (uid) {
+		return DataSync.get(`rooms/${uid}`)
+			.then(snapData => {
+				if(snapData.val()) {
+					return new Room(snapData);
+				}
+			});
 	}
 }
-
-/**
- * List the rooms
- * @access protected
- * @param {User} owner The current user. (i.e. the connected user)
- * @returns {Promise<Room[], Error>}
- */
-export const listRooms = () => {
-	return get('rooms').then(snapData => {
-		if(snapData) {
-			const rooms = [];
-			snapData.forEach(childSnapData => {rooms.push(new Room(childSnapData));});
-			return rooms;
-		}
-		return [];
-	});
-};
-
-/**
- * Create a room
- * @access protected
- * @param {String} [name] The room name
- * @param {object} [extra=null] Extra informations
- * @returns {Promise<Room, Error>}
- */
-export const createRoom = (name, extra = null) => {
-	if(!ref.user) {
-		return Promise.reject(new Error('Cannot create a Room without a User being logged in.'));
-	}
-	const roomMetaData = {
-		owner: ref.user.uid,
-		status: OPENED,
-		_created: Date.now(),
-		name: name || `${ref.user.name}-${Date.now()}`,
-		extra
-	};
-
-	// Create public room infos
-	return push('rooms', roomMetaData)
-		.then(roomRef => {
-			// Create private room infos
-			const roomId = roomRef.name();
-			return update(`_/rooms/${roomId}/meta`, {
-				owner: ref.user.uid,
-				name
-			}).then(() => roomId);
-		})
-		.then(roomId => {
-			// Join the room
-			// TODO move join to another helper ?
-			// TODO add onDisconnect actions
-			return update(`_/rooms/${roomId}/participants/${ref.user.uid}`, {
-				status: CONNECTED,
-				role: OWNER,
-				_joined: Date.now()
-			}).then(() => roomId);
-		}).then(roomId => {
-			return new Room(Object.assign({uid: roomId}, roomMetaData));
-		});
-};
