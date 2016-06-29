@@ -4,6 +4,7 @@ node_js:
 before_script:
   - npm prune
 script:
+  - npm run schema
   - npm run test:coverage
 after_script:
   - npm install -g codeclimate-test-reporter

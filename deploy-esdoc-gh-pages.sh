@@ -8,6 +8,12 @@ if [ "$TRAVIS_BRANCH" = "api-proposal" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]
     npm run doc;
 
     cd esdoc
+
+    # Copy dist
+    mkdir dist
+    cp ../dist/*.js* dist/
+
+    # gh-pages push
     git init
     git config user.name "webcomOps"
     git config user.email "webcom.ops@orange.com"
