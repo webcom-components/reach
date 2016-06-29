@@ -6,3 +6,5 @@ checkstyle
 esdoc
 dist/rules.json
 .account.json
+.account.yml
+.account.yaml

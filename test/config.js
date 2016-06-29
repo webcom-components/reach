@@ -2,9 +2,10 @@
 'use strict';
 
 const config = {
-	protocol: 'https',
-	domain: 'webcom.orange.com',
-	logLevel: 'debug',
+	logLevel: 'info',
+	domain: WEBCOM_DOMAIN,
+	protocol: WEBCOM_PROTOCOL,
+	namespace: WEBCOM_NAMESPACE,
 	get token() {
 		return WEBCOM_TOKEN;
 	},
@@ -22,18 +23,6 @@ const config = {
 		return `${this.protocol}://${this.domain}/base/${this.namespace || this.tempNamespace}`;
 	}
 };
-
-if(WEBCOM_NAMESPACE && /^[a-z0-9\-_]+$/i.test(WEBCOM_NAMESPACE)) {
-	config.namespace = WEBCOM_NAMESPACE;
-}
-
-if(WEBCOM_PROTOCOL && /^https?$/.test(WEBCOM_PROTOCOL)) {
-	config.protocol = WEBCOM_PROTOCOL;
-}
-
-if(WEBCOM_DOMAIN && /^[a-z:0-9\.]+$/.test(WEBCOM_DOMAIN)) {
-	config.domain = WEBCOM_DOMAIN;
-}
 
 if(window) {
 	window.config = config;

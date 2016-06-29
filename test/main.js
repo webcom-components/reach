@@ -97,7 +97,6 @@ describe('Reach /', () => {
 		log.d('main#afterAll');
 		// Force logout
 		config.base && config.base.logout();
-
 		Promise.all(config.createdUsers.map(user => config.base.removeUser(user.email, user.password)))
 			.then(() => {
 				config.createdUsers.length = 0;

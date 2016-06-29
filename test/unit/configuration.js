@@ -50,7 +50,7 @@ export default () => {
 									return devices[`${type}${io}`].every(device => {
 										expect(device.kind).toBe(`${type}${io}`);
 										expect(device.deviceId).toBeDefined();
-										expect(device.deviceId).toMatch(/^[a-z0-9]+$/i);
+										expect(device.deviceId).toMatch(/^[a-z0-9\+=-_\/]+$/i);
 										return true;
 									});
 								}
@@ -91,7 +91,6 @@ export default () => {
 
 				let nbCalls = 0;
 				const check = (resolve, reject) => () => {
-					log.w(sdk.config.iceServers, nbCalls);
 					if(sdk.config.iceServers.length > 1) {
 						resolve(sdk.config.iceServers);
 					} else if (++nbCalls === 20) {

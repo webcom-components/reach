@@ -5,7 +5,9 @@ const
 	minimist = require('minimist'),
 	child_process = require('child_process'),
 	omit = require('lodash/omit'),
-	args = minimist(process.argv.slice(2), {boolean: ['single-run', 'auto-watch', 'coverage', 'chrome', 'firefox', 'none']}),
+	args = minimist(process.argv.slice(2), {
+		boolean: ['single-run', 'auto-watch', 'coverage', 'chrome', 'firefox', 'none']
+	}),
 	onlyChrome = args['chrome'] && !args['firefox'],
 	onlyFirefox = args['firefox'] && !args['chrome'],
 	noBrowser = args['none'],
@@ -14,12 +16,6 @@ const
 	testSuite = 'unit',
 	sauceLabs = process.env.SAUCE_USERNAME != null && process.env.SAUCE_ACCESS_KEY != null,
 	branchName = (() => {
-		console.info(
-			`\n\tTravis: ${process.env.TRAVIS === 'true'}`,
-			`\n\tPullRequest: ${process.env.TRAVIS_PULL_REQUEST}`,
-			`\n\tTravis Branch: ${process.env.TRAVIS_BRANCH}`,
-			`\n\tBranch: ${child_process.execSync('git rev-parse --abbrev-ref HEAD').toString()}`
-		);
 		if(process.env.TRAVIS === 'true') {
 			if(process.env.TRAVIS_PULL_REQUEST !== 'false') {
 				return `PR #${process.env.TRAVIS_PULL_REQUEST}`;
@@ -109,6 +105,14 @@ if(!(account && (account.WEBCOM_TOKEN || (account.WEBCOM_EMAIL && account.WEBCOM
 	console.error('\t- Use a .account.json file to declare your login/password/namespace');
 	process.exit(1);
 }
+
+console.info(
+	`\n\tTest Platform: ${account.WEBCOM_PROTOCOL}://${account.WEBCOM_DOMAIN}`.replace(/'/g, ''),
+	`\n\tTravis: ${process.env.TRAVIS === 'true'}`,
+	`\n\tPullRequest: ${process.env.TRAVIS_PULL_REQUEST}`,
+	`\n\tTravis Branch: ${process.env.TRAVIS_BRANCH}`,
+	`\n\tBranch: ${branchName}`
+);
 
 module.exports = function(config) {
 	config.set({
