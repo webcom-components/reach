@@ -3,6 +3,7 @@ import * as DataSync from './util/DataSync';
 import * as Log from './util/Log';
 import cache from './util/cache';
 import Room from './Room';
+import * as Events from '../definitions/Events';
 
 /**
  * Update
@@ -94,6 +95,12 @@ export default class Invite {
 		 * @type {number}
 		 */
 		this._ended = values._ended;
+		/**
+		 * Invite events callbacks
+		 * @type {{}}
+		 * @private
+		 */
+		this._callbacks = {};
 	}
 
 	/**
@@ -152,6 +159,69 @@ export default class Invite {
 	 */
 	accept() {
 		return update(this, ACCEPTED);
+	}
+
+	/**
+	 * Register a callback for a status update
+	 * @param {string} status Can be:
+	 * - ACCEPTED
+	 * - REJECTED
+	 * - CANCELED
+	 * @param {function} callback
+	 */
+	on(status, callback) {
+		if(Events.invite.supports(status)) {
+			// Register callback
+			if (!this._callbacks[status]) {
+				this._callbacks[status] = [];
+			}
+			this._callbacks[status].push(callback);
+			// Defined listener & subscribe if needed
+			if (!this._listener) {
+				/**
+				 * Invite status update callback
+				 * @type {function}
+				 * @private
+				 */
+				this._listener = snapData => {
+					const updated = snapData.val();
+					if (updated !== null && update.status !== this.status) {
+						Object.assign(this, updated);
+						this._callbacks[status].forEach(cb => {
+							cb(this);
+						});
+					}
+				};
+				DataSync.on(`_/invites/${this.to}/${this.uid}`, 'child_changed', this._listener.bind(this));
+			}
+		}
+	}
+
+	/**
+	 * Un-register a callback for a status update
+	 * @param {string} [status] Can be:
+	 * - ACCEPTED
+	 * - REJECTED
+	 * - CANCELED
+	 * - null This will un-register all callbacks
+	 * @param {function} [callback]
+	 */
+	off(status, callback) {
+		if(!status) {
+			this._callbacks = {};
+		} else if(this._callbacks[status]) {
+			if(callback) {
+				const idx = this._callbacks[status].findIndex(cb => cb === callback);
+				if (idx >= 0) {
+					this._callbacks.splice(idx, 1);
+				}
+			} else {
+				this._callbacks[status] = [];
+			}
+		}
+		if(![CANCELED, ACCEPTED, REJECTED].some(event => this._callbacks[event] && this._callbacks[event].length > 0)){
+			DataSync.off(`_/invites/${this.to}/${this.uid}`, 'child_changed');
+		}
 	}
 
 	/**

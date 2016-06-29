@@ -4,6 +4,7 @@ import Invite from '../core/Invite';
 import Participant from '../core/Participant';
 import Message from '../core/Message';
 import Remote from '../core/stream/Remote';
+import {ACCEPTED, REJECTED, CANCELED} from '../core/util/constants';
 
 /**
  * The events supported by {@link Reach#on}
@@ -29,6 +30,14 @@ import Remote from '../core/stream/Remote';
  * @property {string} MESSAGE_REMOVED Fired when an instant message is removed
  * @property {string} STREAM_PUBLISHED Fired when a participant publishes a stream
  * @property {string} STREAM_UNPUBLISHED Fired when a participant stops the publishing of his stream
+ */
+
+/**
+ * The events supported by {@link Invite#on}
+ * @typedef {Object} Events/Invite
+ * @property {string} ACCEPTED Fired when the invite has been accepted
+ * @property {string} REJECTED Fired when the invite has been accepted
+ * @property {string} CANCELED Fired when the invite has been canceled
  */
 
 /**
@@ -119,3 +128,8 @@ export const room = new _Events([
  * @ignore
  */
 export const stream = new _Events(['MUTE']);
+
+/**
+ * @ignore
+ */
+export const invite = new _Events([ACCEPTED, REJECTED, CANCELED]);

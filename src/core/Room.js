@@ -7,6 +7,7 @@ import Local from './stream/Local';
 import Invite from './Invite';
 import * as Events from '../definitions/Events';
 import * as Log from './util/Log';
+import {REJECTED, CANCELED} from './util/constants';
 
 /**
  * Room information
@@ -79,7 +80,7 @@ export default class Room {
 
 	/**
 	 * Get the list of streams
-	 * @returns {Promise.<TResult>}
+	 * @returns {Promise}
 	 * @access private
 	 */
 	_streams() {
@@ -109,7 +110,7 @@ export default class Room {
 	/**
 	 * Get the list of remotely published streams.
 	 * This will only work if the user is either a participant or the owner of the room.
-	 * @return {Promise<Stream[], Error>}
+	 * @return {Promise<Remote[], Error>}
 	 */
 	remoteStreams() {
 		return this._streams()
@@ -138,13 +139,21 @@ export default class Room {
 			}
 		));
 		// Send invites
-		const _invites = users.map(user => Invite.send(user, this, message));
-		// TODO Should we remove added participants if Invite.send fails ?
-
+		const _invites = users.map(user => Invite.send(user, this, message, () => {
+			DataSync.remove(`_/rooms/${this.uid}/participants/${user.uid}`);
+		}));
+		const removeParticipant = invite => DataSync.remove(`_/rooms/${invite.room}/participants/${invite.to}`);
 		return Promise.all(_participants)
 			.then(() => Promise.all(_invites), e => {
-				Log.e(e);
+				Log.e('Room~invite', e);
 				users.forEach(user => DataSync.remove(`_/rooms/${this.uid}/participants/${user.uid}`));
+			})
+			.then(invites => {
+				invites.forEach(invite => {
+					invite.on(REJECTED, removeParticipant);
+					invite.on(CANCELED, removeParticipant);
+				});
+				return invites;
 			})
 			.then(invites => ({room: this, invites}))
 			.catch(Log.r);
