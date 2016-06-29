@@ -3,7 +3,6 @@ import * as DataSync from './util/DataSync';
 import * as Log from './util/Log';
 import cache from './util/cache';
 
-
 /**
  * The Reach configuration object
  * @class Config
@@ -22,18 +21,26 @@ export default class Config {
 		this.constraints = null;
 
 		/**
-		 * The preferred video Codec. Can be the name of the preferred codec or a list sorted by priority
-		 * @experimental Not implemented yet
-		 * @type {string|string[]}
+		 * The preferred video Codec. Takes a RegExp matching the codec name and sample rate.
+		 * Predefined values can be found in {@link Codec/video}
+		 * @type {RegExp}
+		 * @example <caption>Prefer VP9</caption>
+		 * var myReach = new Reach('https://io.datasync.orange.com/base/<my_namespace>', {
+		 *  preferredVideoCodec: Reach.codecs.video.VP9
+		 * });
 		 */
-		this.preferredVideoCodecs = null;
+		this.preferredVideoCodec = null;
 
 		/**
-		 * The preferred audio Codec. Can be the name of the preferred codec or a list sorted by priority
-		 * @experimental Not implemented yet
-		 * @type {string|string[]}
+		 * The preferred audio Codec. Takes a RegExp matching the codec name and sample rate.
+		 * Predefined values can be found in {@link Codec/audio}
+		 * @type {RegExp}
+		 * @example <caption>Prefer opus</caption>
+		 * var myReach = new Reach('https://io.datasync.orange.com/base/<my_namespace>', {
+		 *  preferredAudioCodec: Reach.codecs.audio.OPUS
+		 * });
 		 */
-		this.preferredAudioCodecs = null;
+		this.preferredAudioCodec = null;
 
 		// Populate with default values
 		this.reset();
@@ -49,7 +56,7 @@ export default class Config {
 			}
 		}, e => Log.d('ICEServers', e));
 
-		//TODO Add container nodes, boolean to request permission on start, preferred codecs
+		//TODO Add container nodes, boolean to request permission on start, sdpEditor (for user defined SDP modifications)
 	}
 
 	/**
@@ -83,18 +90,23 @@ export default class Config {
 	 */
 	set iceServers(servers) {
 		Log.d('Config~set~iceServers', servers);
-		if(!this._iceServers) {
-			this._iceServers = [].concat(servers || []);
-		} else {
-			this._iceServers = this._iceServers.concat(
-				(servers || []).filter(server =>
-					this._iceServers.some(iceServer =>
-						(iceServer.urls === server.urls || iceServer.url === server.url)&&
-						iceServer.username === server.username &&
-						iceServer.credential === server.credential
+		if(servers) {
+			if (!this._iceServers) {
+				/**
+				 * @ignore
+				 */
+				this._iceServers = [].concat(servers || []);
+			} else {
+				this._iceServers = this._iceServers.concat(
+					(servers || []).filter(server =>
+						this._iceServers.some(iceServer =>
+							(iceServer.urls === server.urls || iceServer.url === server.url) &&
+							iceServer.username === server.username &&
+							iceServer.credential === server.credential
+						)
 					)
-				)
-			);
+				);
+			}
 		}
 	}
 
@@ -103,7 +115,20 @@ export default class Config {
 	 * @type {ICEServer[]}
 	 */
 	get iceServers() {
-		return this._iceServers || [];
+		return this._iceServers || [
+			{
+				username: 'admin',
+				credential: 'webcom1234',
+				urls: [
+					'turns:turn1.webcom.orange.com:443',
+					'turns:turn2.webcom.orange.com:443',
+					'turns:turn3.webcom.orange.com:443',
+					'turn:turn1.webcom.orange.com',
+					'turn:turn2.webcom.orange.com',
+					'turn:turn3.webcom.orange.com'
+				]
+			}
+		];
 	}
 
 	/**

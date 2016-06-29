@@ -242,7 +242,7 @@ export default class PeerConnection {
 			Log.d('Offer', sdpOffer);
 			if(sdpOffer != null) {
 				Log.d('PeerConnection~offered', sdpOffer);
-				this.pc.setRemoteDescription(new RTCSessionDescription(sdpOffer))
+				this.pc.setRemoteDescription(sdpOffer)
 					.then(() => Log.d('PeerConnection~remoteDescription', this.pc.remoteDescription))
 					.then(() => {
 						if (/^offer$/.test(this.pc.remoteDescription.type)) {
@@ -291,7 +291,7 @@ export default class PeerConnection {
 				const sdpAnswer = snap.val();
 				if(sdpAnswer != null) {
 					Log.d('PeerConnection~offer#answered', sdpAnswer);
-					this.pc.setRemoteDescription(new RTCSessionDescription(sdpAnswer))
+					this.pc.setRemoteDescription(sdpAnswer)
 						.then(() => {
 							Log.d('PeerConnection~offer#remoteDescription', this.pc.remoteDescription);
 							this._remoteICECandidates(true);
@@ -315,6 +315,7 @@ export default class PeerConnection {
 	 */
 	_sendOffer() {
 		return this.pc.createOffer()
+			.then(description => this._setPreferredCodecs(description))
 			.then(description => this.pc.setLocalDescription(description))
 			.then(() => Log.d('PeerConnection~renegotiate#localDescription', this.pc.localDescription))
 			.then(() => DataSync.update(`${this._localPath}/sdp`, this.pc.localDescription.toJSON()));
@@ -384,12 +385,60 @@ export default class PeerConnection {
 	 * Edits the SDP to set the preferred audio/video codec
 	 * @access private
 	 * @param {RTCSessionDescription} description The description retrieved by createOffer/createAnswer
-	 * @returns {RTCSessionDescription}
+	 * @returns {RTCSessionDescription|{sdp: string, type: string}}
 	 */
 	_setPreferredCodecs(description) {
-		if(cache.config.preferredVideoCodecs || cache.config.preferredAudioCodecs) {
+		if(cache.config.preferredVideoCodec || cache.config.preferredAudioCodec) {
 			Log.d('PeerConnection~_setPreferredCodecs', {description, config: cache.config});
-			// TODO Edit SDP to change default codec
+			const sdpLines = description.sdp.split(/\r?\n/);
+			const medias = {audio: [], video: []};
+			let current = null;
+			// Parse SDP
+			sdpLines.forEach((sdpLine, i) => {
+				if(/^m=/.test(sdpLine)) {
+					const d = /^m=(\w+)\s[0-9\/]+\s[A-Za-z0-9\/]+\s([0-9\s]+)/.exec(sdpLine);
+					current = {
+						fmt: d[2].split(/\s/),
+						index: i,
+						codecs: []
+					};
+					medias[d[1]].push(current);
+				} else if(current && /^a=rtpmap:/.test(sdpLine)) {
+					const c = /^a=rtpmap:(\d+)\s([a-zA-Z0-9\-\/]+)/.exec(sdpLine);
+					if(c) {
+						current.codecs.push({
+							id: c[1],
+							name: c[2],
+							index: i
+						});
+					}
+				}
+			});
+			Log.d('PeerConnection~_setPreferredCodecs', medias);
+			let update = false;
+			const prefer = (mediaList, preferedCodec) => {
+				mediaList.forEach(media => {
+					const selected = media.codecs.find(codec => preferedCodec.test(codec.name));
+					if(selected) {
+						const fmt = [selected.id].concat(media.fmt.filter(ids => ids !== selected.id));
+						sdpLines[media.index] = sdpLines[media.index].replace(media.fmt.join(' '), fmt.join(' '));
+						update = true;
+					}
+				});
+			};
+			if(cache.config.preferredVideoCodec) {
+				prefer(medias.video, cache.config.preferredVideoCodec);
+			}
+			if(cache.config.preferredAudioCodec) {
+				prefer(medias.audio, cache.config.preferredAudioCodec);
+			}
+			if(update) {
+				Log.d('PeerConnection~_setPreferredCodecs', sdpLines.join('\r\n'));
+				return {
+					sdp: sdpLines.join('\r\n'),
+					type: description.type
+				};
+			}
 		}
 		return description;
 	}

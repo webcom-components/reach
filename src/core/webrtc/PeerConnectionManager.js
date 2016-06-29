@@ -1,6 +1,7 @@
 import PeerConnection from './PeerConnection';
 import cache from '../util/cache';
 import * as Log from '../util/Log';
+import * as DataSync from '../util/DataSync';
 
 const getStackId = (id1, id2) => id1.localeCompare(id2, 'en-us') > 0 ? `${id1}-${id2}` :`${id2}-${id1}`;
 
@@ -23,47 +24,57 @@ export default class PeerConnectionManager {
 
 	/**
 	 * Get a PeerConnection object for a specific stream
-	 * @param streamId
-	 * @param remoteDevice
-	 * @param publish
+	 * @param {Local|Remote} stream
+	 * @param {Remote|object} remote
+	 * @param {boolean} publish
 	 * @return {*}
 	 */
-	getPeerConnection(streamId, remoteDevice, publish) {
-		const stackId = getStackId(remoteDevice, cache.device);
-		let pc = null;
-		if(this.stacks[stackId] && this.stacks[stackId][streamId]) {
-			pc = this.stacks[stackId][streamId];
-		} else {
-			if(!this.stacks[stackId]) {
-				this.stacks[stackId] = {};
-			}
-			pc = this.stacks[stackId][streamId] = new PeerConnection(stackId, streamId, remoteDevice, publish);
-		}
-		Log.d('PeerConnectionManager~getPeerConnection', {stackId, streamId, pc});
-		return pc;
-	}
+	getPeerConnection(stream, remote, publish) {
+		const stackId = getStackId(remote.device, cache.device);
 
+		if(this.stacks[stackId] && this.stacks[stackId][stream.uid]) {
+			return Promise.resolve(this.stacks[stackId][stream.uid]);
+		}
+
+		if(!this.stacks[stackId]) {
+			this.stacks[stackId] = {};
+		}
+
+		const users = {};
+		users[cache.user.uid] = true;
+		users[remote.from] = true;
+
+		return DataSync.update(`_/webrtc/${stackId}`, users)
+			.then(() => new PeerConnection(stackId, stream.uid, remote.device, publish))
+			.then(pc => {
+				Log.d('PeerConnectionManager~getPeerConnection', {stackId, streamId: stream.uid, pc});
+				this.stacks[stackId][stream.uid] = pc;
+				return pc;
+			});
+	}
 
 	/**
 	 * Create offer for a stream to a subscriber
-	 * @param localStream
-	 * @param subscriber
-	 * @return {*|Promise.<PeerConnection>}
+	 * @param {Local} localStream
+	 * @param {object} subscriber
+	 * @return {Promise.<PeerConnection>}
 	 */
 	offer(localStream, subscriber) {
 		Log.d('PeerConnectionManager~offer', {localStream, subscriber});
-		return this.getPeerConnection(localStream.uid, subscriber.device, true).offer(localStream.media);
+		return this.getPeerConnection(localStream, subscriber, true)
+			.then(pc => pc.offer(localStream.media));
 	}
 
 	/**
 	 * Answer to the offer from the publisher
-	 * @param remoteStream
-	 * @param htmlElement
+	 * @param {Remote} remoteStream
+	 * @param {Element} htmlElement
 	 * @return {*|Promise.<PeerConnection>}
 	 */
 	answer(remoteStream, htmlElement) {
 		Log.d('PeerConnectionManager~answer', {remoteStream, htmlElement});
-		return this.getPeerConnection(remoteStream.uid, remoteStream.device, false).answer(htmlElement);
+		return this.getPeerConnection(remoteStream, remoteStream, false)
+			.then(pc => pc.answer(htmlElement));
 	}
 
 	/**

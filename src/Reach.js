@@ -1,6 +1,7 @@
 import {browser} from './definitions/Browser';
 import StreamTypes from './definitions/StreamTypes';
 import * as Events from './definitions/Events';
+import {audio, video} from './definitions/Codec';
 import User from './core/User';
 import Room from './core/Room';
 import Invite from './core/Invite';
@@ -79,6 +80,13 @@ export default class Reach {
 		return Media;
 	}
 
+	/**
+	 * The codec presets to use when setting {@link Config#preferredAudioCodec} or {@link Config#preferredVideoCodec}
+	 * @return {{audio: Codec/audio, video: Codec/video}}
+	 */
+	static get codecs() {
+		return {audio, video};
+	}
 	/**
 	 * DataSync reference
 	 * @type {Webcom}
