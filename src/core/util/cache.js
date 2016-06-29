@@ -4,6 +4,11 @@ import Config from '../Config';
 import StreamManager from '../stream/StreamManager';
 import PeerConnectionManager from '../webrtc/PeerConnectionManager';
 
+/**
+ * singleton
+ * @type {CacheManager}
+ * @private
+ */
 let _cache = null;
 
 /**
@@ -45,6 +50,9 @@ class CacheManager {
 	 */
 	set config(config) {
 		if(!this._config) {
+			/**
+			 * @ignore
+			 */
 			this._config = new Config(config);
 		} else {
 			this._config.assign(config);
@@ -65,6 +73,9 @@ class CacheManager {
 	 * @param {User} user the connected user
 	 */
 	set user(user) {
+		/**
+		 * @ignore
+		 */
 		this._user = user;
 	}
 	/**
@@ -79,6 +90,9 @@ class CacheManager {
 	 * @param {string} device the current device
 	 */
 	set device(device) {
+		/**
+		 * @ignore
+		 */
 		this._device = device;
 	}
 	/**

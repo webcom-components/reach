@@ -72,7 +72,6 @@ export const once = (path, event) => new Promise((resolve, reject) => {
 	cache.base.child(path).once(eventType(event), resolve, reject);
 });
 
-
 /**
  * {@link Webcom#once}('value') as a {@link Promise}
  * @access protected
@@ -89,7 +88,6 @@ export const get = path => once(path, 'value');
  * @param params Additional constructor parameters
  * @return {Promise<Object[], Error>}
  */
-
 export const list = (path, Type, ...params) => {
 	return get(path).then(snapData => {
 		if(snapData) {
@@ -138,6 +136,4 @@ export const onDisconnect = path => cache.base.child(path).onDisconnect();
  * @access protected
  * @type {function}
  */
-// export const ts = () => Webcom.ServerValue.TIMESTAMP;
-export const ts = () => Date.now();
-// TODO Rollback when TIMESTAMP works again (server-side bug)
+export const ts = () => Webcom.ServerValue.TIMESTAMP;
