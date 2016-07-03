@@ -62,7 +62,7 @@
     "karma-sourcemap-loader": "^0.3.5",
     "karma-webdriver-launcher": "^1.0.4",
     "karma-webpack": "^1.7.0",
-    "lodash": "^3.10.1",
+    "lodash": "^4.11.0",
     "minimist": "^1.2.0",
     "require-dir": "^0.3.0",
     "semantic-release": "^4.3.5",
