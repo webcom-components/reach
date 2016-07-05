@@ -46,7 +46,7 @@
     "esdoc": "^0.4.3",
     "ghooks": "^1.0.3",
     "gulp": "^3.9.0",
-    "gulp-eslint": "^1.0.0",
+    "gulp-eslint": "^2.0.0",
     "gulp-util": "^3.0.6",
     "isparta-loader": "^2.0.0",
     "jasmine": "^2.3.2",
