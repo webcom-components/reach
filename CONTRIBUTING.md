@@ -2,9 +2,6 @@
 
 The following is a set of guidelines for contributing to Reach.
 
-
-#### Table Of Contents
-
   * [Report Bugs](#report-bugs)
 
   * [Develop new features / Fix bugs](#develop-new-features--fix-bugs)

@@ -17,7 +17,7 @@ BrowserSync.init({
 	files: [
 		'esdoc/**/*',
 		{
-			match: ['src/**/*.js'],
+			match: ['src/**/*.js', './manual/*.md'],
 			fn: runESdoc
 		}
 	]

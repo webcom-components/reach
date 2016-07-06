@@ -2,5 +2,13 @@
   "source": "./src",
   "destination": "./esdoc",
   "title": "Reach",
-  "access": ["public"]
+  "access": ["public"],
+  "manual": {
+    "overview": ["./manual/overview.md"],
+    "installation": ["./manual/install.md"],
+    "configuration": ["./manual/configuration.md"],
+    "tutorial": ["./manual/tutorial.md", "./manual/sharing.md", "./manual/model.md"],
+    "example": ["./manual/example.md"],
+    "faq": ["./manual/faq.md", "./CONTRIBUTING.md"]
+  }
 }

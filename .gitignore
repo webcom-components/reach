@@ -5,6 +5,5 @@ checkstyle
 .idea
 esdoc
 dist/rules.json
-.account.json
-.account.yml
-.account.yaml
+.account.*
+CHANGELOG.md
