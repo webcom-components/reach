@@ -5,7 +5,7 @@ Reach acts as a signaling framework for all your WebRTC needs.
 [![Build Status](https://img.shields.io/travis/webcom-components/reach/master.svg)](https://travis-ci.org/webcom-components/reach)
 [![Code Climate](https://img.shields.io/codeclimate/github/webcom-components/reach.svg)](https://codeclimate.com/github/webcom-components/reach)
 [![Test Coverage](https://img.shields.io/codeclimate/coverage/github/webcom-components/reach.svg)](https://codeclimate.com/github/webcom-components/reach/coverage)
-[![ESDoc](badge.svg)](https://doc.esdoc.org/github.com/webcom-components/reach)
+[![ESDoc](https://doc.esdoc.org/github.com/webcom-components/reach/badge.svg)](https://doc.esdoc.org/github.com/webcom-components/reach)
 [![npm version](https://img.shields.io/npm/v/webcom-reach.svg)](https://www.npmjs.com/package/webcom-reach)
 [![bower version](https://img.shields.io/bower/v/webcom-reach.svg)](https://github.com/webcom-components/reach)
 [![Dependency Status](https://img.shields.io/david/webcom-components/reach.svg)](https://david-dm.org/webcom-components/reach)
