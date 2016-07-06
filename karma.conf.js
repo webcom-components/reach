@@ -38,6 +38,11 @@ const
 	},
 
 	sauceLabsBrowsers = {
+		sl_edge: sauceLabsBrowser({
+			browserName: 'MicrosoftEdge',
+			platform: 'Windows 10',
+			version: '13'
+		}),
 		sl_chrome_beta: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'Windows 7',
@@ -65,7 +70,7 @@ const
 		}),
 		sl_firefox_30: sauceLabsBrowser({
 			browserName: 'firefox',
-			version: '30'
+			version: '31'
 		}),
 		sl_android_lollipop: sauceLabsBrowser({
 			browserName: 'android',
