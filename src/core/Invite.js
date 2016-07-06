@@ -150,7 +150,7 @@ export default class Invite {
 	 * @return {Promise<Invite>}
 	 */
 	reject(reason) {
-		return update(this, REJECTED, reason);
+		return update(this, REJECTED, reason, DataSync.ts());
 	}
 
 	/**

@@ -136,4 +136,6 @@ export const onDisconnect = path => cache.base.child(path).onDisconnect();
  * @access protected
  * @type {function}
  */
-export const ts = () => Webcom.ServerValue.TIMESTAMP;
+// export const ts = () => Webcom.ServerValue.TIMESTAMP;
+export const ts = () => Date.now();
+// TODO Rollback when TIMESTAMP works again (server-side bug with security rules)
