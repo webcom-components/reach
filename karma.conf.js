@@ -37,6 +37,20 @@ const
 		return d;
 	},
 
+	// Chrome flags
+	flags = [
+		// see: http://peter.sh/experiments/chromium-command-line-switches/
+		// Use fake device for Media Stream to replace actual camera and microphone.
+		//'--use-fake-device-for-media-stream',
+		// Bypass the media stream infobar by selecting the default device for media streams (e.g. WebRTC).
+		// Works with --use-fake-device-for-media-stream.
+		'--use-fake-ui-for-media-stream'
+	],
+	// firefox prefs
+	prefs = {
+		'media.navigator.permission.disabled': true
+	},
+
 	sauceLabsBrowsers = {
 		sl_edge: sauceLabsBrowser({
 			browserName: 'MicrosoftEdge',
@@ -46,31 +60,37 @@ const
 		sl_chrome_beta: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'Windows 7',
-			version: 'beta'
+			version: 'beta',
+			flags
 		}),
 		sl_chrome_dev: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'Windows 10',
-			version: 'dev'
+			version: 'dev',
+			flags
 		}),
 		sl_chrome_35: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'OS X 10.11',
-			version: '35'
+			version: '35',
+			flags
 		}),
 		sl_firefox_beta: sauceLabsBrowser({
 			browserName: 'firefox',
 			platform: 'Windows 10',
-			version: 'beta'
+			version: 'beta',
+			prefs
 		}),
 		sl_firefox_43: sauceLabsBrowser({
 			browserName: 'firefox',
 			platform: 'OS X 10.11',
-			version: '43'
+			version: '43',
+			prefs
 		}),
 		sl_firefox_30: sauceLabsBrowser({
 			browserName: 'firefox',
-			version: '31'
+			version: '31',
+			prefs
 		}),
 		sl_android_lollipop: sauceLabsBrowser({
 			browserName: 'android',
@@ -84,20 +104,11 @@ const
 	localBrowsers = noBrowser ? [] : omit({
 		Chrome_auto_allow_gum: {
 			base: 'Chrome',
-			flags: [
-				// see: http://peter.sh/experiments/chromium-command-line-switches/
-				// Use fake device for Media Stream to replace actual camera and microphone.
-				//'--use-fake-device-for-media-stream',
-				// Bypass the media stream infobar by selecting the default device for media streams (e.g. WebRTC).
-				// Works with --use-fake-device-for-media-stream.
-				'--use-fake-ui-for-media-stream'
-			]
+			flags
 		},
 		Firefox_auto_allow_gum: {
 			base: 'Firefox',
-			prefs: {
-				'media.navigator.permission.disabled': true
-			}
+			prefs
 		}
 	}, onlyChrome ? ['Firefox_auto_allow_gum'] : (onlyFirefox ? ['Chrome_auto_allow_gum'] : [])),
 	customLaunchers = sauceLabs ? sauceLabsBrowsers : localBrowsers,
@@ -129,7 +140,7 @@ module.exports = function(config) {
 		},
 		colors: true,
 		frameworks: ['jasmine'],
-		concurrency: process.env.TRAVIS === true ? 1 : 2,
+		concurrency: process.env.TRAVIS === 'true' ? 1 : Number.POSITIVE_INFINITY,
 		customLaunchers,
 		browsers,
 		reporters: (() => {
