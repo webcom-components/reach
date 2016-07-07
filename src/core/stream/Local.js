@@ -34,6 +34,7 @@ const streamToNode = (mediaStream, container, previous) => {
 		}
 		_node.srcObject = mediaStream;
 		_node.disabled = false;
+		_node.volume = 0;
 		return _node;
 	}
 	return previous;
@@ -157,7 +158,7 @@ export default class Local {
 			}
 			// Reset mute
 			mediaStream.getTracks().forEach(track => {
-				track.enabled = !!this.muted[track.kind];
+				track.enabled = !this.muted[track.kind];
 			});
 			// Display
 			this.node = streamToNode(mediaStream, this.container, this.node);
