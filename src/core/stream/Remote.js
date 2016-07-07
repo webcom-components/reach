@@ -51,6 +51,12 @@ export default class Remote {
 		 * @type {{audio: boolean, video: boolean}}
 		 */
 		this.muted = Object.assign({audio: false, video: false}, values.muted);
+		/**
+		 * List of callbacks for mute status change
+		 * @type {{MUTE: function[]}}
+		 * @private
+		 */
+		this._callbacks = {};
 	}
 
 	/**
@@ -78,12 +84,11 @@ export default class Remote {
 						// Update type
 						this.type = values.type;
 						// Update mute status
-						if(values.muted.audio !== this.muted.audio || values.muted.video !== this.muted.video) {
-							this.muted = values.muted;
+						const muted = values.muted;
+						if(muted && (muted.audio !== this.muted.audio || muted.video !== this.muted.video)) {
+							this.muted = muted;
 							(this._callbacks[Events.stream.MUTE] || []).forEach(cb => cb(this.muted));
 						}
-
-
 					} else if(initialized) {
 						Log.i('Remote#removed', this);
 						this.unSubscribe();
