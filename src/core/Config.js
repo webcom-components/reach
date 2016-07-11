@@ -21,6 +21,17 @@ export default class Config {
 		this.constraints = null;
 
 		/**
+		 * The id/element dom element that will hold the local video/audio element
+		 * @type {string|Element}
+		 */
+		this.localStreamContainer = null;
+		/**
+		 * The id/element dom element that will hold the remote video/audio element
+		 * @type {string|Element}
+		 */
+		this.remoteStreamContainer = null;
+
+		/**
 		 * The preferred video Codec. Takes a RegExp matching the codec name and sample rate.
 		 * Predefined values can be found in {@link Codec/video}
 		 * @type {RegExp}

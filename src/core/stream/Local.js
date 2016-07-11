@@ -73,7 +73,7 @@ export default class Local {
 		 * The local DOM container element where the {@link Local~media} is displayed
 		 * @type {Element}
 		 */
-		this.container = values.localStreamElement || cache.config.localStreamElement;
+		this.container = values.container || cache.config.localStreamContainer;
 		/**
 		 * The local DOM media element where the {@link Local~media} is displayed
 		 * @type {Element}
@@ -110,10 +110,15 @@ export default class Local {
 		const values = constraints || cache.config.constraints;
 		if(/AUDIO/i.test(this.type) && !values.audio) {
 			values.audio = Media.constraints().audio;
+		} else if(!/AUDIO/i.test(this.type)) {
+			values.audio = false;
 		}
 		if(/VIDEO/i.test(this.type) && !values.video) {
-			values.audio = Media.constraints().video;
+			values.video = Media.constraints().video;
+		} else if(!/VIDEO/i.test(this.type)) {
+			values.video = false;
 		}
+		Log.d('Local~set#contraints', values);
 		/**
 		 * @ignore
 		 */
@@ -134,6 +139,7 @@ export default class Local {
 	 * @returns {*|Promise.<TResult>}
 	 */
 	updateConstraints(constraints) {
+		Log.d('Local~updateConstraints', constraints);
 		this.constraints = constraints;
 		return navigator.mediaDevices.getUserMedia(this.constraints)
 			.then(media => {
@@ -291,6 +297,8 @@ export default class Local {
 				.then(d => {
 					// devices IDs
 					const devices = d[`${kind}input`].map(mediaDevice => mediaDevice.deviceId);
+					// Sort to ensure same order
+					devices.sort();
 					// New device
 					let nextDevice = deviceId;
 					if(deviceId && !devices.find(device => device === deviceId)) {
@@ -311,7 +319,7 @@ export default class Local {
 						// Update constraints
 						const constraints = Object.assign({}, this.constraints);
 						Object.assign(constraints[kind], {deviceId: {exact: device}});
-						Log.d('Local~switch', kind, constraints);
+						Log.d('Local~_switchDevice', kind, constraints);
 						return this.updateConstraints(constraints);
 					}
 				})

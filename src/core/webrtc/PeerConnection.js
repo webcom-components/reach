@@ -99,6 +99,12 @@ export default class PeerConnection {
 		 */
 		this.node = null;
 		/**
+		 * The DOM element containg the media element
+		 * @type {Element}
+		 * @protected
+		 */
+		this.container = null;
+		/**
 		 * The actual RTCPeerConnection
 		 * @type {RTCPeerConnection}
 		 */
@@ -175,6 +181,28 @@ export default class PeerConnection {
 	 */
 	attachStream () {
 		if(this.remoteStream && this.isConnected) {
+			let tagName = '';
+			if(this.remoteStream.getVideoTracks().length > 0) {
+				tagName = 'video';
+			} else if(this.remoteStream.getAudioTracks().length > 0) {
+				tagName = 'audio';
+			}
+			Log.d('PeerConnection~attachStream', this.remoteStream, tagName);
+			if (tagName.length > 0) {
+				let _node = this.node;
+				if (!_node || _node.tagName.toLowerCase() !== tagName) {
+					_node = document.createElement(tagName);
+					_node.autoplay = true;
+				}
+				if (this.container) {
+					if (this.node && this.node!== _node) {
+						this.container.replaceChild(_node, this.node);
+					} else if (!this.node) {
+						this.container.appendChild(_node);
+					}
+				}
+				this.node = _node;
+			}
 			this.node.autoplay = true;
 			this.node.srcObject = this.remoteStream;
 			this.node.disabled = false;
@@ -223,7 +251,7 @@ export default class PeerConnection {
 	 */
 	answer(htmlElement) {
 		Log.i('PeerConnection~answer', {htmlElement, peerConnection: this});
-		this.node = htmlElement;
+		this.container = htmlElement;
 		if(Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'ontrack')) {
 			this.pc.ontrack = e => {
 				Log.d('PeerConnection~ontrack', e.streams[0]);

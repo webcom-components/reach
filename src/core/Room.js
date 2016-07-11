@@ -88,7 +88,10 @@ export default class Room {
 			.then(snapData => {
 				const values = snapData.val();
 				Log.d('Rooms~_streams', values);
-				return Object.keys(values).map(key => Object.assign({uid: key, roomId: this.uid}, values[key]));
+				if(values) {
+					return Object.keys(values).map(key => Object.assign({uid: key, roomId: this.uid}, values[key]));
+				}
+				return [];
 			});
 	}
 
@@ -216,12 +219,12 @@ export default class Room {
 	 * Publish a local stream
 	 * @param {string} type The stream type, see {@link StreamTypes} for possible values
 	 * @param {MediaStreamConstraints} [constraints] The stream constraints. If not defined, the constraints defined in {@link Config} will be used.
-	 * @param {Element} [localStreamElement] The element the stream is attached to. Can be null if already specified in {@link Config}.
+	 * @param {Element} [localStreamContainer] The element the stream is attached to. Can be null if already specified in {@link Config}.
 	 * @returns {Promise<Local, Error>}
 	 */
-	share(type, constraints, localStreamElement) {
-		Log.d('Room~share', {type, localStreamElement, constraints});
-		return Local.share(this.uid, type, constraints, localStreamElement);
+	share(type, localStreamContainer, constraints) {
+		Log.d('Room~share', {type, localStreamContainer, constraints});
+		return Local.share(this.uid, type, localStreamContainer, constraints);
 	}
 
 	/**
@@ -248,7 +251,7 @@ export default class Room {
 			DataSync.off(Events.room.toPath(event)(this), event);
 		});
 		// Unpublish all local streams
-		this.localStreams().then(localStreams => localStreams.forEach(localStream => localStream.unPublish()));
+		this.localStreams().then(localStreams => localStreams.forEach(localStream => localStream.close()));
 		// Unsubscribe all remote streams
 		this.remoteStreams().then(remoteStreams => remoteStreams.forEach(remoteStream => remoteStream.unSubscribe()));
 		// Update status
