@@ -113,11 +113,6 @@ export default class Remote {
 	 * @returns {Promise}
 	 */
 	unSubscribe() {
-		// Stop display
-		if(this.node) {
-			this.node.stop && this.node.stop();
-			this.node.srcObject = null;
-		}
 		// Stop listening to stream modifications
 		DataSync.off(`_/rooms/${this.roomId}/streams/${this.uid}`, 'value');
 		// Un-subscribe

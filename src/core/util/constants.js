@@ -11,6 +11,12 @@ export const OPENED = 'OPENED';
  */
 export const CLOSED = 'CLOSED';
 /**
+ * CLOSING
+ * @access protected
+ * @type {string}
+ */
+export const CLOSING = 'CLOSING';
+/**
  * CONNECTED
  * @access protected
  * @type {string}

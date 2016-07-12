@@ -1,6 +1,7 @@
 import cache from '../util/cache';
 import * as Log from '../util/Log';
 import * as DataSync from '../util/DataSync';
+import {OPENED, CLOSING, CLOSED} from '../util/constants';
 
 const DtlsSrtpKeyAgreement = {DtlsSrtpKeyAgreement: true};
 const sdpConstraints = receive => ({OfferToReceiveAudio: receive, OfferToReceiveVideo: receive});
@@ -151,7 +152,13 @@ export default class PeerConnection {
 		this.pc.onicegatheringstatechange = () => {
 			Log.d('PeerConnection~onicegatheringstatechange', this.pc.iceGatheringState);
 		};
-		
+
+		/**
+		 * PeerConnection status
+		 * @type {string}
+		 * @private
+		 */
+		this._status = OPENED;
 	}
 
 	/**
@@ -305,15 +312,26 @@ export default class PeerConnection {
 	 */
 	offer(stream) {
 		Log.i('PeerConnection~offer', {stream, peerConnection: this});
+		let sendTimeout;
 		return new Promise((resolve, reject) => {
 			this.pc.onnegotiationneeded = () => {
 				Log.d('PeerConnection~onnegotiationneeded');
-				this._sendOffer()
-					.then(() => {resolve(this);})
-					.catch(e => {
-						Log.d('PeerConnection~offer', e);
-						reject(e);
-					});
+				// Debounce send (renegotiation triggers multiple negotiationneeded events)
+				if(sendTimeout) {
+					clearTimeout(sendTimeout);
+					sendTimeout = null;
+				}
+				sendTimeout = setTimeout(() => {
+					sendTimeout = null;
+					this._sendOffer()
+						.then(() => {
+							resolve(this);
+						})
+						.catch(e => {
+							Log.d('PeerConnection~offer', e);
+							reject(e);
+						});
+				}, 20);
 			};
 			DataSync.on(`${this._remotePath}/sdp`, 'value', snap => {
 				const sdpAnswer = snap.val();
@@ -342,6 +360,7 @@ export default class PeerConnection {
 	 * @private
 	 */
 	_sendOffer() {
+		Log.d('PeerConnection~_sendOffer');
 		return this.pc.createOffer()
 			.then(description => this._setPreferredCodecs(description))
 			.then(description => this.pc.setLocalDescription(description))
@@ -357,7 +376,6 @@ export default class PeerConnection {
 	 */
 	renegotiate(oldStream, newStream) {
 		Log.d('PeerConnection~renegotiate');
-
 		if(Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'getSenders')){
 			// mozRTCPeerConnection implementation
 			this.pc.getSenders().forEach(sender => {
@@ -397,15 +415,32 @@ export default class PeerConnection {
 	 * @access protected
 	 */
 	close() {
-		// Stop listening to remote ICE candidates
-		this._remoteICECandidates(false);
-		// Stop listening to SDP messages
-		DataSync.off(`${this._remotePath}/sdp`, 'value');
-		// Remove data
-		DataSync.remove(this._localPath);
-		// Close PeerConnection
-		if(this.pc && this.pc.signalingState !== 'closed'){
-			this.pc.close();
+		if(this._status === OPENED) {
+			this._status = CLOSING;
+			// Stop display
+			if (this.node) {
+				this.node.stop && this.node.stop();
+				this.node.srcObject = null;
+				this.container.removeChild(this.node);
+				this.node = null;
+			}
+			// Stop listening to remote ICE candidates
+			this._remoteICECandidates(false);
+			// Stop listening to SDP messages
+			DataSync.off(`${this._remotePath}/sdp`, 'value');
+			// Remove data
+			DataSync.remove(this._localPath);
+			// Close PeerConnection
+			if (this.pc && this.pc.signalingState !== 'closed') {
+				this.pc.onsignalingstatechange = () => {
+					if(this.pc.signalingState !== 'closed') {
+						this._status = CLOSED;
+					}
+				};
+				this.pc.close();
+			} else {
+				this._status = CLOSED;
+			}
 		}
 	}
 
