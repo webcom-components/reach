@@ -12,6 +12,9 @@ if [ "$TRAVIS_BRANCH" = "api-proposal" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]
     # Copy dist
     mkdir dist
     cp ../dist/*.js* dist/
+    # Copy examples
+    mkdir samples
+    cp ../samples/*.html samples/
 
     # gh-pages push
     git init
