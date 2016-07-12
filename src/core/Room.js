@@ -133,30 +133,30 @@ export default class Room {
 	 * @return {Promise<{room: Room, invites: Invite[]}, Error>}
 	 */
 	invite(users, role = NONE, message) {
-		// Add users as participant so they can join the room
-		const _participants = users.map(user => DataSync.set(
-			`_/rooms/${this.uid}/participants/${user.uid}`,
-			{
+		const
+			_path = user => `_/rooms/${this.uid}/participants/${user.uid}`,
+			_data = {
 				status: NOT_CONNECTED,
-				role
-			}
-		));
-		// Send invites
-		const _invites = users.map(user => Invite.send(user, this, message, () => {
-			DataSync.remove(`_/rooms/${this.uid}/participants/${user.uid}`);
-		}));
-		const removeParticipant = invite => DataSync.remove(`_/rooms/${invite.room}/participants/${invite.to}`);
-		return Promise.all(_participants)
-			.then(() => Promise.all(_invites), e => {
-				Log.e('Room~invite', e);
-				users.forEach(user => DataSync.remove(`_/rooms/${this.uid}/participants/${user.uid}`));
+				role: role || NONE
+			};
+		// Add users as participant so they can join the room
+		return Promise.all(users.map(user => DataSync.set(_path(user), _data)))
+			.then(() => {
+				// Send invites
+				return Promise.all(users.map(user => Invite.send(user, this, message)));
+			}, e => {
+				Log.e('Room~invite_1', e);
 			})
 			.then(invites => {
+				const removeParticipant = invite => DataSync.remove(`_/rooms/${invite.room}/participants/${invite.to}`);
 				invites.forEach(invite => {
 					invite.on(REJECTED, removeParticipant);
 					invite.on(CANCELED, removeParticipant);
 				});
 				return invites;
+			}, e => {
+				Log.e('Room~invite_2', e);
+				users.forEach(user => DataSync.remove(`_/rooms/${this.uid}/participants/${user.uid}`));
 			})
 			.then(invites => ({room: this, invites}))
 			.catch(Log.r);
@@ -232,7 +232,15 @@ export default class Room {
 	 * @return {Promise}
 	 */
 	join() {
-		Log.i('Room~join', this);
+		Log.i('Room~join', this, {
+			status: CONNECTED,
+			_joined: DataSync.ts()
+		});
+		// const _path = `_/rooms/${this.uid}/participants/${cache.user.uid}`;
+		// return Promise.all([
+		// 	DataSync.set(`${_path}/_joined`, DataSync.ts()),
+		// 	DataSync.set(`${_path}/status`, CONNECTED)
+		// ])
 		return DataSync.update(`_/rooms/${this.uid}/participants/${cache.user.uid}`, {
 			status: CONNECTED,
 			_joined: DataSync.ts()
@@ -295,7 +303,7 @@ export default class Room {
 		let roomId = null;
 		// Create public room infos
 		return DataSync.push('rooms', roomMetaData)
-		// Create private room infos
+			// Create private room infos
 			.then(roomRef => {
 				roomId = roomRef.name();
 				return DataSync.update(`_/rooms/${roomId}/meta`, {

@@ -185,14 +185,14 @@ export default class Invite {
 				 */
 				this._listener = snapData => {
 					const updated = snapData.val();
-					if (updated !== null && update.status !== this.status) {
-						Object.assign(this, updated);
-						this._callbacks[status].forEach(cb => {
+					if (updated !== null && updated !== this.status) {
+						this.status = updated;
+						(this._callbacks[updated] || []).forEach(cb => {
 							cb(this);
 						});
 					}
 				};
-				DataSync.on(`_/invites/${this.to}/${this.uid}`, 'child_changed', this._listener.bind(this));
+				DataSync.on(`_/invites/${this.to}/${this.uid}/status`, 'value', this._listener.bind(this));
 			}
 		}
 	}
@@ -220,7 +220,7 @@ export default class Invite {
 			}
 		}
 		if(![CANCELED, ACCEPTED, REJECTED].some(event => this._callbacks[event] && this._callbacks[event].length > 0)){
-			DataSync.off(`_/invites/${this.to}/${this.uid}`, 'child_changed');
+			DataSync.off(`_/invites/${this.to}/${this.uid}/status`, 'value');
 		}
 	}
 
