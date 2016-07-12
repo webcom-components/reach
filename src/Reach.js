@@ -267,7 +267,7 @@ export default class Reach {
 	 * - USER_*: callback({@link User} u)
 	 * - ROOM_*: callback({@link Room} r)
 	 * - INVITE_*: callback({@link Invite} i)
-	 * @param {Webcom/api.Query~cancelCallback} cancelCallback The error callback for the event, takes an Error as only argument
+	 * @param {Webcom/api.Query~cancelCallback} [cancelCallback] The error callback for the event, takes an Error as only argument
 	 */
 	on(event, callback, cancelCallback) {
 		const path = Events.reach.toPath(event)(cache.user);
