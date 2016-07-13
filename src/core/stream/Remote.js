@@ -101,7 +101,7 @@ export default class Remote {
 						subscribed = true;
 					} else if(subscribed) {
 						Log.i('Remote#removed', this);
-						this.unSubscribe();
+						this._close(true);
 					}
 				});
 			})
@@ -113,10 +113,20 @@ export default class Remote {
 	 * @returns {Promise}
 	 */
 	unSubscribe() {
+		return this._close(false);
+	}
+
+	/**
+	 * Close the remote Stream
+	 * @param {boolean} remote Close is initiated by publisher
+	 * @returns {*}
+	 * @private
+	 */
+	_close(remote) {
 		// Stop listening to stream modifications
 		DataSync.off(`_/rooms/${this.roomId}/streams/${this.uid}`, 'value');
 		// Un-subscribe
-		DataSync.remove(`_/rooms/${this.roomId}/subscribers/${this.uid}/${cache.device}`);
+		!remote && DataSync.remove(`_/rooms/${this.roomId}/subscribers/${this.uid}/${cache.device}`);
 		// Close PeerConnection
 		return cache.peerConnections.close(this.uid, this.device);
 	}
