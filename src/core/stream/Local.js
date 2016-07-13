@@ -99,7 +99,6 @@ export default class Local {
 
 		// Set constraints
 		this.constraints = values.constraints;
-
 	}
 
 	/**
@@ -158,14 +157,33 @@ export default class Local {
 	 */
 	set media (mediaStream) {
 		if(mediaStream) {
-			// TODO Check proto instead ?
 			if(!mediaStream instanceof MediaStream) {
 				throw new Error('The media MUST be a MediaStream');
 			}
-			// Reset mute
+
+			const checkDevices = {};
 			mediaStream.getTracks().forEach(track => {
+				// Reset mute
 				track.enabled = !this.muted[track.kind];
+				// Get device label
+				if(!this._inputs[track.kind]) {
+					checkDevices[track.kind] = track.label;
+				}
 			});
+			// Try to get deviceId from label
+			if(Object.keys(checkDevices).length) {
+				Media.devices().then(devices => {
+					Object.keys(checkDevices).forEach(kind => {
+						if(devices[`${kind}input`]){
+							const deviceIds = devices[`${kind}input`]
+								.filter(device => device.label.length && device.label === checkDevices[kind]);
+							if(deviceIds.length === 1) {
+								this._inputs[kind] = deviceIds[0].deviceId;
+							}
+						}
+					});
+				});
+			}
 			// Display
 			this.node = streamToNode(mediaStream, this.container, this.node);
 			Log.d('Local~set media', mediaStream, this.node);
@@ -292,6 +310,7 @@ export default class Local {
 	 * @returns {Promise<Local, Error>}
      */
 	_switchDevice(kind, deviceId) {
+		Log.d('Local~_switchDevice', kind, deviceId);
 		if(this.media.getTracks().some(track => track.kind === kind)) {
 			return Media.devices()
 				.then(d => {
