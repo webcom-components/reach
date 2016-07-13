@@ -52,42 +52,42 @@ const
 	},
 
 	sauceLabsBrowsers = {
-		sl_edge: sauceLabsBrowser({
-			browserName: 'MicrosoftEdge',
-			platform: 'Windows 10',
-			version: '13'
-		}),
-		sl_chrome_beta: sauceLabsBrowser({
+		// sl_edge: sauceLabsBrowser({
+		// 	browserName: 'MicrosoftEdge',
+		// 	platform: 'Windows 10',
+		// 	version: '13'
+		// }),
+		sl_chrome_latest: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'Windows 7',
-			version: 'beta',
+			version: 'latest',
 			flags
 		}),
-		sl_chrome_dev: sauceLabsBrowser({
+		sl_chrome_latest_1: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'Windows 10',
-			version: 'dev',
+			version: 'latest-1',
 			flags
 		}),
-		sl_chrome_35: sauceLabsBrowser({
+		sl_chrome_minimum: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'OS X 10.11',
-			version: '35',
+			version: '38',
 			flags
 		}),
-		sl_firefox_beta: sauceLabsBrowser({
+		sl_firefox_latest: sauceLabsBrowser({
 			browserName: 'firefox',
 			platform: 'Windows 10',
-			version: 'beta',
+			version: 'latest',
 			prefs
 		}),
-		sl_firefox_43: sauceLabsBrowser({
+		sl_firefox_latest_1: sauceLabsBrowser({
 			browserName: 'firefox',
 			platform: 'OS X 10.11',
-			version: '43',
+			version: 'latest-1',
 			prefs
 		}),
-		sl_firefox_30: sauceLabsBrowser({
+		sl_firefox_minimum: sauceLabsBrowser({
 			browserName: 'firefox',
 			version: '31',
 			prefs
