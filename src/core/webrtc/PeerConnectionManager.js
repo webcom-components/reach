@@ -25,7 +25,7 @@ export default class PeerConnectionManager {
 	/**
 	 * Get a PeerConnection object for a specific stream
 	 * @param {Local|Remote} stream
-	 * @param {Remote|object} remote
+	 * @param {Remote|{to: string, device:string}} remote
 	 * @param {boolean} publish
 	 * @return {*}
 	 */
@@ -42,7 +42,7 @@ export default class PeerConnectionManager {
 
 		const users = {};
 		users[cache.user.uid] = true;
-		users[remote.from] = true;
+		users[remote.from || remote.to] = true;
 
 		return DataSync.update(`_/webrtc/${stackId}`, users)
 			.then(() => new PeerConnection(stackId, stream.uid, remote.device, publish))
@@ -50,7 +50,8 @@ export default class PeerConnectionManager {
 				Log.d('PeerConnectionManager~getPeerConnection', {stackId, streamId: stream.uid, pc});
 				this.stacks[stackId][stream.uid] = pc;
 				return pc;
-			});
+			})
+			.catch(Log.r('PeerConnectionManager~getPeerConnection'));
 	}
 
 	/**

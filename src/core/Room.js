@@ -107,7 +107,8 @@ export default class Room {
 					.filter(stream => stream.from === cache.user.uid && stream.device === cache.device)
 					.map(sharedStream => cache.streams.getShared(sharedStream))
 					.filter(sharedStream => sharedStream !== null)
-			).catch(Log.r);
+			)
+			.catch(Log.r('Room~localStreams'));
 	}
 
 	/**
@@ -121,7 +122,8 @@ export default class Room {
 				streams
 					.filter(stream => stream.from !== cache.user.uid || stream.device !== cache.device)
 					.map(remoteStream => cache.streams.getRemote(remoteStream))
-			).catch(Log.r);
+			)
+			.catch(Log.r('Room~remoteStreams'));
 	}
 
 	/**
@@ -159,7 +161,7 @@ export default class Room {
 				users.forEach(user => DataSync.remove(`_/rooms/${this.uid}/participants/${user.uid}`));
 			})
 			.then(invites => ({room: this, invites}))
-			.catch(Log.r);
+			.catch(Log.r('Room~invite'));
 	}
 
 	/**
@@ -223,7 +225,7 @@ export default class Room {
 	 * @returns {Promise<Local, Error>}
 	 */
 	share(type, localStreamContainer, constraints) {
-		Log.d('Room~share', {type, localStreamContainer, constraints});
+		Log.i('Room~share', {type, localStreamContainer, constraints});
 		return Local.share(this.uid, type, localStreamContainer, constraints);
 	}
 
@@ -232,21 +234,13 @@ export default class Room {
 	 * @return {Promise}
 	 */
 	join() {
-		Log.i('Room~join', this, {
-			status: CONNECTED,
-			_joined: DataSync.ts()
-		});
-		// const _path = `_/rooms/${this.uid}/participants/${cache.user.uid}`;
-		// return Promise.all([
-		// 	DataSync.set(`${_path}/_joined`, DataSync.ts()),
-		// 	DataSync.set(`${_path}/status`, CONNECTED)
-		// ])
+		Log.i('Room~join', this);
 		return DataSync.update(`_/rooms/${this.uid}/participants/${cache.user.uid}`, {
 			status: CONNECTED,
 			_joined: DataSync.ts()
 		})
 		.then(() => {return this;})
-		.catch(Log.r);
+		.catch(Log.r('Room~join'));
 	}
 
 	/**
@@ -254,6 +248,7 @@ export default class Room {
 	 * @return {Promise}
 	 */
 	leave() {
+		Log.i('Room~leave', this);
 		// Disconnect user's callbacks
 		Object.keys(this._callbacks).forEach(event => {
 			DataSync.off(Events.room.toPath(event)(this), event);
@@ -263,7 +258,8 @@ export default class Room {
 		// Unsubscribe all remote streams
 		this.remoteStreams().then(remoteStreams => remoteStreams.forEach(remoteStream => remoteStream.unSubscribe()));
 		// Update status
-		return DataSync.set(`_/rooms/${this.uid}/participants/${cache.user.uid}/status`, WAS_CONNECTED).catch(Log.r);
+		return DataSync.set(`_/rooms/${this.uid}/participants/${cache.user.uid}/status`, WAS_CONNECTED)
+			.catch(Log.r('Room~leave'));
 	}
 
 	/**
@@ -271,13 +267,14 @@ export default class Room {
 	 * @return {Promise}
 	 */
 	close() {
+		Log.i('Room~close', this);
 		return this.leave()
 			.then(() => DataSync.update(`rooms/${this.uid}`, {
 				status: CLOSED,
 				_closed: DataSync.ts()
 			}))
 			.then(() => DataSync.remove(`_/rooms/${this.uid}`))
-			.catch(Log.r);
+			.catch(Log.r('Room~close'));
 	}
 
 	/**
@@ -320,7 +317,7 @@ export default class Room {
 				}
 			))
 			.then(() => new Room(Object.assign({uid: roomId}, roomMetaData)))
-			.catch(Log.r);
+			.catch(Log.r('Room#create'));
 	}
 
 	/**

@@ -73,11 +73,10 @@ export const e = console.error.bind(console);
 /**
  * Promise rejection logger to use with catch
  * @access protected
- * @param {string|Error} message
- * @param {Error} [reason]
- * @returns {Promise}
+ * @param {string} message
+ * @returns {function}
  */
-export const r = (message, reason) => {
+export const r = message => reason => {
 	d(message, reason);
 	return Promise.reject(reason || message);
 };

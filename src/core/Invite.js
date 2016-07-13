@@ -32,7 +32,7 @@ const update = (invite, status, reason = null, _ended = null) => {
 			return Room.get(invite.room);
 		})
 		.then(room => ({room, invite}))
-		.catch(Log.r);
+		.catch(Log.r('Invite_update'));
 };
 
 /**
@@ -249,6 +249,6 @@ export default class Invite {
 				const inviteId = inviteRef.name();
 				return new Invite(Object.assign({uid: inviteId, to: invitee.uid}, inviteMetaData));
 			})
-			.catch(Log.r);
+			.catch(Log.r('Invite#send'));
 	}
 }

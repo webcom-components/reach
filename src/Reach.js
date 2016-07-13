@@ -126,7 +126,7 @@ export default class Reach {
 					return this.login(email, password, name || email, rememberMe);
 				}
 			})
-			.catch(Log.r);
+			.catch(Log.r('Reach~register'));
 	}
 
 	/**
@@ -151,7 +151,7 @@ export default class Reach {
 				cache.user = u;
 				return u;
 			})
-			.catch(Log.r);
+			.catch(Log.r('Reach~login'));
 	}
 
 	/**
@@ -191,7 +191,7 @@ export default class Reach {
 				cache.user = u;
 				return u;
 			})
-			.catch(Log.r);
+			.catch(Log.r('Reach~anonymous'));
 	}
 
 	/**
@@ -228,9 +228,11 @@ export default class Reach {
 	 * @return {Promise<User[], Error>}
 	 */
 	users(include) {
-		return DataSync.list('users', User).then(users => {
-			return !include && users && this.current ? users.filter(user => user.uid !== this.current.uid) : users;
-		}).catch(Log.r);
+		return DataSync.list('users', User)
+			.then(users => {
+				return !include && users && this.current ? users.filter(user => user.uid !== this.current.uid) : users;
+			})
+			.catch(Log.r('Reach~users'));
 	}
 
 	/**
@@ -238,7 +240,8 @@ export default class Reach {
 	 * @return {Promise<Room[], Error>}
 	 */
 	rooms() {
-		return DataSync.list('rooms', Room).catch(Log.r);
+		return DataSync.list('rooms', Room)
+			.catch(Log.r('Reach~rooms'));
 	}
 
 	/**
@@ -249,7 +252,8 @@ export default class Reach {
 		if(!this.current) {
 			return Promise.reject(new Error('Cannot list invites without a User being logged in.'));
 		}
-		return DataSync.list(`_/invites/${this.current.uid}`, Invite).catch(Log.r);
+		return DataSync.list(`_/invites/${this.current.uid}`, Invite)
+			.catch(Log.r('Reach~invites'));
 	}
 
 	/**

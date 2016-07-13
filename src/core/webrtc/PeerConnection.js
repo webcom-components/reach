@@ -297,7 +297,7 @@ export default class PeerConnection {
 							this.pc.localDescription.toJSON()
 						)
 					)
-					.catch(Log.r.bind(Log, 'PeerConnection~localDescription'));
+					.catch(Log.r('PeerConnection~localDescription'));
 			}
 		});
 

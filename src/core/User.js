@@ -58,7 +58,7 @@ export default class User {
 			.then(data => {
 				return {room: data.room, invite: data.invites[0]};
 			})
-			.catch(Log.r);
+			.catch(Log.r('User~invite'));
 	}
 
 	/**
@@ -153,7 +153,7 @@ export default class User {
 				}
 				return true;
 			})
-			.catch(Log.r);
+			.catch(Log.r('User#disconnect'));
 	}
 
 	/**
@@ -165,6 +165,6 @@ export default class User {
 	static get(uid) {
 		return DataSync.get(`users/${uid}`)
 		.then(snapData => snapData ? new User(snapData) : null)
-		.catch(Log.r);
+		.catch(Log.r('User#get'));
 	}
 }

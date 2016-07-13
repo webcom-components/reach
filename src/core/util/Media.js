@@ -68,7 +68,7 @@ export default class Media {
 		if(audio && audioDeviceId) {
 			audio = Object.assign({deviceId: audioDeviceId}, audio === true ? {} : audio);
 		}
-		Log.d('Media~constraints', {video, audio});
+		Log.d('Media#constraints', {video, audio});
 		return {video, audio};
 	}
 
@@ -94,9 +94,9 @@ export default class Media {
 					}
 					r[device.kind].push(device);
 				});
-				Log.d('Media~devices', r);
+				Log.d('Media#devices', r);
 				return r;
 			})
-			.catch(Log.r);
+			.catch(Log.r('Media#devices'));
 	}
 }

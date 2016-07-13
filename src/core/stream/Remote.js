@@ -105,7 +105,7 @@ export default class Remote {
 					}
 				});
 			})
-			.catch(Log.r);
+			.catch(Log.r('Remote~subscribe'));
 	}
 
 	/**

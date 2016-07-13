@@ -55,7 +55,7 @@ export default class Message {
 				this.text = newText;
 				return this;
 			})
-			.catch(Log.r);
+			.catch(Log.r('Message~edit'));
 	}
 
 	/**
@@ -63,7 +63,8 @@ export default class Message {
 	 * @returns {Promise}
 	 */
 	remove() {
-		return DataSync.remove(`/rooms/${this.roomId}/messages/${this.uid}`).catch(Log.r);
+		return DataSync.remove(`/rooms/${this.roomId}/messages/${this.uid}`)
+			.catch(Log.r('Message~remove'));
 	}
 	
 	/**
@@ -81,6 +82,6 @@ export default class Message {
 		return DataSync.push(`_/rooms/${room.uid}/messages`, data)
 			.then(pushRef => DataSync.get(`_/rooms/${room.uid}/messages/${pushRef.name()}`))
 			.then(snapData => new Message(snapData, room.uid))
-			.catch(Log.r);
+			.catch(Log.r('Message#send'));
 	}
 }
