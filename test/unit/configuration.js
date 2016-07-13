@@ -50,7 +50,7 @@ export default () => {
 									return devices[`${type}${io}`].every(device => {
 										expect(device.kind).toBe(`${type}${io}`);
 										expect(device.deviceId).toBeDefined();
-										expect(device.deviceId).toMatch(/^[a-z0-9\+=-_\/]+$/i);
+										expect(device.deviceId).toMatch(/^[a-z0-9\+=\-_\/]+$/i);
 										return true;
 									});
 								}
