@@ -220,8 +220,8 @@ export default class Room {
 	/**
 	 * Publish a local stream
 	 * @param {string} type The stream type, see {@link StreamTypes} for possible values
-	 * @param {MediaStreamConstraints} [constraints] The stream constraints. If not defined, the constraints defined in {@link Config} will be used.
 	 * @param {Element} [localStreamContainer] The element the stream is attached to. Can be null if already specified in {@link Config}.
+	 * @param {MediaStreamConstraints} [constraints] The stream constraints. If not defined, the constraints defined in {@link Config} will be used.
 	 * @returns {Promise<Local, Error>}
 	 */
 	share(type, localStreamContainer, constraints) {

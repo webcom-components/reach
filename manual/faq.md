@@ -7,7 +7,9 @@ Reach works on the following browsers:
 * Microsoft Edge 13+
 
 <br>
-Otherwise, if your browser [supports WebRTC][caniuse], there's a high probability that Reach may work on your browser.
+However, video codec support differs from one browser to the other. For example, Edge only supports H264UC and Chrome only VP8 and VP9, thus making them not interoperable with video.
+
+Otherwise, if your browser [supports WebRTC][caniuse], there's a high probability that Reach may work on your browser. 
 
 Since Reach uses [WebRTC's adapter][adapterJS] to insulate the SDK from spec changes and prefix differences, you might find more information on supported browsers [there][adapterJS].
 
