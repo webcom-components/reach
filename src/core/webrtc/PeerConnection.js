@@ -47,7 +47,10 @@ const ICE_CONNECTION_STATE_FAILED = 'failed';
  * @type {string}
  */
 const ICE_CONNECTION_STATE_OTHER= 'other';
-
+/**
+ * @ignore
+ */
+const _toJSON = o => o.toJSON && typeof o.toJSON === 'function' ? o.toJSON() : o;
 /**
  * The PeerConnection. A PeerConnection will only concern one MediaStream.
  * @class PeerConnection
@@ -122,7 +125,7 @@ export default class PeerConnection {
 		this.pc.onicecandidate = e => {
 			if (!this.negotiated && e.candidate) {
 				Log.d('PeerConnection~onicecandidate', e.candidate);
-				DataSync.push(`${this._localPath}/ice`, e.candidate.toJSON());
+				DataSync.push(`${this._localPath}/ice`, _toJSON(e.candidate));
 			}
 		};
 		this.pc.oniceconnectionstatechange = () => {
@@ -291,12 +294,7 @@ export default class PeerConnection {
 						Log.d('PeerConnection~localDescription', this.pc.localDescription);
 						this._remoteICECandidates(true);
 					})
-					.then(() =>
-						DataSync.update(
-							`${this._localPath}/sdp`,
-							this.pc.localDescription.toJSON()
-						)
-					)
+					.then(() => DataSync.update(`${this._localPath}/sdp`, _toJSON(this.pc.localDescription)))
 					.catch(Log.r('PeerConnection~localDescription'));
 			}
 		});
@@ -365,7 +363,7 @@ export default class PeerConnection {
 			.then(description => this._setPreferredCodecs(description))
 			.then(description => this.pc.setLocalDescription(description))
 			.then(() => Log.d('PeerConnection~renegotiate#localDescription', this.pc.localDescription))
-			.then(() => DataSync.update(`${this._localPath}/sdp`, this.pc.localDescription.toJSON()));
+			.then(() => DataSync.update(`${this._localPath}/sdp`, _toJSON(this.pc.localDescription)));
 	}
 
 	/**
