@@ -140,7 +140,7 @@ module.exports = function(config) {
 		},
 		colors: true,
 		frameworks: ['jasmine'],
-		concurrency: process.env.TRAVIS === 'true' ? 1 : Number.POSITIVE_INFINITY,
+		concurrency: 1,//process.env.TRAVIS === 'true' ? 1 : Number.POSITIVE_INFINITY,
 		customLaunchers,
 		browsers,
 		reporters: (() => {
