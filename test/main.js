@@ -48,7 +48,9 @@ describe('Reach /', () => {
 			.then(() => {
 				config.createdUsers = [];
 				const ts = Date.now();
-				return Promise.all(Array(5).fill().map((_, i) => {
+				const tmp = Array(5);
+				for(let i=0,l=tmp.length;i<l;i++) {tmp[i] = i;}
+				return Promise.all(tmp.map(i => {
 					const user = {
 						email: `new.user.${i}@${ts}.reach.io`,
 						password: 'password'

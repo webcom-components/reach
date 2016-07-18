@@ -52,11 +52,11 @@ const
 	},
 
 	sauceLabsBrowsers = {
-		// sl_edge: sauceLabsBrowser({
-		// 	browserName: 'MicrosoftEdge',
-		// 	platform: 'Windows 10',
-		// 	version: '13'
-		// }),
+		sl_edge: sauceLabsBrowser({
+			browserName: 'MicrosoftEdge',
+			platform: 'Windows 10',
+			version: '13'
+		}),
 		sl_chrome_latest: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'Windows 7',
@@ -72,7 +72,7 @@ const
 		sl_chrome_minimum: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'OS X 10.11',
-			version: '41',
+			version: '38',
 			flags
 		}),
 		sl_firefox_latest: sauceLabsBrowser({
@@ -91,13 +91,13 @@ const
 			browserName: 'firefox',
 			version: '31',
 			prefs
-		// }),
-		// sl_android_lollipop: sauceLabsBrowser({
-		// 	browserName: 'android',
-		// 	platform: 'Linux',
-		// 	version: '5.1',
-		// 	deviceName: 'Android Emulator',
-		// 	deviceOrientation: 'portrait'
+		}),
+		sl_android_lollipop: sauceLabsBrowser({
+			browserName: 'android',
+			platform: 'Linux',
+			version: '5.1',
+			deviceName: 'Android Emulator',
+			deviceOrientation: 'portrait'
 		})
 	},
 
@@ -140,7 +140,7 @@ module.exports = function(config) {
 		},
 		colors: true,
 		frameworks: ['jasmine'],
-		concurrency: 1,//process.env.TRAVIS === 'true' ? 1 : Number.POSITIVE_INFINITY,
+		concurrency: process.env.TRAVIS === 'true' ? 1 : Number.POSITIVE_INFINITY,
 		customLaunchers,
 		browsers,
 		reporters: (() => {
