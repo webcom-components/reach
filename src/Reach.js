@@ -18,7 +18,7 @@ export default class Reach {
 	/**
 	 * Create Reach's data structure where the url points to (might not be the root of your namespace)
 	 * @public
-	 * @param {string|Webcom} [url=http://webcom.orange.com/base/reach] The url of your namespace or an existing Webcom reference.
+	 * @param {string|Webcom} [url=https://io.datasync.orange.com/base/reach] The url of your namespace or an existing Webcom reference.
 	 * @param {Config} [cfg] Reach configuration. You can pass constraints here
 	 * @example <caption>Init with the default configuration</caption>
 	 * var myReach = new Reach('https://io.datasync.orange.com/base/<my_namespace>');
@@ -28,7 +28,7 @@ export default class Reach {
 	 *  logLevel: 'INFO'
 	 * });
 	 */
-	constructor(url = 'http://webcom.orange.com/base/reach', cfg = null) {
+	constructor(url = 'https://io.datasync.orange.com/base/reach', cfg = null) {
 		// Set shared reference
 		cache.base = url;
 		// Set shared configuration
