@@ -9,14 +9,15 @@ import {browserDetails, browserShim} from 'webrtc-adapter';
  * @property {boolean} compatible - is current browser supported ?
  */
 export const browser = Object.assign({
-	compatible: !/\s/.test(browserDetails.browser) && browserDetails.version > browserDetails.minVersion
+	compatible: !/\s/.test(browserDetails.browser) &&
+		(!browserDetails.minVersion || browserDetails.version >= browserDetails.minVersion)
 }, browserDetails);
 
 const version = `Reach v${SDK_VERSION} | Schema ${SCHEMA_VERSION} | Webcom v${Webcom.SDK_VERSION}`;
 let message = '';
 if(browser.version === null) {
 	message = 'Unsupported browser: browser must support WebRTC Peer-to-peer connections to use Reach';
-} else if (browser.minVersion > browser.version) {
+} else if (browser.minVersion && browser.minVersion > browser.version) {
 	message = `Unsupported browser: browser is outdated, update to latest version (${browser.minVersion}+)`;
 } else if(!browserShim){
 	message = 'No shim for your browser. There might a problem with your package.';
