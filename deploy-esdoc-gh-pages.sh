@@ -7,16 +7,27 @@ if [ "$TRAVIS_BRANCH" = "api-proposal" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]
     # Build doc
     npm run doc;
 
-    cd esdoc
+    # Build lib
+    npm run build;
 
     # Copy dist
-    mkdir dist
-    cp ../dist/*.js* dist/
+    mkdir -p esdoc/dist
+    cp dist/*.js* esdoc/dist/
+
     # Copy examples
-    mkdir samples
-    cp ../samples/*.html samples/
+    mkdir -p esdoc/samples
+    cp samples/*.html esdoc/samples/
+
+    # Copy test report
+    mkdir -p esdoc/report
+    cp report/*.html esdoc/report/
+
+    # Copy coverage report
+    mkdir -p esdoc/coverage
+    cp -R coverage/lcov-report/* esdoc/coverage/
 
     # gh-pages push
+    cd esdoc
     git init
     git config user.name "webcomOps"
     git config user.email "webcom.ops@orange.com"

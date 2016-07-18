@@ -144,7 +144,7 @@ module.exports = function(config) {
 		customLaunchers,
 		browsers,
 		reporters: (() => {
-			const list = ['progress', 'dots', 'kjhtml'];
+			const list = ['progress', 'dots', 'kjhtml', 'html'];
 			if(coverage) {
 				list.push('coverage');
 			}
@@ -153,6 +153,13 @@ module.exports = function(config) {
 			}
 			return list;
 		})(),
+		// the default configuration
+		htmlReporter: {
+			outputDir: 'report', // where to put the reports
+			focusOnFailures: true, // reports show failures on start
+			namedFiles: true, // name files instead of creating sub-directories
+			urlFriendlyName: true // simply replaces spaces with _ for files/dirs
+		},
 		files: [
 			'node_modules/webcom/webcom.js',
 			'test/config.js',
