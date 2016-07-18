@@ -49,7 +49,7 @@ export default class Invite {
 	constructor(snapData) {
 		let values = snapData;
 		if(snapData && snapData.val && typeof snapData.val === 'function'){
-			values = Object.assign(snapData.val() || {}, {uid: snapData.name(), to: snapData.ref().parent().name()});
+			values = Object.assign({}, snapData.val(), {uid: snapData.name(), to: snapData.ref().parent().name()});
 		}
 		/**
 		 * Invite's unique id

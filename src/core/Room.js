@@ -22,7 +22,7 @@ export default class Room {
 	constructor(snapData) {
 		let values = snapData;
 		if(snapData && snapData.val && typeof snapData.val === 'function'){
-			values = Object.assign(snapData.val() || {}, {uid: snapData.name()});
+			values = Object.assign({}, snapData.val(), {uid: snapData.name()});
 		}
 		/**
 		 * The room unique id

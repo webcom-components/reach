@@ -57,7 +57,7 @@ export default class Config {
 		this.reset();
 
 		// Populate with data
-		obj && this.assign(obj);
+		this.assign(obj);
 
 		// Read ICE servers from server
 		DataSync.get('_/ice').then(snapData => {

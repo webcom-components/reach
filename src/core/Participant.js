@@ -9,15 +9,12 @@ export default class Participant {
 	 * @access protected
 	 */
 	constructor(snapData) {
-		let values = snapData;
-		if(snapData && snapData.val && typeof snapData.val === 'function'){
-			values = Object.assign({}, snapData.val(), {uid: snapData.name()});
-		}
+		const values = Object.assign({}, snapData.val());
 		/**
 		 * The participant unique id
 		 * @type {string}
 		 */
-		this.uid = values.uid;
+		this.uid = snapData.name();
 		/**
 		 * The Participant's role. Can be:
 		 * - OWNER: the owner/creator of the {@link Room}

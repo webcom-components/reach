@@ -10,18 +10,16 @@ export default class Message {
 	/**
 	 * Create a message
 	 * @param {Webcom/api.DataSnapshot|Object} snapData The data snapshot
+	 * @param {string} roomId The message's room id
 	 * @access protected
 	 */
 	constructor(snapData, roomId) {
-		let values = snapData;
-		if(snapData && snapData.val && typeof snapData.val === 'function'){
-			values = Object.assign({}, snapData.val(), {uid: snapData.name()});
-		}
+		const values = Object.assign({}, snapData.val());
 		/**
 		 * The message unique id
 		 * @type {string}
 		 */
-		this.uid = values.uid;
+		this.uid = snapData.name();
 		/**
 		 * The room uid
 		 * @type {string}
