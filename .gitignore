@@ -8,3 +8,4 @@ esdoc
 dist/rules.json
 .account.*
 CHANGELOG.md
+**/.DS_Store
