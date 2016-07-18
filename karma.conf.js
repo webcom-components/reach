@@ -71,7 +71,7 @@ const
 		}),
 		sl_chrome_minimum: sauceLabsBrowser({
 			browserName: 'chrome',
-			platform: 'OS X 10.11',
+			// platform: 'OS X 10.11',
 			version: '38',
 			flags
 		}),
@@ -91,13 +91,13 @@ const
 			browserName: 'firefox',
 			version: '31',
 			prefs
-		}),
-		sl_android_lollipop: sauceLabsBrowser({
-			browserName: 'android',
-			platform: 'Linux',
-			version: '5.1',
-			deviceName: 'Android Emulator',
-			deviceOrientation: 'portrait'
+		// }),
+		// sl_android_lollipop: sauceLabsBrowser({
+		// 	browserName: 'android',
+		// 	platform: 'Linux',
+		// 	version: '5.1',
+		// 	deviceName: 'Android Emulator',
+		// 	deviceOrientation: 'portrait'
 		})
 	},
 
