@@ -3,6 +3,7 @@
 const
 	webpack = require('webpack'),
 	minimist = require('minimist'),
+	path = require('path'),
 	readFileSync = require('fs').readFileSync,
 	packageInfo = require('./package.json'),
 	defaultOptions = {
@@ -17,9 +18,19 @@ const
 const configure = (options) => {
 	const config = {
 		module: {
+			preLoaders: [
+				{
+					test:/\.js$/,
+					include: path.resolve(__dirname, './test'),
+					exclude: /(bower_components|node_modules)/,
+					loader: 'babel'
+				}
+			],
 			loaders: [
 				{
-					test:/(src)|(test)\/.*\.js/,
+					test:/\.js$/,
+					include: path.resolve(__dirname, './src'),
+					exclude: /(bower_components|node_modules|test)/,
 					loader: 'babel'
 				}
 			]
@@ -64,11 +75,11 @@ const configure = (options) => {
 	}
 
 	if (options.coverage) {
-		config.module.loaders.push({
-			test: /\.js$/,
-			loaders: ['isparta'],
-			include: /src.*/,
-			exclude: /node_modules|\.test.js$|\.mock\.js$/
+		config.module.preLoaders.push({
+			test:/\.js$/,
+			include: path.resolve(__dirname, './src'),
+			exclude: /(bower_components|node_modules|test)/,
+			loader: 'babel-istanbul'
 		});
 	}
 
