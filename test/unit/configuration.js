@@ -27,6 +27,12 @@ export default () => {
 				expect(Reach.version.schema).toMatch(/^(draft-\d+)|(legacy)$/);
 			});
 
+			it('Should expose Codec presets', () => {
+				expect(Reach.codecs).not.toBeNull();
+				expect(Reach.codecs.audio.OPUS.test('opus')).toBeTruthy();
+				expect(Reach.codecs.video.VP9.test('vp9')).toBeTruthy();
+			});
+
 			it('Should expose media constraints utility fuction', () => {
 				expect(Reach.media.constraints).not.toBeNull();
 				const constraints = Reach.media.constraints();
@@ -90,34 +96,24 @@ export default () => {
 				expect(sdk.config).not.toBeNull();
 
 				let nbCalls = 0;
-				const check = (resolve, reject) => () => {
+				const maxCalls = 100, callTimeout = 50; // Max 5s
+				const check = () => {
 					if(sdk.config.iceServers.length > 1) {
-						resolve(sdk.config.iceServers);
-					} else if (++nbCalls === 20) {
-						reject(new Error(`Not able to retrieve ICEServer in ${nbCalls * 50} ms`));
+						expect(sdk.config.iceServers.length).toBeCloseTo(3, 1);
+						expect(sdk.config.iceServers[0]).toEqual(jasmine.objectContaining({
+							urls: 'turns:turn1.webcom.orange.com:443',
+							username: 'admin',
+							credential: 'webcom1234'
+						}));
+						log.d(`ICEServers retrieved in ${nbCalls * callTimeout} ms`);
+						done();
+					} else if (++nbCalls === maxCalls) {
+						done(new Error(`Not able to retrieve ICEServer in ${nbCalls * callTimeout} ms`));
 					} else {
-						setTimeout(check(resolve, reject), 50);
+						setTimeout(check, callTimeout);
 					}
 				};
-
-				const p = new Promise((resolve, reject) => {
-					check(resolve, reject)();
-				});
-				p.then(iceServers => {
-					log.g('info', `ICEServers loaded from server (waited ${nbCalls * 50} ms)`, iceServers);
-					expect(iceServers.length).toBeCloseTo(3, 1);
-					expect(iceServers[0]).toEqual(jasmine.objectContaining({
-						urls: 'turns:turn1.webcom.orange.com:443',
-						username: 'admin',
-						credential: 'webcom1234'
-					}));
-					done();
-				})
-				.catch(e => {
-					log.e(e);
-					fail(e.message);
-					done();
-				});
+				check();
 			});
 
 			it('Should be able to modify logLevel', done => {
@@ -136,12 +132,6 @@ export default () => {
 				} catch (e) {
 					log.d(e);
 				}
-				// try {
-				// 	sdk.config.logLevel = 'FAKE';
-				// } catch (e) {
-				// 	log.d(e);
-				// 	expect(e.message).toBe('Unsupported log level (DEBUG, INFO, WARN, ERROR)');
-				// }
 				done();
 			});
 		});
