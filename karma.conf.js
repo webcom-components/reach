@@ -71,8 +71,8 @@ const
 		}),
 		sl_chrome_minimum: sauceLabsBrowser({
 			browserName: 'chrome',
-			// platform: 'OS X 10.11',
-			version: '38',
+			platform: 'OS X 10.11',
+			version: '41',
 			flags
 		}),
 		sl_firefox_latest: sauceLabsBrowser({
