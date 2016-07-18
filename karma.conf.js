@@ -185,7 +185,8 @@ module.exports = function(config) {
 			connectOptions: {
 				proxy: process.env.PROXY,
 				vmVersion: 'dev-varnish',
-				directDomains: ['*.orange.com']
+				directDomains: '*.datasync.orange.com',
+				noSslBumpDomains: '*.datasync.orange.com'
 			}
 		},
 		coverageReporter: (() => {
