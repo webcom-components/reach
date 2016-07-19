@@ -52,11 +52,11 @@ const
 	},
 
 	sauceLabsBrowsers = {
-		sl_edge: sauceLabsBrowser({
-			browserName: 'MicrosoftEdge',
-			platform: 'Windows 10',
-			version: '13'
-		}),
+		// sl_edge: sauceLabsBrowser({
+		// 	browserName: 'MicrosoftEdge',
+		// 	platform: 'Windows 10',
+		// 	version: '13'
+		// }),
 		sl_chrome_latest: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'Windows 7',
