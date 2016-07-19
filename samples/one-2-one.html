@@ -13,6 +13,16 @@
 	<script src="../dist/reach-debug.js"></script>
 	<!-- Tester -->
 	<script type="text/javascript">
+		var format = function(tpl) {
+			var values = [].slice.call(arguments, 1);
+			return tpl.replace(
+				new RegExp('{([0-' + (values.length - 1 ) + '])}','g'),
+				function (match, index) {
+					return values[index];
+				}
+			);
+		};
+
 		// Use the same user
 		var localEmail = localStorage.getItem('reachtest:mail');
 		if(!localEmail && Reach.browser.compatible) {
@@ -28,7 +38,7 @@
 			} else {
 				os = 'win';
 			}
-			localEmail = `${Reach.browser.browser}.${Reach.browser.version}.${os}@reach.io`;
+			localEmail = format('{0}.{1}.{2}@reach.io', Reach.browser.browser, Reach.browser.version, os);
 			localStorage.setItem('reachtest:mail', localEmail);
 		}
 
@@ -49,7 +59,7 @@
 					preferredVideoCodec: Reach.codecs.video.VP9,
 					remoteStreamContainer: $('#remoteVideo')[0],
 					localStreamContainer: $('#localVideo')[0],
-					logLevel: 'INFO',
+					logLevel: 'DEBUG',
 					constraints: Reach.media.constraints()
 				});
 			}
@@ -57,9 +67,14 @@
 
 		var user = {
 			add: function(u) {
-				if(u.uid != reachtest.current.uid && /reach.io$/.test(u.name) && !$(`tr[data-uid=${u.uid}]`).length) {
-					$('#users_list').append(`<tr data-userId="${u.uid}"><td>${u.name}</td><td>${u.status}</td><td>${new Date(u.lastSeen)}</td><td><a class="waves-effect waves-light btn">invite</a></td></tr>`);
-					var bt = $('#users_list').find(`tr[data-userId=${u.uid}] a`);
+				if(u.uid != reachtest.current.uid && /reach.io$/.test(u.name) && !$(format('tr[data-userId={0}]', u.uid)).length) {
+					$('#users_list').append(
+						format(
+							'<tr data-userId="{0}"><td>{1}</td><td>{2}</td><td>{3}</td><td><a class="waves-effect waves-light btn">invite</a></td></tr>',
+							u.uid, u.name, u.status, new Date(u.lastSeen)
+						)
+					);
+					var bt = $('#users_list').find(format('tr[data-userId={0}] a', u.uid));
 					bt.toggleClass('disabled', /^DISCONNECTED$/.test(u.status) || /^NOT_CONNECTED$/.test(u.status));
 					bt.click(function(e) {
 						if(!$(e.target).hasClass('disabled') && !window._room) {
@@ -73,15 +88,15 @@
 				}
 			},
 			update: function(u) {
-				if(u.uid && $('#users_list').find(`tr[data-userId=${u.uid}]`).length === 1) {
-					var tds = $('#users_list').find(`tr[data-userId=${u.uid}] td`);
+				if(u.uid && $('#users_list').find(format('tr[data-userId={0}]', u.uid)).length === 1) {
+					var tds = $('#users_list').find(format('tr[data-userId={0}] td', u.uid));
 					$(tds[0]).text(u.name);
 					$(tds[1]).text(u.status);
-					$('#users_list').find(`tr[data-userId=${u.uid}] a`).toggleClass('disabled', /^DISCONNECTED$/.test(u.status) || /^NOT_CONNECTED$/.test(u.status))
+					$('#users_list').find(format('tr[data-userId={0}] a', u.uid)).toggleClass('disabled', /^DISCONNECTED$/.test(u.status) || /^NOT_CONNECTED$/.test(u.status))
 				}
 			},
 			remove: function(u) {
-				u.uid && $('#users_list').find(`tr[data-userId=${u.uid}]`).remove();
+				u.uid && $('#users_list').find(format('tr[data-userId={0}]', u.uid)).remove();
 			}
 		};
 
@@ -90,7 +105,7 @@
 				if(i.isOnGoing && !window._room) {
 					i.accept()
 						.then(function (d) {
-							Materialize.toast(`Invite from ${i.from} to room ${i.room} accepted`, 3000);
+							Materialize.toast(format('Invite from {0} to room {1} accepted', i.from, i.room), 3000);
 							window._room = d.room;
 							return room.join();
 						})
@@ -101,11 +116,11 @@
 				} else if(i.isOnGoing) {
 					i.reject()
 						.then(function () {
-							Materialize.toast(`Invite from ${i.from} to room ${i.room} has been rejected`, 3000);
+							Materialize.toast(format('Invite from {0} to room {1} has been rejected', i.from, i.room), 3000);
 						})
 				} else {
 					// Old invite
-					reachtest.base.child(`_/invites/${reachtest.current.uid}/${i.uid}`).remove();
+					reachtest.base.child(format('_/invites/{0}/{1}', reachtest.current.uid, + i.uid)).remove();
 				}
 			}
 		};
@@ -122,7 +137,7 @@
 								return !/^extra$/.test(key) && !/^_callbacks/.test(key);
 							})
 							.forEach(function(key) {
-								$("#roomMeta").append(`<tr><td>${key}</td><td>${_room[key]}</td></tr>`);
+								$("#roomMeta").append(format('<tr><td>{0}</td><td>{1}</td></tr>', key, _room[key]));
 							});
 						roomNode.show();
 						_room.on(Reach.events.room.STREAM_PUBLISHED, function (remoteStream) {
@@ -139,15 +154,27 @@
 							}
 						});
 						_room.on(Reach.events.room.PARTICIPANT_ADDED, function(participant) {
-							var userName = participant.uid === reachtest.current.uid ? localEmail : $('#users_list').find(`tr[data-userId=${participant.uid}] td:first-child`).text();
-							$("#participants").append(`<tr data-userId="${participant.uid}"><td>${userName}</td><td>${participant.role || 'NONE'}</td><td>${new Date(participant._joined)}</td><td>${participant.status}</td></tr>`);
+							var userName = participant.uid === reachtest.current.uid ? localEmail : $('#users_list').find(format('tr[data-userId={0}] td:first-child', participant.uid)).text();
+							$("#participants").append(
+								format(
+									'<tr data-userId="{0}"><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>',
+									participant.uid, userName, participant.role || 'NONE', new Date(participant._joined), participant.status
+								)
+							);
 						});
 						_room.on(Reach.events.room.PARTICIPANT_CHANGED, function(participant) {
-							var userName = $('#users_list').find(`tr[data-userId=${participant.uid}] td:first-child`).text();
-							$("#participants").find(`tr[data-userId=${participant.uid}]`).replaceWith(`<tr data-userId="${participant.uid}"><td>${userName}</td><td>${participant.role || 'NONE'}</td><td>${new Date(participant._joined)}</td><td>${participant.status}</td></tr>`);
+							var userName = $('#users_list').find(format('tr[data-userId={0}] td:first-child', participant.uid)).text();
+							$("#participants")
+								.find(format('tr[data-userId={0}]', participant.uid))
+								.replaceWith(
+									format(
+										'<tr data-userId="{0}"><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>',
+										participant.uid, userName, participant.role || 'NONE', new Date(participant._joined), participant.status
+									)
+								);
 						});
 						_room.on(Reach.events.room.PARTICIPANT_REMOVED, function(participant) {
-							$("#participants").find(`tr[data-userId=${participant.uid}]`).remove();
+							$("#participants").find(format('tr[data-userId={0}]', participant.uid)).remove();
 							room._leave();
 						});
 					});
@@ -181,10 +208,12 @@
 								.then(function(devices){
 									Object.keys(devices).forEach(function(kind) {
 										if(/input$/.test(kind)) {
-											var node = $(`#${kind}`);
+											var node = $('#' + kind);
 											node.empty();
 											devices[kind].forEach(function(device) {
-												node.append(`<li><a href="#!" data-deviceId="${device.deviceId}" style="max-width:15em">${device.label || device.deviceId}</a></li>`);
+												node.append(format(
+													'<li><a href="#!" data-deviceId="{0}" style="max-width:15em">{1}</a></li>', device.deviceId, device.label || device.deviceId
+												));
 											});
 											node.find('a[data-deviceId]').click(function(){
 												window._localStream && window._localStream[kind === 'audioinput' ? 'switchMicrophone' : 'switchCamera']($(this).attr('data-deviceId'));
@@ -272,10 +301,10 @@
 						var values = stats.values(), next = values.next();
 						while(!next.done) {
 							var li = document.createElement('li');
-							$(li).append(`<div class="collapsible-header truncate">${next.value.id}</div>`);
+							$(li).append(format('<div class="collapsible-header truncate">{0}</div>', next.value.id));
 							$(li).append('<div class="collapsible-body"><table class="striped"><tbody></tbody></table></div>');
 							Object.keys(next.value).forEach(function(key) {
-								$(li).find('tbody').append(`<tr><td>${key}</td><td class="truncate">${next.value[key]}</td></tr>`);
+								$(li).find('tbody').append(format('<tr><td>{0}</td><td class="truncate">{1}</td></tr>', key, next.value[key]));
 							});
 							statsDialog.find('ul').append(li);
 							next = values.next();
@@ -308,9 +337,9 @@
 						reachtest.on(Reach.events.reach.USER_REMOVED, user.remove);
 						if(previousId !== reachtest.current.uid) {
 							localStorage.setItem('reachtest:uid', reachtest.current.uid);
-							reachtest.base.child(`/users/${previousId}`).remove();
-							reachtest.base.child(`/_/invite/${previousId}`).remove();
-							reachtest.base.child(`/_/devices/${previousId}`).remove();
+							reachtest.base.child('/users/' + previousId).remove();
+							reachtest.base.child('/_/invite/' + previousId).remove();
+							reachtest.base.child('/_/devices/' + previousId).remove();
 							Webcom.INTERNAL.PersistentStorage.remove(previousId);
 						}
 					});
