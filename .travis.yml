@@ -1,17 +1,17 @@
 language: node_js
 node_js:
-  - "0.12"
+  - "5"
 before_script:
   - npm prune
 script:
-  - git checkout $TRAVIS_BRANCH
-  - git reset --hard $TRAVIS_COMMIT
-  - npm run test:coverage -- --sauce
+  - npm run schema
+  - npm run test:coverage
 after_script:
   - npm install -g codeclimate-test-reporter
   - codeclimate-test-reporter < coverage/lcov.info
 after_success:
   - npm run semantic-release
+  - bash ./deploy-esdoc-gh-pages.sh
 branches:
   except:
     # Ignore Git tags created by semantic-release, like "v1.2.3"

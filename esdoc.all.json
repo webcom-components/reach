@@ -2,7 +2,7 @@
   "source": "./src",
   "destination": "./esdoc",
   "title": "Reach",
-  "access": ["public"],
+  "access": ["public", "protected", "private"],
   "manual": {
     "overview": ["./manual/overview.md"],
     "installation": ["./manual/install.md"],

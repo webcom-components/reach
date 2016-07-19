@@ -1,21 +1,25 @@
 root: true
 
 globals:
+  Webcom: true
+  SDK_VERSION: true
+  SCHEMA_VERSION: true
   RTCPeerConnection: true
   attachMediaStream: true
-  Webcom: false
   getUserMedia: true
   detachMediaStream: true
   webrtcDetectedBrowser: true
 
-ecmaFeatures:
-  modules: true
+parserOptions:
+  ecmaVersion: 6
+  sourceType: module
 
 rules:
   strict: 0
   indent:
     - 2
     - tab
+    - SwitchCase: 1
   quotes:
     - 2
     - single
@@ -29,7 +33,7 @@ rules:
     - 0
   complexity:
     - 2
-    - 5
+    - 10
   max-depth:
     - 2
     - 3
@@ -72,7 +76,7 @@ rules:
     - 2
   no-else-return:
     - 2
-  no-empty-label:
+  no-labels:
     - 2
   no-lone-blocks:
     - 2

@@ -1,21 +1,20 @@
-languages:
-  JavaScript: true
-
 exclude_paths:
 - "checkstyle/**"
 - "coverage/**"
 - "dist/**/*"
-- "gulp/**/*"
-- "gulpfile.js"
+- "dist/reach.js"
+- "dist/reach-debug.js"
 
 ratings:
   paths:
-  - "src/**"
-  - "test/**"
+  - "src/**.js"
+  - "test/**.js"
 
 engines:
   eslint:
     enabled: true
+    config:
+      config: ./.eslintrc.yml
   fixme:
     enabled: true
   duplication:

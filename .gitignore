@@ -1,6 +1,11 @@
 node_modules
 bower_components
+report
 coverage
 checkstyle
 .idea
 esdoc
+dist/rules.json
+.account.*
+CHANGELOG.md
+**/.DS_Store

@@ -1,0 +1,28 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Set default charset
+[*.{js,html,json,md}]
+charset = utf-8
+
+# Set indent style for JS & html
+[{src/**.js,test/**.js,./*.js,samples/*.html}]
+indent_style = tab
+
+# Set indent style for conf files
+[{package.json,./*.yml}]
+indent_style = space
+indent_size = 2
+
+# Set indent style for doc
+[manual/*.md]
+indent_style = space
+indent_size = 4

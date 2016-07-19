@@ -27,6 +27,10 @@
     "package.json",
     "node_modules",
     "bower_components",
+    "webpack.config.js",
+    "karma.conf.js",
+    "deploy-esdoc-gh-pages.sh",
+    "esdoc.json",
     "test"
   ],
   "dependencies": {
