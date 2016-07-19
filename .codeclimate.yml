@@ -7,12 +7,14 @@ exclude_paths:
 
 ratings:
   paths:
-  - "src/**"
-  - "test/**"
+  - "src/**.js"
+  - "test/**.js"
 
 engines:
   eslint:
     enabled: true
+    config:
+      config: ./eslintrc.yml
   fixme:
     enabled: true
   duplication:
