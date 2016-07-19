@@ -2,7 +2,7 @@
 'use strict';
 
 const config = {
-	logLevel: 'info',
+	logLevel: 'error',
 	domain: WEBCOM_DOMAIN,
 	protocol: WEBCOM_PROTOCOL,
 	namespace: WEBCOM_NAMESPACE,

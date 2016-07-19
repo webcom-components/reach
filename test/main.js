@@ -78,7 +78,7 @@ describe('Reach /', () => {
 				localStorage.clear();
 				// Webcom.INTERNAL.PersistentStorage.remove('session');
 				// Reset repos to force new persistent connection to be established
-				Webcom.Context.getInstance().repos_ = {};
+				// Webcom.Context.getInstance().repos_ = {};
 				done();
 			})
 			.catch(e => {
@@ -92,7 +92,7 @@ describe('Reach /', () => {
 		log.d('main#beforeEach');
 		expect(config.base).toBeDefined('Missing base. Server or namespace pb.');
 		// Reset repos to force new persistent connection to be established
-		Webcom.Context.getInstance().repos_ = {};
+		// Webcom.Context.getInstance().repos_ = {};
 		Webcom.INTERNAL.PersistentStorage.remove('session');
 	});
 
