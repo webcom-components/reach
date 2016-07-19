@@ -3,8 +3,8 @@
 The fastest way to get started is to serve JavaScript from [jsdelivr](https://www.jsdelivr.com/projects/webcom-reach)
 
 ```html
-<!-- The Flexible DataSync library -->  
-<script type='text/javascript' src='https://io.datasync.orange.com/js/latest/webcom.js'></script>
+<!-- The Flexible DataSync library -->
+<script type='text/javascript' src='https://datasync.orange.com/libjs/latest/webcom.js'></script>
 <!-- The Reach Library -->
 <script type='text/javascript' src='https://cdn.jsdelivr.net/webcom-reach/latest/reach.js'></script>
 ```
@@ -12,7 +12,7 @@ The fastest way to get started is to serve JavaScript from [jsdelivr](https://ww
 ## from `bower` or `npm`
 
 If you'd like to use a package manager, like [bower](https://bower.io):
-  
+
 ```bash
 bower install --save webcom-reach
 ```
@@ -26,7 +26,7 @@ npm i --save webcom-reach
 Don't forget to include the Flexible DataSync dependency to your app:
 
 ```html
-<!-- The Flexible DataSync library -->  
+<!-- The Flexible DataSync library -->
 <script type='text/javascript' src='./PACKAGES_FOLDER/webcom/webcom.js'></script>
 <!-- The Reach Library -->
 <script type='text/javascript' src='./PACKAGES_FOLDER/webcom-reach/dist/reach.js'></script>

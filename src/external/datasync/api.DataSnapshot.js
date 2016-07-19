@@ -1,4 +1,4 @@
 /**
-* @external {Webcom/api.DataSnapshot} https://webcom.orange.com/doc/api.DataSnapshot.html
+* @external {Webcom/api.DataSnapshot} https://datasync.orange.com/doc/api.DataSnapshot.html
 * @access protected
 */

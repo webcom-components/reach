@@ -2,7 +2,7 @@
 
 ### Init your namespace
 
-- Go to [Flexible DataSync](https://io.datasync.orange.com)
+- Go to [Flexible DataSync](https://io.datasync.orange.com/home)
 - Create a new namespace
 - Download the security rules from the [reach-schema](https://webcom-components.github.io/reach-schema/draft-00/security/rules.json) repo and import them in the `security` section
 
@@ -25,7 +25,7 @@ See [configuration](./configuration.html) to learn more on the available configu
 #### Register a new User
 
 Create a basic registration form with email &amp; password and use its data:
- 
+
 ```javascript
 myReach.register(email, password)
     .then(user => {
@@ -43,7 +43,7 @@ myReach.users()
     .then(users => {
         // users is the list of registered users excluding the current one
         // let's keep only the connected users
-        window.myUsers = users.filter(user => user.status === 'CONNECTED'); 
+        window.myUsers = users.filter(user => user.status === 'CONNECTED');
     });
 // List rooms
 myReach.rooms()
@@ -67,7 +67,7 @@ myReach.createRoom('GettingStarted')
 
 #### Invite one or more users
 
-Let's assume, you have selected a list of users: 
+Let's assume, you have selected a list of users:
 
 ```javascript
 myRoom.invite(myUsers)
@@ -125,7 +125,7 @@ hisRoom.on(Reach.event.room.STREAM_PUBLISHED, remoteStream => {
     window.hisStream = remoteStream;
     remoteStream.subscribe(remoteVideoContainerNode)
         .then(() => {
-            // Remote stream is subscribed and the video should appear in the `remoteVideoContainerNode` when WebRTC peer connection is established 
+            // Remote stream is subscribed and the video should appear in the `remoteVideoContainerNode` when WebRTC peer connection is established
         });
 });
 ```

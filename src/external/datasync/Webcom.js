@@ -1,3 +1,3 @@
 /**
- * @external {Webcom} https://webcom.orange.com/doc/Webcom.html
+ * @external {Webcom} https://datasync.orange.com/doc/Webcom.html
  */
