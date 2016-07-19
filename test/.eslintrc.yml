@@ -1,4 +1,0 @@
-globals:
-  config: false
-env:
-  jasmine: true

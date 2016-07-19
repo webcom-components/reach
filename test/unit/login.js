@@ -1,3 +1,4 @@
+/*global config*/
 import Reach from '../../src/Reach';
 import * as datasync from '../../src/core/util/DataSync';
 import * as rules from '../util/rules';
@@ -67,7 +68,7 @@ export default () => {
 					newUser
 				);
 			});
-	
+
 			it('Should be able to login as an existing user', done => {
 				testUser(
 					done,
@@ -79,7 +80,7 @@ export default () => {
 					Object.assign({name: 'Homer'}, config.createdUsers[0])
 				);
 			});
-	
+
 			it('Should be able to logout', done => {
 				ref.login(
 					config.createdUsers[1].email,
@@ -104,7 +105,7 @@ export default () => {
 					done(e);
 				});
 			});
-	
+
 			it('Should be able to resume a previous session', done => {
 				config.base.authWithPassword(Object.assign({rememberMe: true}, config.createdUsers[3])).then(() => {
 					config.base.unauth();
@@ -152,7 +153,7 @@ export default () => {
 				});
 			});
 		});
-	
+
 		describe('Anonymous Users /', () => {
 
 			beforeAll(done => {

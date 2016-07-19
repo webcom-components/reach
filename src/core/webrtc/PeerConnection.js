@@ -1,3 +1,4 @@
+/*global RTCPeerConnection*/
 import cache from '../util/cache';
 import * as Log from '../util/Log';
 import * as DataSync from '../util/DataSync';

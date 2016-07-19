@@ -1,7 +1,7 @@
+/*global config*/
 import Reach from '../../src/Reach';
 import media from '../../src/core/util/Media';
 import * as log from '../util/logger';
-
 
 export default () => {
 	describe('Entry point /', () => {

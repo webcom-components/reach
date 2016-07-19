@@ -1,3 +1,4 @@
+/*global config*/
 import * as account from './account';
 
 export const get = () => new Promise((resolve, reject) => {

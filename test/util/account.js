@@ -1,3 +1,4 @@
+/*global config*/
 
 export const login = () => {
 	const accounts = new Webcom(`${config.protocol}://${config.domain}/base/accounts`);

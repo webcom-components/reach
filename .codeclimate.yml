@@ -1,6 +1,9 @@
 exclude_paths:
 - "checkstyle/**"
 - "coverage/**"
+- "node_modules/**"
+- "esdoc/**"
+- "./*.js"
 - "dist/**/*"
 - "dist/reach.js"
 - "dist/reach-debug.js"
@@ -13,8 +16,9 @@ ratings:
 engines:
   eslint:
     enabled: true
+    channel: "eslint-2"
     config:
-      config: ./.eslintrc.yml
+      config: "./.eslintrc.yml"
   fixme:
     enabled: true
   duplication:

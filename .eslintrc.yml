@@ -4,11 +4,6 @@ globals:
   Webcom: true
   SDK_VERSION: true
   SCHEMA_VERSION: true
-  RTCPeerConnection: true
-  attachMediaStream: true
-  getUserMedia: true
-  detachMediaStream: true
-  webrtcDetectedBrowser: true
 
 parserOptions:
   ecmaVersion: 6
@@ -106,5 +101,6 @@ env:
   es6: true
   browser: true
   node: true
+  jasmine: true
 
 extends: 'eslint:recommended'
