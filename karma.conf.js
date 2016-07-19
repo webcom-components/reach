@@ -133,8 +133,9 @@ console.info(
 module.exports = function(config) {
 	config.set({
 		basePath: __dirname,
-		browserNoActivityTimeout: 120000,
-		captureTimeout: 120000,
+		browserNoActivityTimeout: sauceLabs ? 120000 : 10000,
+		browserDisconnectTolerance: 5,
+		captureTimeout: sauceLabs ? 0 : 60 * 1000,
 		client: {
 			captureConsole: false
 		},
@@ -182,6 +183,9 @@ module.exports = function(config) {
 		},
 		sauceLabs: {
 			testName: `[Reach][${branchName}] Unit Tests`,
+			options: {
+				seleniumVersion: '2.53.0'
+			},
 			connectOptions: {
 				proxy: process.env.PROXY,
 				vmVersion: 'dev-varnish',
