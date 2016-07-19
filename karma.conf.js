@@ -183,9 +183,6 @@ module.exports = function(config) {
 		},
 		sauceLabs: {
 			testName: `[Reach][${branchName}] Unit Tests`,
-			options: {
-				seleniumVersion: '2.53.0'
-			},
 			connectOptions: {
 				proxy: process.env.PROXY,
 				vmVersion: 'dev-varnish',
