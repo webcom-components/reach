@@ -1,5 +1,5 @@
 Reach is a JavaScript framework relying on [Flexible DataSync](https://io.datasync.orange.com) to quickly add communication features to your website.
- 
+
 Reach acts as a signaling framework for all your WebRTC needs.
 
 [![Build Status](https://img.shields.io/travis/webcom-components/reach/master.svg)](https://travis-ci.org/webcom-components/reach)
@@ -22,7 +22,7 @@ Reach acts as a signaling framework for all your WebRTC needs.
 
 * [See it work][VisioSampleRepo] with an example of a visio web app available [here][VisioSampleApp]. You can check the code for this sample in the dedicated Github [repo][VisioSampleRepo]
 
-[Quickstart]: https://io.datasync.orange.com/doc/tutorial-quickstart.html
+[Quickstart]: https://datasync.orange.com/doc/tutorial-quickstart.html
 [ReachSDKDoc]: https://doc.esdoc.org/github.com/webcom-components/reach/tutorial.html#getting-started
 [VisioSampleRepo]: https://github.com/webcom-components/visio-sample
 [VisioSampleApp]: https://webcom-components.github.io/visio-sample
