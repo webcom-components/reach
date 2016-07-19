@@ -2,6 +2,7 @@ import cache from '../util/cache';
 import * as Log from '../util/Log';
 import * as DataSync from '../util/DataSync';
 import {OPENED, CLOSING, CLOSED} from '../util/constants';
+import 'core-js/fn/array/find';
 
 const DtlsSrtpKeyAgreement = {DtlsSrtpKeyAgreement: true};
 const sdpConstraints = receive => ({OfferToReceiveAudio: receive, OfferToReceiveVideo: receive});

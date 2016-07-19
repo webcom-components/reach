@@ -320,7 +320,7 @@ export default class Local {
 					devices.sort();
 					// New device
 					let nextDevice = deviceId;
-					if(deviceId && !devices.find(device => device === deviceId)) {
+					if(deviceId && !devices.some(device => device === deviceId)) {
 						return Promise.reject(new Error(`Unknown ${kind} device`));
 					}
 					if(!deviceId && devices.length > 1) {
