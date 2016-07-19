@@ -74,6 +74,24 @@ export default () => {
 		});
 
 		describe('Configuration / ', () => {
+			it('Should use the url specified for the base', () => {
+				const sdk = new Reach(config.namespaceUrl);
+				expect(sdk.base.toString()).toBe(config.namespaceUrl);
+				sdk.config.reset();
+			});
+
+			it('Should use the specified Webcom reference for the base', () => {
+				const sdk = new Reach(new Webcom(`${config.namespaceUrl}/ref`));
+				expect(sdk.base.toString()).toBe(`${config.namespaceUrl}/ref`);
+				sdk.config.reset();
+			});
+
+			it('Should use the default url if no url is specified', () => {
+				const sdk = new Reach();
+				expect(sdk.base.toString()).toBe('https://io.datasync.orange.com/base/reach');
+				sdk.config.reset();
+			});
+
 			it('Should use default configuration if no configuration is specified', () => {
 				// Only default
 				const sdk = new Reach(config.namespaceUrl);
