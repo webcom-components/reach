@@ -83,7 +83,7 @@ export default class Room {
 	 * @returns {Promise}
 	 * @access private
 	 */
-	_streams() {
+	_streams(localStreams) {
 		return DataSync.get(`_/rooms/${this.uid}/streams`)
 			.then(snapData => {
 				const values = snapData.val();
@@ -92,7 +92,12 @@ export default class Room {
 					return Object.keys(values).map(key => Object.assign({uid: key, roomId: this.uid}, values[key]));
 				}
 				return [];
-			});
+			})
+			.then(streams => streams.filter(stream => {
+				return localStreams === (stream.device === cache.device && stream.from === cache.user.uid);
+			}))
+			.then(streams => streams.map(cache.streams[`get${localStreams ? 'Shared' : 'Remote'}`]))
+			.then(streams => streams.filter(stream => stream !== null));
 	}
 
 	/**
@@ -101,13 +106,7 @@ export default class Room {
 	 * @return {Promise<Local[], Error>}
 	 */
 	localStreams() {
-		return this._streams()
-			.then(streams =>
-				streams
-					.filter(stream => stream.from === cache.user.uid && stream.device === cache.device)
-					.map(sharedStream => cache.streams.getShared(sharedStream))
-					.filter(sharedStream => sharedStream !== null)
-			)
+		return this._streams(true)
 			.catch(Log.r('Room~localStreams'));
 	}
 
@@ -117,12 +116,7 @@ export default class Room {
 	 * @return {Promise<Remote[], Error>}
 	 */
 	remoteStreams() {
-		return this._streams()
-			.then(streams =>
-				streams
-					.filter(stream => stream.from !== cache.user.uid || stream.device !== cache.device)
-					.map(remoteStream => cache.streams.getRemote(remoteStream))
-			)
+		return this._streams(false)
 			.catch(Log.r('Room~remoteStreams'));
 	}
 
