@@ -3,42 +3,7 @@ import * as Log from '../util/Log';
 import cache from '../util/cache';
 import * as DataSync from '../util/DataSync';
 import Media from '../util/Media';
-
-/**
- * Init stream display node depending on stream type
- * @param {MediaStream} mediaStream
- * @param {Element} container
- * @param {Element} previous
- * @return {Element}
- */
-const streamToNode = (mediaStream, container, previous) => {
-	let tagName = '';
-	if(mediaStream.getVideoTracks().length > 0) {
-		tagName = 'video';
-	} else if(mediaStream.getAudioTracks().length > 0) {
-		tagName = 'audio';
-	}
-	Log.d('streamToNode', mediaStream, tagName);
-	if (tagName.length > 0) {
-		let _node = previous;
-		if (!_node || _node.tagName.toLowerCase() !== tagName) {
-			_node = document.createElement(tagName);
-			_node.autoplay = true;
-		}
-		if (container) {
-			if (previous && previous !== _node) {
-				container.replaceChild(_node, previous);
-			} else if (!previous) {
-				container.appendChild(_node);
-			}
-		}
-		_node.srcObject = mediaStream;
-		_node.disabled = false;
-		_node.volume = 0;
-		return _node;
-	}
-	return previous;
-};
+import {NONE, CLOSED, CLOSING, CONNECTED} from '../util/constants';
 
 /**
  * The local stream
@@ -88,9 +53,7 @@ export default class Local {
 		 * Local stream status
 		 * @type {string}
 		 */
-		this.status = 'INIT';
-		// TODO use constants
-
+		this.status = NONE;
 		/**
 		 * @access private
 		 * @type {{audio: string, video: string}}
@@ -106,17 +69,16 @@ export default class Local {
 	 * @param {MediaConstraints} constraints
 	 */
 	set constraints(constraints) {
-		const values = constraints || cache.config.constraints;
-		if(/AUDIO/i.test(this.type) && !values.audio) {
-			values.audio = Media.constraints().audio;
-		} else if(!/AUDIO/i.test(this.type)) {
-			values.audio = false;
-		}
-		if(/VIDEO/i.test(this.type) && !values.video) {
-			values.video = Media.constraints().video;
-		} else if(!/VIDEO/i.test(this.type)) {
-			values.video = false;
-		}
+		const
+			values = constraints || cache.config.constraints,
+			defaultConstraints = Media.constraints();
+		['audio', 'video'].forEach(type => {
+			if(!~this.type.indexOf(type)) {
+				values[type] = false;
+			} else if(!values[type]){
+				values[type] = defaultConstraints[type];
+			}
+		});
 		Log.d('Local~set#contraints', values);
 		/**
 		 * @ignore
@@ -185,7 +147,8 @@ export default class Local {
 				});
 			}
 			// Display
-			this.node = streamToNode(mediaStream, this.container, this.node);
+			this.node = Media.attachStream(mediaStream, this.container, this.node, 0);
+			this.status = CONNECTED;
 			Log.d('Local~set media', mediaStream, this.node);
 			// Renegotiate
 			this.peerConnections.forEach(peerConnection => peerConnection.renegotiate(this._media, mediaStream));
@@ -269,8 +232,8 @@ export default class Local {
 	 * Removes stream for published list, closes associated PeerConnections and stops current MediaStream
 	 */
 	close() {
-		if(!/^(CLOSED|CLOSING)$/.test(this.status)) {
-			this.status = 'CLOSING';
+		if(!~[CLOSED, CLOSING].indexOf(this.status)) {
+			this.status = CLOSING;
 			// Stop listening to Subscribers
 			const path = `_/rooms/${this.roomId}/subscribers/${this.uid}`;
 			DataSync.off(path, 'child_added');
@@ -280,7 +243,7 @@ export default class Local {
 			DataSync.remove(`_/rooms/${this.roomId}/streams/${this.uid}`);
 			this.media = null;
 			// Close
-			this.status = 'CLOSED';
+			this.status = CLOSED;
 		}
 	}
 

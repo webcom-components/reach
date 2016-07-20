@@ -1,6 +1,7 @@
 /*global RTCPeerConnection*/
 import cache from '../util/cache';
 import * as Log from '../util/Log';
+import Media from '../util/Media';
 import * as DataSync from '../util/DataSync';
 import {OPENED, CLOSING, CLOSED} from '../util/constants';
 import 'core-js/fn/array/find';
@@ -138,7 +139,7 @@ export default class PeerConnection {
 					// Nothing to do yet
 					break;
 				case ICE_CONNECTION_STATE_CONNECTED:
-					this.attachStream();
+					this._attachStream();
 					this._remoteICECandidates(false);
 					break;
 				case ICE_CONNECTION_STATE_COMPLETED:
@@ -189,35 +190,11 @@ export default class PeerConnection {
 
 	/**
 	 * Attach the remote MediaStream to a node
-	 * @access protected
+	 * @access private
 	 */
-	attachStream () {
+	_attachStream () {
 		if(this.remoteStream && this.isConnected) {
-			let tagName = '';
-			if(this.remoteStream.getVideoTracks().length > 0) {
-				tagName = 'video';
-			} else if(this.remoteStream.getAudioTracks().length > 0) {
-				tagName = 'audio';
-			}
-			Log.d('PeerConnection~attachStream', this.remoteStream, tagName);
-			if (tagName.length > 0) {
-				let _node = this.node;
-				if (!_node || _node.tagName.toLowerCase() !== tagName) {
-					_node = document.createElement(tagName);
-					_node.autoplay = true;
-				}
-				if (this.container) {
-					if (this.node && this.node!== _node) {
-						this.container.replaceChild(_node, this.node);
-					} else if (!this.node) {
-						this.container.appendChild(_node);
-					}
-				}
-				this.node = _node;
-			}
-			this.node.autoplay = true;
-			this.node.srcObject = this.remoteStream;
-			this.node.disabled = false;
+			this.node = Media.attachStream(this.remoteStream, this.container, this.node);
 		}
 	}
 
@@ -231,7 +208,7 @@ export default class PeerConnection {
 		 * @ignore
 		 */
 		this._remoteStream = stream;
-		this.attachStream();
+		this._attachStream();
 	}
 
 	/**
@@ -345,12 +322,7 @@ export default class PeerConnection {
 						.catch(Log.e.bind(Log, 'PeerConnection~remoteDescription'));
 				}
 			});
-
-			if(Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'addTrack')) {
-				stream.getTracks().forEach(track => this.pc.addTrack(track, stream), this);
-			} else {
-				this.pc.addStream(stream);
-			}
+			this._alterStream(stream, 'add');
 		});
 	}
 
@@ -366,6 +338,20 @@ export default class PeerConnection {
 			.then(description => this.pc.setLocalDescription(description))
 			.then(() => Log.d('PeerConnection~renegotiate#localDescription', this.pc.localDescription))
 			.then(() => DataSync.update(`${this._localPath}/sdp`, _toJSON(this.pc.localDescription)));
+	}
+
+	/**
+	 * Add/Remove tracks to the PeerConnection stream
+	 * @param {MediaStream} stream
+	 * @param {string} method
+	 * @private
+	 */
+	_alterStream(stream, method) {
+		if(Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, `${method}Track`)) {
+			stream.getTracks().forEach(track => this.pc[`${method}Track`](track, stream), this);
+		} else {
+			this.pc[`${method}Stream`](stream);
+		}
 	}
 
 	/**
@@ -397,16 +383,8 @@ export default class PeerConnection {
 			this._sendOffer()
 				.catch(e => {Log.d('PeerConnection~renegotiate', e);});
 		} else {
-			if(Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'removeTrack')) {
-				oldStream.getTracks().forEach(track => this.pc.removeTrack(track, oldStream), this);
-			} else {
-				this.pc.removeStream(oldStream);
-			}
-			if(Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'addTrack')) {
-				newStream.getTracks().forEach(track => this.pc.addTrack(track, newStream), this);
-			} else {
-				this.pc.addStream(newStream);
-			}
+			this._alterStream(oldStream, 'remove');
+			this._alterStream(newStream, 'add');
 		}
 	}
 

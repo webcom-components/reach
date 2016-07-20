@@ -16,6 +16,19 @@ const presets = {
 };
 
 /**
+ * Assign deviceId to constraint
+ * @param constraint
+ * @param deviceId
+ * @returns {*}
+ */
+const _assignDevice = (constraint, deviceId) => {
+	if(constraint && deviceId) {
+		return Object.assign({deviceId}, constraint === true ? {} : constraint);
+	}
+	return constraint;
+};
+
+/**
  * Helpers for MediaDevices and MediaStreamConstraints.
  */
 export default class Media {
@@ -60,16 +73,49 @@ export default class Media {
 				throw new Error('Unknown Video Resolution preset (UHD, FHD, HD, SVGA, SD, VGA)');
 			}
 		}
-		if(video && videoDeviceId) {
-			video = Object.assign({deviceId: videoDeviceId}, video === true ? {} : video);
-		}
+		video = _assignDevice(video, videoDeviceId);
 
-		let audio = audioConstraints;
-		if(audio && audioDeviceId) {
-			audio = Object.assign({deviceId: audioDeviceId}, audio === true ? {} : audio);
-		}
+		const audio = _assignDevice(audioConstraints, audioDeviceId);
+
 		Log.d('Media#constraints', {video, audio});
 		return {video, audio};
+	}
+
+	/**
+	 * Init stream display node depending on stream type
+	 * @param {MediaStream} mediaStream The MediaStream to display
+	 * @param {Element} container Container node for streams
+	 * @param {Element} previous Previous node for the stream
+	 * @param {number} [volume=.7] the default volume
+	 * @return {Element}
+	 */
+	static attachStream(mediaStream, container, previous, volume = .7) {
+		let tagName = '';
+		if(mediaStream.getVideoTracks().length > 0) {
+			tagName = 'video';
+		} else if(mediaStream.getAudioTracks().length > 0) {
+			tagName = 'audio';
+		}
+		Log.d('Media#attachStream', mediaStream, tagName);
+		if (tagName.length > 0) {
+			let _node = previous;
+			if (!_node || _node.tagName.toLowerCase() !== tagName) {
+				_node = document.createElement(tagName);
+				_node.autoplay = true;
+			}
+			if (container) {
+				if (previous && previous !== _node) {
+					container.replaceChild(_node, previous);
+				} else if (!previous) {
+					container.appendChild(_node);
+				}
+			}
+			_node.srcObject = mediaStream;
+			_node.disabled = false;
+			_node.volume = volume;
+			return _node;
+		}
+		return previous;
 	}
 
 	/**
