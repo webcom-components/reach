@@ -19,15 +19,24 @@ export const eventType = (event) => {
 };
 
 /**
+ * Write method
+ * @param {string} method Write method (set,update)
+ * @param {string} path The path to set
+ * @param {object} data The data to set
+ * @ignore
+ */
+const _write = (method, path, data) => new Promise((resolve, reject) => {
+	cache.base.child(path)[method](data, error => error ? reject(error) : resolve());
+});
+
+/**
  * {@link Webcom#set} as a {@link Promise}
  * @access protected
  * @param {string} path The path to set
  * @param {object} data The data to set
  * @return {Promise<*, Error>}
  */
-export const set = (path, data) => new Promise((resolve, reject) => {
-	cache.base.child(path).set(data, error => error ? reject(error) : resolve());
-});
+export const set = _write.bind(undefined, 'set');
 
 /**
  * {@link Webcom#push} as a {@link Promise}
@@ -47,9 +56,7 @@ export const push = (path, data) => new Promise((resolve, reject) => {
  * @param {object} data The data to update
  * @return {Promise<*, Error>}
  */
-export const update = (path, data) => new Promise((resolve, reject) => {
-	cache.base.child(path).update(data, error => error ? reject(error) : resolve());
-});
+export const update = _write.bind(undefined, 'update');
 
 /**
  * {@link Webcom#remove} as a {@link Promise}
@@ -138,4 +145,4 @@ export const onDisconnect = path => cache.base.child(path).onDisconnect();
  */
 // export const ts = () => Webcom.ServerValue.TIMESTAMP;
 export const ts = () => Date.now();
-// TODO Rollback when TIMESTAMP works again (server-side bug with security rules)
+// HACK #DataSync: Rollback when TIMESTAMP works again (server-side bug with security rules)
