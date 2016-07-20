@@ -38,6 +38,6 @@ export default class Device {
 		 * @type {{reach: string, webcom: string}}
 		 */
 		this.sdk = values.sdk;
-		// TODO Add 'extra' property for unrestricted additional information ?
+		// TODO #Feat: Add 'extra' property for unrestricted additional information ?
 	}
 }

@@ -74,7 +74,7 @@ export default class Remote {
 	 * @returns {Promise}
 	 */
 	subscribe(remoteStreamContainer) {
-		// TODO Test if not already subscribed ?
+		// TODO: Test if not already subscribed ?
 		this.container = remoteStreamContainer || cache.config.remoteStreamContainer;
 		Log.d('Remote~subscribe', this.container);
 		return cache.peerConnections.answer(this, this.container)

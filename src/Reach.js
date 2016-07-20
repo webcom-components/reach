@@ -171,7 +171,6 @@ export default class Reach {
 					}
 				});
 			} else {
-				// TODO resolve with NULL instead of reject with Error when no previous session ?
 				reject(new Error('No session to resume'));
 			}
 		});
@@ -184,7 +183,7 @@ export default class Reach {
 	 * @returns {Promise<User>}
 	 */
 	anonymous(name) {
-		// TODO Uncomment this line when anonymous login is available #FEATURE #DATASYNC
+		// HACK #Feat #DataSync Uncomment this line when anonymous login is available
 		// return this.login(null, null, name);
 		return User.init(`anonymous:${Date.now()}`, name)
 			.then(u => {

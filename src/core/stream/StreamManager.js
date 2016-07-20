@@ -42,7 +42,7 @@ export default class StreamManager {
 	 * @returns {Remote}
 	 */
 	getShared(streamData) {
-		//TODO If it does not exists locally as it should, maybe we should remove it ?
+		// TODO: If it does not exists locally as it should, maybe we should remove it ?
 		return this.shared[streamData.uid];
 	}
 

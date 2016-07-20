@@ -67,7 +67,7 @@ export default class Config {
 			}
 		}, e => Log.d('ICEServers', e));
 
-		//TODO Add container nodes, boolean to request permission on start, sdpEditor (for user defined SDP modifications)
+		// TODO #Feat: Add boolean prop to request permission on start, sdpEditor (for user defined SDP modifications)
 	}
 
 	/**

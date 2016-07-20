@@ -39,7 +39,7 @@ export default class User {
 		 * @type {number}
 		 */
 		this.lastSeen = values.lastSeen;
-		// TODO Add 'extra' property for unrestricted additional information ?
+		// TODO #Feat: Add 'extra' property for unrestricted additional information ?
 	}
 
 	/**
@@ -106,7 +106,6 @@ export default class User {
 					}
 					cache.device = deviceId;
 					// Remove device
-					// TODO change status only ? Archive ?
 					DataSync.onDisconnect(`_/devices/${uid}/${deviceId}`).update({
 						status: NOT_CONNECTED
 					});
