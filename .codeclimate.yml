@@ -7,11 +7,12 @@ exclude_paths:
 - "dist/**/*"
 - "dist/reach.js"
 - "dist/reach-debug.js"
+- "test/**.js"
+- ".*/"
 
 ratings:
   paths:
   - "src/**.js"
-  - "test/**.js"
 
 engines:
   eslint:
