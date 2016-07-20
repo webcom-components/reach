@@ -42,6 +42,24 @@ export default () => {
 	describe('Register & Login /', () => {
 		let ref;
 
+		const login = (user, nick) => {
+			return ref.login(
+				user.email,
+				user.password,
+				nick
+			).then(user => {
+				expect(ref.current.uid).toEqual(user.uid);
+				return user;
+			});
+		};
+
+		const logout = user => ref.logout()
+			.then(() => {
+				expect(ref.current).toBeNull();
+				return namespace.get(`users/${user.uid}/status`);
+			})
+			.then(snap => snap ? snap.val() : null);
+
 		beforeEach(done => {
 			ref = new Reach(config.base);
 			done();
@@ -72,29 +90,17 @@ export default () => {
 			it('Should be able to login as an existing user', done => {
 				testUser(
 					done,
-					ref.login(
-						config.createdUsers[1].email,
-						config.createdUsers[1].password,
-						'Homer'
-					),
+					login(config.createdUsers[1], 'Homer'),
 					Object.assign({name: 'Homer'}, config.createdUsers[0])
 				);
 			});
 
 			it('Should be able to logout', done => {
-				ref.login(
-					config.createdUsers[1].email,
-					config.createdUsers[1].password,
-					'Homer'
-				).then(user => {
-					expect(ref.current).toEqual(user);
-					return ref.logout();
-				}).then(() => {
-					expect(ref.current).toBeNull();
-					return namespace.get(`users/${config.createdUsers[1].uid}/status`);
-				}).then(snap => {
-					if (snap) {
-						expect(snap.val()).toBe(NOT_CONNECTED);
+				login(config.createdUsers[1], 'Homer')
+				.then(() => logout(config.createdUsers[1]))
+				.then(status => {
+					if (status) {
+						expect(status).toBe(NOT_CONNECTED);
 					} else {
 						fail('Cannot get User\'s status');
 					}
@@ -120,13 +126,8 @@ export default () => {
 			});
 
 			it('Should be CONNECTED after logout if at least one device is connected', done => {
-				ref.login(
-					config.createdUsers[0].email,
-					config.createdUsers[0].password,
-					'Homer'
-				)
+				login(config.createdUsers[0], 'Homer')
 				.then(user => {
-					expect(ref.current).toEqual(user);
 					return user.devices();
 				})
 				.then(devices => {
@@ -134,14 +135,10 @@ export default () => {
 					expect(devices.length).toBe(3);
 					expect(devices.filter(device => device.status === CONNECTED).length).toBe(3);
 				})
-				.then(() => ref.logout())
-				.then(() => {
-					expect(ref.current).toBeNull();
-					return namespace.get(`users/${config.createdUsers[0].uid}/status`);
-				})
-				.then(snap => {
-					if (snap) {
-						expect(snap.val()).toBe(CONNECTED);
+				.then(() => logout(config.createdUsers[0]))
+				.then(status => {
+					if (status) {
+						expect(status).toBe(CONNECTED);
 					} else {
 						fail('Cannot get User\'s status');
 					}

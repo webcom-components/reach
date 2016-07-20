@@ -12,7 +12,68 @@ export default () => {
 
 	describe('Rooms /', () => {
 		let ref, user;
-
+		const getRooms = (u, own = true) => {
+			return ref.rooms()
+				.then(rooms => rooms.filter(
+					room => {
+						const owners = u.some(_u => _u.uid === room.owner);
+						return room.status === OPENED && owners === own;
+					})
+				);
+		};
+		const getRoom = (u, own) => {
+			return getRooms(u, own).then(rooms => rooms.pop());
+		};
+		const joinRoom = (u, own) => {
+			return getRoom(u, own).then(room => room.join());
+		};
+		const invite = (from, to, room, role, text) => { // eslint-disable-line max-params
+			return ref.users()
+				.then(users => {
+					const _userTo = users.filter(u => u.uid === to.uid)[0];
+					log.g('warn', 'Invite a user to a room', [room, from, _userTo]);
+					return room.invite([_userTo], role, text);
+				});
+		};
+		const checkInvite = (data, from, to , room, role, text) => { // eslint-disable-line max-params
+			log.g('info', 'Invited a user to a room', [data.room].concat(data.invites));
+			// Check room
+			expect(data.room instanceof Room).toBeTruthy();
+			expect(data.room.uid).toBe(room.uid);
+			// Check invites
+			expect(data.invites).toBeAnArrayOf(Invite);
+			expect(data.invites.length).toBe(1);
+			expect(data.invites[0].from).toBe(from.uid);
+			expect(data.invites[0].to).toBe(to.uid);
+			expect(data.invites[0].room).toBe(room.uid);
+			expect(data.invites[0].status).toBe(ONGOING);
+			expect(data.invites[0].topic).toBe(text);
+			const _inviteId = data.invites[0].uid;
+			return new Promise(
+				(resolve, reject) => {
+					ref.base.child(`_/rooms/${room.uid}/participants`).once('value', d => {
+						resolve(d.val());
+					}, reject);
+				})
+				.then(participants => {
+					// Check participants
+					expect(participants[to.uid]).toBeDefined();
+					expect(participants[to.uid].role).toBe(role);
+				})
+				.then(() => new Promise((resolve, reject) => {
+					ref.base.child(`_/invites/${to.uid}/${_inviteId}`).once('value', dataSnapShot => {
+						const values = dataSnapShot.val();
+						expect(values.from).toBe(from.uid);
+						expect(values.room).toBe(room.uid);
+						expect(values.status).toBe(ONGOING);
+						expect(values.topic).toBe(text);
+						resolve();
+					}, e => {
+						log.e(e);
+						reject(e);
+					});
+				}));
+		};
 		beforeAll(done => {
 			ref = new Reach(config.base);
 			done();
@@ -78,12 +139,7 @@ export default () => {
 			});
 
 			it('Should be able to join his own room', done => {
-				ref.rooms()
-					.then(rooms => {
-						const userRooms = rooms.filter(room => room.owner === user.uid && room.status === OPENED);
-						log.g('info', 'User\'s rooms', userRooms);
-						return userRooms.pop().join();
-					})
+				joinRoom([user])
 					.then(() => {
 						done();
 					}).catch(e => {
@@ -93,13 +149,7 @@ export default () => {
 			});
 
 			it('Should be able to list the participants of a joined room', done => {
-				ref.rooms()
-					.then(rooms => {
-						const userRooms = rooms.filter(room => room.owner === user.uid && room.status === OPENED);
-						log.g('info', 'User\'s rooms', userRooms);
-						return userRooms.pop();
-					})
-					.then(room => room.join())
+				joinRoom([user])
 					.then(room => room.participants())
 					.then(participants => {
 						log.g('info', 'Room participants', participants);
@@ -117,12 +167,7 @@ export default () => {
 			});
 
 			it('Should be able to send a message within a joined room', done => {
-				ref.rooms()
-					.then(rooms => {
-						const userRooms = rooms.filter(room => room.owner === user.uid && room.status === OPENED);
-						log.g('info', 'User\'s rooms', userRooms);
-						return userRooms.pop().join();
-					})
+				joinRoom([user])
 					.then(room => room.sendMessage('test message'))
 					.then(message => {
 						log.g('info', 'Sent message', [message]);
@@ -141,10 +186,8 @@ export default () => {
 			});
 
 			it('Should not be able to join a room when uninvited', done => {
-				const user1 = config.createdUsers[1];
-				ref.rooms()
-					.then(rooms => {
-						const user1Rooms = rooms.filter(room => room.owner === user1.uid && room.status === OPENED);
+				getRooms([config.createdUsers[1]])
+					.then(user1Rooms => {
 						log.g('info', 'User 1\'s rooms', user1Rooms);
 						expect(user1Rooms.length).toBeGreaterThan(0);
 						return user1Rooms.pop().join();
@@ -159,17 +202,7 @@ export default () => {
 			});
 
 			it('Should not be able to list the participants of a room he has not joined', done => {
-				ref.rooms()
-					.then(rooms => {
-						const userRooms = rooms.filter(room =>
-							room.owner !== user.uid &&
-							room.owner !== config.createdUsers[3].uid &&
-							room.status === OPENED
-						);
-						log.g('info', 'Other user\'s rooms', userRooms);
-						expect(userRooms.length).toBeGreaterThan(0);
-						return userRooms.pop();
-					})
+				getRoom([user, config.createdUsers[3]], false)
 					.then(room => room.participants())
 					.then(() => {
 						fail('Should not have been able to list the participants of a room he has not joined');
@@ -181,17 +214,7 @@ export default () => {
 			});
 
 			it('Should not be able to send a message to a room he has not joined', done => {
-				ref.rooms()
-					.then(rooms => {
-						const userRooms = rooms.filter(room =>
-							room.owner !== user.uid &&
-							room.owner !== config.createdUsers[3].uid &&
-							room.status === OPENED
-						);
-						log.g('info', 'Other user\'s rooms', userRooms);
-						expect(userRooms.length).toBeGreaterThan(0);
-						return userRooms.pop();
-					})
+				getRoom([user, config.createdUsers[3]], false)
 					.then(room => room.sendMessage('test message'))
 					.then(() => {
 						fail('Should not have been able to send a message to a room he has not joined');
@@ -204,62 +227,15 @@ export default () => {
 			});
 
 			it('Should be able to invite a user to a room as the OWNER', done => {
-				let _room,
-					_user = config.createdUsers[2],
-					_inviteId;
-				ref.rooms()
-					.then(rooms => {
-						const userRooms = rooms.filter(room => room.owner === user.uid && room.status === OPENED);
-						return userRooms.pop();
-					})
+				const _user = config.createdUsers[2];
+				let _room;
+				getRoom([user])
 					.then(room => {
 						_room = room;
-						return ref.users();
+						return invite(user, _user, _room, MODERATOR, 'Test invite single user');
 					})
-					.then(users => {
-						_user = users.filter(u => u.uid === _user.uid)[0];
-						log.g('info', 'Invite a user to a room', [_room, user, _user]);
-						return _room.invite([_user], MODERATOR, 'Test invite single user');
-					})
-					.then(data => {
-						log.g('info', 'Invited a user to a room', [data.room].concat(data.invites));
-						log.d(data);
-						// Check room
-						expect(data.room instanceof Room).toBeTruthy();
-						expect(data.room.uid).toBe(_room.uid);
-						// Check invites
-						expect(data.invites).toBeAnArrayOf(Invite);
-						expect(data.invites.length).toBe(1);
-						expect(data.invites[0].from).toBe(user.uid);
-						expect(data.invites[0].to).toBe(_user.uid);
-						expect(data.invites[0].room).toBe(_room.uid);
-						expect(data.invites[0].status).toBe(ONGOING);
-						expect(data.invites[0].topic).toBe('Test invite single user');
-						_inviteId = data.invites[0].uid;
-						return new Promise((resolve, reject) => {
-							ref.base.child(`_/rooms/${_room.uid}/participants`).once('value', d => {
-								resolve(d.val());
-							}, reject);
-						});
-					})
-					.then(participants => {
-						// Check participants
-						expect(participants[_user.uid]).toBeDefined();
-						expect(participants[_user.uid].role).toBe(MODERATOR);
-					})
-					.then(() => {
-						ref.base.child(`_/invites/${_user.uid}/${_inviteId}`).once('value', dataSnapShot => {
-							const values = dataSnapShot.val();
-							expect(values.from).toBe(user.uid);
-							expect(values.room).toBe(_room.uid);
-							expect(values.status).toBe(ONGOING);
-							expect(values.topic).toBe('Test invite single user');
-							done();
-						}, e => {
-							log.e(e);
-							done(e);
-						});
-					})
+					.then(data => checkInvite(data, user, _user, _room, MODERATOR, 'Test invite single user'))
+					.then(() => {done();})
 					.catch(e => {
 						log.e(e);
 						fail(e.message);
@@ -270,10 +246,9 @@ export default () => {
 			it('Should be ale to invite a list of users', done => {
 				let _room,
 					_users;
-
-				ref.rooms()
-					.then(rooms => {
-						_room = rooms.filter(room => room.owner === user.uid)[0];
+				getRoom([user])
+					.then(room => {
+						_room = room;
 						log.i(_room);
 						return ref.users();
 					})
@@ -303,62 +278,15 @@ export default () => {
 			});
 
 			it('Should be able to invite a user to a room as a MODERATOR', done => {
-				let _room,
-					_user = config.createdUsers[3],
-					_inviteId;
-				ref.rooms()
-					.then(rooms => {
-						const userRooms = rooms.filter(room => room.owner === config.createdUsers[2].uid);
-						return userRooms.pop();
-					})
+				const _user = config.createdUsers[3];
+				let _room;
+				getRoom([config.createdUsers[2]])
 					.then(room => {
 						_room = room;
-						return ref.users();
+						return invite(user, _user, _room, NONE, 'Test invite single user as MODERATOR');
 					})
-					.then(users => {
-						_user = users.filter(u => u.uid === _user.uid)[0];
-						log.g('info', 'Invite a user to a room as MODERATOR', [_room, user, _user]);
-						return _room.invite([_user], 'NONE', 'Test invite single user as MODERATOR');
-					})
-					.then(data => {
-						log.g('info', 'Invited a user to a room as MODERATOR', [data.room].concat(data.invites));
-						log.d(data);
-						// Check room
-						expect(data.room instanceof Room).toBeTruthy();
-						expect(data.room.uid).toBe(_room.uid);
-						// Check invites
-						expect(data.invites).toBeAnArrayOf(Invite);
-						expect(data.invites.length).toBe(1);
-						expect(data.invites[0].from).toBe(user.uid);
-						expect(data.invites[0].to).toBe(_user.uid);
-						expect(data.invites[0].room).toBe(_room.uid);
-						expect(data.invites[0].status).toBe(ONGOING);
-						expect(data.invites[0].topic).toBe('Test invite single user as MODERATOR');
-						_inviteId = data.invites[0].uid;
-						return new Promise((resolve, reject) => {
-							ref.base.child(`_/rooms/${_room.uid}/participants`).once('value', d => {
-								resolve(d.val());
-							}, reject);
-						});
-					})
-					.then(participants => {
-						// Check participants
-						expect(participants[_user.uid]).toBeDefined();
-						expect(participants[_user.uid].role).toBe(NONE);
-					})
-					.then(() => {
-						ref.base.child(`_/invites/${_user.uid}/${_inviteId}`).once('value', dataSnapShot => {
-							const values = dataSnapShot.val();
-							expect(values.from).toBe(user.uid);
-							expect(values.room).toBe(_room.uid);
-							expect(values.status).toBe(ONGOING);
-							expect(values.topic).toBe('Test invite single user as MODERATOR');
-							done();
-						}, e => {
-							log.e(e);
-							done(e);
-						});
-					})
+					.then(data => checkInvite(data, user, _user, _room, NONE, 'Test invite single user as MODERATOR'))
+					.then(() => {done();})
 					.catch(e => {
 						log.e(e);
 						fail(e.message);

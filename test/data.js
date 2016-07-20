@@ -42,31 +42,25 @@ export const data = (users, timestamp) => {
 	});
 
 	// 0 is invited by 2 as MODERATOR
-	d._.invites[users[0].uid] = {};
-	d._.invites[users[0].uid][`-${timestamp}-${2}`] = {
-		from: users[2].uid,
-		room: `-${timestamp}-${2}`,
-		status: ONGOING,
-		topic: 'populated as MODERATOR',
-		_created: timestamp
+	const _invite = (from, to, role, room) => {
+		d._.invites[users[to].uid] = {};
+		d._.invites[users[to].uid][room] = {
+			from: users[from].uid,
+			room,
+			status: ONGOING,
+			topic: 'populated as MODERATOR',
+			_created: timestamp
+		};
+		d._.rooms[room].participants[users[to].uid] = {
+			status: NOT_CONNECTED,
+			role
+		};
 	};
-	d._.rooms[`-${timestamp}-${2}`].participants[users[0].uid] = {
-		status: NOT_CONNECTED,
-		role: MODERATOR
-	};
+	// 0 is invited by 2 as MODERATOR
+	_invite(2, 0, MODERATOR, `-${timestamp}-${2}`);
 
 	// 0 is invited by 3 as a simple participant
-	d._.invites[users[0].uid][`-${timestamp}-${3}`] = {
-		from: users[3].uid,
-		room: `-${timestamp}-${3}`,
-		status: ONGOING,
-		topic: 'populated as MODERATOR',
-		_created: timestamp
-	};
-	d._.rooms[`-${timestamp}-${3}`].participants[users[0].uid] = {
-		status: NOT_CONNECTED,
-		role: NONE
-	};
+	_invite(3, 0, NONE, `-${timestamp}-${3}`);
 
 	// 0 is connected to more than 1 device
 	d.users[users[0].uid].status = CONNECTED;

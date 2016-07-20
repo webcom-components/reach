@@ -2,6 +2,13 @@
 import * as account from './account';
 import * as log from './logger';
 
+const admin = () =>
+	account.login()
+		.then(auth => account.admin(auth.token, config.namespace || config.tempNamespace))
+		.then(token => new Promise((resolve, reject) => {
+			config.base.auth(token, resolve, reject);
+		}));
+
 export const create = () => {
 	const ns = `reach${Date.now()}`;
 	return account.login()
@@ -59,11 +66,7 @@ export const remove = () => {
 };
 
 export const reset = () => {
-	return account.login()
-		.then(auth => account.admin(auth.token, config.namespace || config.tempNamespace))
-		.then(token => new Promise((resolve, reject) => {
-			config.base.auth(token, resolve, reject);
-		}))
+	return admin()
 		.then(() => new Promise((resolve, reject) => {
 			config.base.child('_').remove(error => error ? reject(error) : resolve);
 		}))
@@ -76,22 +79,14 @@ export const reset = () => {
 };
 
 export const set = (path, data) => {
-	return account.login()
-		.then(auth => account.admin(auth.token, config.namespace || config.tempNamespace))
-		.then(token => new Promise((resolve, reject) => {
-			config.base.auth(token, resolve, reject);
-		}))
+	return admin()
 		.then(() => new Promise((resolve, reject) => {
 			config.base.child(path).set(data, error => {error ? reject(error) : resolve();});
 		}));
 };
 
 export const get = (path) => {
-	return account.login()
-		.then(auth => account.admin(auth.token, config.namespace || config.tempNamespace))
-		.then(token => new Promise((resolve, reject) => {
-			config.base.auth(token, resolve, reject);
-		}))
+	return admin()
 		.then(() => new Promise((resolve, reject) => {
 			config.base.child(path).once('value', resolve, reject);
 		}));
