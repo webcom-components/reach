@@ -198,6 +198,16 @@ export default class Invite {
 	}
 
 	/**
+	 * Register a callback for all status change events
+	 * @param {function} callback
+	 */
+	onStatusChange(callback) {
+		[ACCEPTED, REJECTED, CANCELED].forEach(event => {
+			this.on(event, callback);
+		});
+	}
+
+	/**
 	 * Un-register a callback for a status update
 	 * @param {string} [status] Can be:
 	 * - ACCEPTED
@@ -221,6 +231,20 @@ export default class Invite {
 		}
 		if(![CANCELED, ACCEPTED, REJECTED].some(event => this._callbacks[event] && this._callbacks[event].length > 0)){
 			DataSync.off(`_/invites/${this.to}/${this.uid}/status`, 'value');
+		}
+	}
+
+	/**
+	 * Un-register a callback for all status change events
+	 * @param {function} [callback]
+	 */
+	offStatusChange(callback) {
+		if(!callback) {
+			this.off();
+		} else {
+			[ACCEPTED, REJECTED, CANCELED].forEach(event => {
+				this.off(event, callback);
+			});
 		}
 	}
 
