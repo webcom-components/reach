@@ -9,6 +9,7 @@ import * as DataSync from './core/util/DataSync';
 import cache from './core/util/cache';
 import * as Log from './core/util/Log';
 import Media from './core/util/Media';
+import Webcom from 'webcom/webcom';
 
 /**
  * Entry point for Reach SDK
@@ -61,7 +62,7 @@ export default class Reach {
 	 * @return {{room: Events/Room, reach: Events/Reach, stream: Events/Stream}}
 	 */
 	static get events() {
-		return {room: Events.room, reach: Events.reach, stream: Events.stream};
+		return {room: Events.room, reach: Events.reach, stream: Events.stream, invite: Events.invite};
 	}
 
 	/**

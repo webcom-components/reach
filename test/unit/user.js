@@ -1,4 +1,4 @@
-/*global config,Webcom*/
+/*global config*/
 import Reach from '../../src/Reach';
 import User from '../../src/core/User';
 import Room from '../../src/core/Room';
@@ -85,7 +85,7 @@ export default () => {
 						done(e);
 					});
 			});
-			
+
 			it('Should be able to able to invite a user (no message)', done => {
 				let invitee = null;
 				let room = null;

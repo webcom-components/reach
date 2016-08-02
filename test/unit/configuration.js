@@ -2,6 +2,7 @@
 import Reach from '../../src/Reach';
 import media from '../../src/core/util/Media';
 import * as log from '../util/logger';
+import Webcom from 'webcom/webcom';
 
 export default () => {
 	describe('Entry point /', () => {

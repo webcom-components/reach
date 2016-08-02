@@ -1,5 +1,5 @@
 /*global config*/
-
+import Webcom from 'webcom/webcom';
 import * as namespace from './util/namespace';
 import * as rules from './util/rules';
 import * as log from './util/logger';
@@ -34,7 +34,7 @@ describe('Reach /', () => {
 	beforeAll(done => {
 		log.d('main#beforeAll');
 		jasmine.addMatchers(customMatchers);
-		jasmine.DEFAULT_TIMEOUT_INTERVAL = 15 * 1000;
+		jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
 		(config.namespace ? Promise.resolve() : namespace.create())
 			.then(() => {
 				log.d('Try to connect to ', config.namespaceUrl);

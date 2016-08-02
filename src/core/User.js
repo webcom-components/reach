@@ -4,6 +4,7 @@ import * as Log from './util/Log';
 import Room from './Room';
 import Device from './Device';
 import {CONNECTED, NOT_CONNECTED} from './util/constants';
+import Webcom from 'webcom/webcom';
 
 let initializing = false;
 

@@ -1,4 +1,5 @@
 import {browserDetails, browserShim} from 'webrtc-adapter';
+import Webcom from 'webcom/webcom';
 
 /**
  * The current browser's infos

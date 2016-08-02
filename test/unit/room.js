@@ -1,4 +1,4 @@
-/*global config,Webcom*/
+/*global config*/
 import {OPENED, CONNECTED, MODERATOR, NONE, ONGOING} from '../../src/core/util/constants';
 import Reach from '../../src/Reach';
 import Room from '../../src/core/Room';

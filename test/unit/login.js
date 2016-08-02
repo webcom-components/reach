@@ -6,6 +6,7 @@ import * as log from '../util/logger';
 import * as namespace from '../util/namespace';
 import {CONNECTED, NOT_CONNECTED} from '../../src/core/util/constants';
 import Device from '../../src/core/Device';
+import Webcom from 'webcom/webcom';
 
 const uidRegExp = /^[a-z0-9\-:]+$/;
 

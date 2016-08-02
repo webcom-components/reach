@@ -1,4 +1,5 @@
 /*global config*/
+import Webcom from 'webcom/webcom';
 
 export const login = () => {
 	const accounts = new Webcom(`${config.protocol}://${config.domain}/base/accounts`);

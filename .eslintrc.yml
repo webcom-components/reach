@@ -1,7 +1,6 @@
 root: true
 
 globals:
-  Webcom: true
   SDK_VERSION: true
   SCHEMA_VERSION: true
 

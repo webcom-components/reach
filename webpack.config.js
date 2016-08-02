@@ -42,6 +42,14 @@ const configure = (options) => {
 			libraryTarget: 'umd',
 			library: 'Reach'
 		},
+		externals: {
+			'webcom/webcom': {
+				root: 'Webcom',
+				commonjs: 'webcom/webcom',
+				commonjs2: 'webcom/webcom',
+				amd: 'webcom/webcom'
+			}
+		},
 		plugins: [
 			new webpack.BannerPlugin(readFileSync(`${__dirname}/LICENSE`, 'utf8')),
 			new webpack.DefinePlugin({

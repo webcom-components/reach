@@ -1,8 +1,7 @@
-/*global Webcom*/
-
 import Config from '../Config';
 import StreamManager from '../stream/StreamManager';
 import PeerConnectionManager from '../webrtc/PeerConnectionManager';
+import Webcom from 'webcom/webcom';
 
 /**
  * singleton
@@ -113,7 +112,7 @@ class CacheManager {
 			 * @ignore
 			 */
 			this._logLevel = level;
-		} else {
+		} else if(level) {
 			throw new Error('Unsupported log level (DEBUG, INFO, WARN, ERROR)');
 		}
 	}
