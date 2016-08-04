@@ -96,7 +96,7 @@ export default class Room {
 			.then(streams => streams.filter(stream => {
 				return localStreams === (stream.device === cache.device && stream.from === cache.user.uid);
 			}))
-			.then(streams => streams.map(cache.streams[`get${localStreams ? 'Shared' : 'Remote'}`]))
+			.then(streams => streams.map(cache.streams[`get${localStreams ? 'Shared' : 'Remote'}`].bind(cache.streams)))
 			.then(streams => streams.filter(stream => stream !== null));
 	}
 
