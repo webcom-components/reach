@@ -21,11 +21,11 @@ Reach rely heavily on [Flexible DataSync][Quickstart] to exchange data between p
 
 ## Get started
 
-[Get started][ReachSDKDoc] in minutes &amp; add video communication capabilities to your web app.
+[Get started][ReachSDKDoc] in minutes &amp; add audio and/or video capabilities to your web app.
 
 ## Live example
 
-[See it work][VisioSampleRepo] with an example of a visio web app available [here][VisioSampleApp]. You can check the code for this sample in the dedicated Github [repo][VisioSampleRepo]
+[See how it works][VisioSampleRepo] with an example of a visio web app available [here][VisioSampleApp]. You can check the code for this sample in the dedicated Github [repo][VisioSampleRepo]
 
 [Quickstart]: https://datasync.orange.com/doc/tutorial-quickstart.html
 [ReachSDKDoc]: ./tutorial.html#getting-started

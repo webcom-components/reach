@@ -23,7 +23,7 @@ or [npm](https://www.npmjs.com/package/webcom-reach):
 npm i --save webcom-reach
 ```
 
-Don't forget to include the Flexible DataSync dependency to your app:
+Then either include the Flexible DataSync dependency to your app:
 
 ```html
 <!-- The Flexible DataSync library -->
@@ -33,3 +33,9 @@ Don't forget to include the Flexible DataSync dependency to your app:
 ```
 
 `PACKAGES_FOLDER` being `node_modules` when using `npm` &amp; `bower_components` when using `bower`.
+
+or just import Reach within your code :
+
+```javascript
+import Reach from 'webcom-reach';
+```
