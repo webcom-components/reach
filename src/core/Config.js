@@ -132,11 +132,7 @@ export default class Config {
 				credential: 'webcom1234',
 				urls: [
 					'turns:turn1.webcom.orange.com:443',
-					'turns:turn2.webcom.orange.com:443',
-					'turns:turn3.webcom.orange.com:443',
-					'turn:turn1.webcom.orange.com',
-					'turn:turn2.webcom.orange.com',
-					'turn:turn3.webcom.orange.com'
+					'turn:turn1.webcom.orange.com:3478'
 				]
 			}
 		];
