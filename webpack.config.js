@@ -10,8 +10,7 @@ const
 		release: false,
 		coverage: false,
 		debug: false,
-		output: true,
-		noedge: false
+		output: true
 	};
 
 /*eslint complexity: [2, 15] */
@@ -60,10 +59,6 @@ const configure = (options) => {
 		]
 	};
 
-	if(options.noedge) {
-		config.resolve.alias['webrtc-adapter'] = `${__dirname}/node_modules/webrtc-adapter/out/adapter_no_edge.js`;
-	}
-
 	if(options.output) {
 		config.entry = './src/Reach.js';
 		config.output.path = './dist';
@@ -82,20 +77,11 @@ const configure = (options) => {
 		config.watch = options.debug;
 	}
 
-	if (options.coverage) {
-		config.module.preLoaders.push({
-			test:/\.js$/,
-			include: path.resolve(__dirname, './src'),
-			exclude: /(bower_components|node_modules|test)/,
-			loader: 'babel-istanbul'
-		});
-	}
-
 	return config;
 };
 
 // Parse command line args when executing webpack
-const webpackOptions = minimist(process.argv.slice(2), {'boolean': ['release', 'noedge'], 'default': defaultOptions});
+const webpackOptions = minimist(process.argv.slice(2), {'boolean': ['release'], 'default': defaultOptions});
 
 module.exports = configure(webpackOptions);
 
