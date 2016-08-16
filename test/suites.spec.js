@@ -1,3 +1,1 @@
-export const suites = require.context('.', true, /\/spec\/.*\.js$/);
-
-global.suites = suites;
+global.suites = require.context('.', true, /\/spec\/.*\.js$/);

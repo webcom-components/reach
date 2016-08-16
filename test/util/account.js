@@ -1,12 +1,12 @@
-/*global config*/
 import Webcom from 'webcom/webcom';
+import * as config from './config';
 
 export const login = () => {
 	const accounts = new Webcom(`${config.protocol}://${config.domain}/base/accounts`);
 
 	let auth;
-	if(config && config.authToken) {
-		auth = Promise.resolve({token: config.authToken});
+	if(global.env && global.env.authToken) {
+		auth = Promise.resolve({token: global.env.authToken});
 	} else if(config && config.token) {
 		auth = new Promise((resolve, reject) => {
 			accounts.auth(config.token, a => {
@@ -22,14 +22,14 @@ export const login = () => {
 	}
 
 	return auth.then(a => {
-		config.authToken = a.token;
+		global.env.authToken = a.token;
 		return a;
 	});
 };
 
 export const admin = (token, namespace) => new Promise((resolve, reject) => {
-	if(config.adminToken) {
-		resolve(config.adminToken);
+	if(global.env.adminToken) {
+		resolve(global.env.adminToken);
 	} else {
 		const req = new XMLHttpRequest();
 		req.onreadystatechange = () => {
@@ -37,7 +37,7 @@ export const admin = (token, namespace) => new Promise((resolve, reject) => {
 				if (req.status === 200) {
 					const response = JSON.parse(req.responseText);
 					if (response.authToken) {
-						config.adminToken = response.authToken;
+						global.env.adminToken = response.authToken;
 						resolve(response.authToken);
 					} else {
 						reject(new Error(response.error));
@@ -59,8 +59,8 @@ export const logout = () => {
 	return new Promise(resolve => {
 		accounts.logout(() => {
 			Webcom.INTERNAL.PersistentStorage.remove('session');
-			config.authToken = null;
-			config.adminToken = null;
+			global.env.authToken = null;
+			global.env.adminToken = null;
 			resolve();
 		});
 	});

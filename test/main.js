@@ -1,9 +1,11 @@
-/*global config*/
 import Webcom from 'webcom/webcom';
 import * as namespace from './util/namespace';
 import * as rules from './util/rules';
 import * as log from './util/logger';
+import * as config from './util/config';
 import data from './data';
+
+global.env = {};
 
 const customMatchers = {
 	toBePermissionDenied: ()  => ({
@@ -35,46 +37,53 @@ describe('Reach /', () => {
 		log.d('main#beforeAll');
 		jasmine.addMatchers(customMatchers);
 		jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
-		(config.namespace ? Promise.resolve() : namespace.create())
-			.then(() => {
-				log.d('Try to connect to ', config.namespaceUrl);
-				config.base = new Webcom(config.namespaceUrl);
-				return rules.get();
+		(config.namespace ? Promise.resolve(config.namespace) : namespace.create())
+			.then(ns => {
+				global.env.namespace = ns;
+				global.env.namespaceUrl = config.namespaceUrl(global.env.namespace);
 			})
+			.then(() => rules.get())
 			.then(r => {
-				config.rules = r;
-				return rules.set(config.rules);
+				global.env.rules = r;
+				return rules.set(global.env.rules);
 			})
 			.then(() => {
-				config.createdUsers = [];
+				log.d('Try to connect to ', global.env.namespaceUrl);
+				global.env.base = new Webcom(global.env.namespaceUrl);
+			})
+			.then(() => {
+				global.env.createdUsers = [];
 				const ts = Date.now();
 				const tmp = Array(5);
 				for(let i=0,l=tmp.length;i<l;i++) {tmp[i] = i;}
-				return Promise.all(tmp.map(i => {
-					const user = {
-						email: `new.user.${i}@${ts}.reach.io`,
-						password: 'password'
-					};
-					return config.base.createUser(user.email, user.password)
-						.then(auth => {
-							if(auth) {
-								user.uid = auth.uid;
-								config.createdUsers.push(user);
-								return user;
-							}
-						});
-				}));
+				return tmp
+					.map(i => {
+						const user = {
+							email: `new.user.${i}@${ts}.reach.io`,
+							password: `password${ts}`
+						};
+						return () => global.env.base.createUser(user.email, user.password)
+							.then(auth => {
+								if (auth) {
+									user.uid = auth.uid;
+									global.env.createdUsers.push(user);
+									return user;
+								}
+							});
+					})
+					.reduce((previous, current) => previous.then(current), Promise.resolve());
 			})
 			.then(() => {
-				log.g('info', `Created ${config.createdUsers.length} users`, config.createdUsers.map(JSON.stringify));
-			})
-			.then(() => {
-				const d = data(config.createdUsers, Date.now());
+				log.g('info',
+					`Created ${global.env.createdUsers.length} users`,
+					global.env.createdUsers.map(JSON.stringify)
+				);
+				const d = data(global.env.createdUsers, Date.now());
 				log.g('info', 'Populate namespace', [d]);
 				return namespace.set('/', d);
 			})
 			.then(() => {
-				config.base.logout();
+				global.env.base.logout();
 				localStorage.clear();
 				// Webcom.INTERNAL.PersistentStorage.remove('session');
 				// Reset repos to force new persistent connection to be established
@@ -90,7 +99,7 @@ describe('Reach /', () => {
 
 	beforeEach(() => {
 		log.d('main#beforeEach');
-		expect(config.base).toBeDefined('Missing base. Server or namespace pb.');
+		expect(global.env.base).toBeDefined('Missing base. Server or namespace pb.');
 		// Reset repos to force new persistent connection to be established
 		// Webcom.Context.getInstance().repos_ = {};
 		Webcom.INTERNAL.PersistentStorage.remove('session');
@@ -99,11 +108,11 @@ describe('Reach /', () => {
 	afterAll(done => {
 		log.d('main#afterAll');
 		// Force logout
-		config.base && config.base.logout();
-		Promise.all(config.createdUsers.map(user => config.base.removeUser(user.email, user.password)))
+		global.env.base && global.env.base.logout();
+		Promise.all(global.env.createdUsers.map(user => global.env.base.removeUser(user.email, user.password)))
 			.then(() => {
-				config.createdUsers.length = 0;
-				return config.namespace ? Promise.resolve() : namespace.remove();
+				global.env.createdUsers.length = 0;
+				return config.namespace ? Promise.resolve() : namespace.remove(global.env.namespace);
 			})
 			.then(() => {
 				localStorage.clear();
@@ -115,9 +124,5 @@ describe('Reach /', () => {
 			});
 	});
 
-	// Load test suites
-	const suites = global.suites;
-	suites.keys().forEach(suite => {
-		suites(suite).default();
-	});
+	global.suites.keys().forEach(global.suites);
 });

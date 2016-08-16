@@ -1,4 +1,4 @@
-/*global config*/
+import * as config from './config';
 
 /**
  * List of possible log levels

@@ -1,5 +1,5 @@
-/*global config*/
 import * as account from './account';
+import * as config from './config';
 
 export const get = () => new Promise((resolve, reject) => {
 	const req = new XMLHttpRequest();
@@ -22,8 +22,8 @@ export const get = () => new Promise((resolve, reject) => {
  * @param {String} namespace
  * @returns {*}
  */
-export const set = (rules) => {
-	const ns = config.namespace || config.tempNamespace;
+export const set = rules => {
+	const ns = global.env.namespace;
 	return account.login()
 		.then(auth => account.admin(auth.token, ns))
 		.then(token => new Promise((resolve, reject) => {

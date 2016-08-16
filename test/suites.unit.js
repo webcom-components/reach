@@ -1,3 +1,3 @@
-export const suites = require.context('.', true, /\/unit\/.*\.js$/);
+// export const suites = require.context('.', true, /\/unit\/.*\.js$/);
 
-global.suites = suites;
+global.suites = require.context('.', true, /\/unit\/.*\.js$/);
