@@ -180,7 +180,7 @@ module.exports = function(config) {
 			'test/main.js'
 		],
 		preprocessors: {
-			'test/**/*.js': ['webpack', 'sourcemap']
+			'test/**/*.js': ['webpack'].concat(!singleRun && !coverage ? ['sourcemap'] : [])
 		},
 		webpack: webpackConfig,
 		webpackMiddleware: {

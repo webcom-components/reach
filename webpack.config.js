@@ -72,7 +72,7 @@ const configure = (options) => {
 			new webpack.optimize.AggressiveMergingPlugin(),
 			new webpack.optimize.UglifyJsPlugin({minimize: true})
 		]);
-	} else {
+	} else if(options.debug) {
 		config.devtool = 'inline-source-map';
 	}
 
