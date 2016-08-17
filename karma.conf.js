@@ -60,7 +60,7 @@ const
 		sl_chrome_latest: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'OS X 10.11',
-			version: 'latest',
+			version: 'latest-2',
 			flags
 		}),
 		sl_chrome_latest_1: sauceLabsBrowser({
