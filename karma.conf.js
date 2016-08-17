@@ -141,9 +141,10 @@ module.exports = function(config) {
 
 	config.set({
 		basePath: __dirname,
-		browserNoActivityTimeout: sauceLabs ? 120000 : 10000,
-		browserDisconnectTolerance: 5,
-		captureTimeout: sauceLabs ? 0 : 60 * 1000,
+		captureTimeout: 60000,
+		browserNoActivityTimeout: 60000,
+		browserDisconnectTimeout : 10000,
+		browserDisconnectTolerance: 1,
 		client: {
 			captureConsole: false
 		},

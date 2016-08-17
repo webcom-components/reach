@@ -36,7 +36,7 @@ describe('Reach /', () => {
 	beforeAll(done => {
 		log.d('main#beforeAll');
 		jasmine.addMatchers(customMatchers);
-		jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+		jasmine.DEFAULT_TIMEOUT_INTERVAL = 5 * 30 * 1000;
 		(config.namespace ? Promise.resolve(config.namespace) : namespace.create())
 			.then(ns => {
 				global.env.namespace = ns;
