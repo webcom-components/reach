@@ -131,6 +131,14 @@ console.info(
 );
 
 module.exports = function(config) {
+	const webpackConfig = webpack.configure({
+		output: false,
+		release: false,
+		debug: !singleRun && !coverage,
+		coverage
+	});
+	webpackConfig.entry = {};
+
 	config.set({
 		basePath: __dirname,
 		browserNoActivityTimeout: sauceLabs ? 120000 : 10000,
@@ -161,22 +169,19 @@ module.exports = function(config) {
 			namedFiles: true, // name files instead of creating sub-directories
 			urlFriendlyName: true // simply replaces spaces with _ for files/dirs
 		},
+		autoWatch: !singleRun,
+		autoWatchBatchDelay: 300,
 		files: [
 			{pattern: 'node_modules/webcom/webcom.js', included: true, watched: false},
 			{pattern: 'dist/rules.json', included: false, nocache: true},
+			{ pattern: 'src/**/*', watched: false, included: false, served: true, nocache: true },
 			`test/suites.${testSuite}.js`,
 			'test/main.js'
 		],
 		preprocessors: {
-			'src/**/*.js': ['webpack', 'sourcemap'],
 			'test/**/*.js': ['webpack', 'sourcemap']
 		},
-		webpack: webpack.configure({
-			output: false,
-			release: false,
-			debug: !singleRun && !coverage,
-			coverage
-		}),
+		webpack: webpackConfig,
 		webpackMiddleware: {
 			noInfo: true
 		},

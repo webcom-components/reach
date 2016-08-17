@@ -74,7 +74,6 @@ const configure = (options) => {
 		]);
 	} else {
 		config.devtool = 'inline-source-map';
-		config.watch = options.debug;
 	}
 
 	return config;

@@ -21,7 +21,7 @@
             "exclude": [
               "./bower_components/**",
               "./node_modules/**",
-              "./test/**/*.js"
+              "test/**"
             ]
           }
         ]

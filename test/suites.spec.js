@@ -1,1 +1,1 @@
-global.suites = require.context('.', true, /\/spec\/.*\.js$/);
+global.suites = require.context('./spec', false, /.*\.js$/);
