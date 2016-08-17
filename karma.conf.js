@@ -141,9 +141,9 @@ module.exports = function(config) {
 
 	config.set({
 		basePath: __dirname,
-		captureTimeout: 60000,
-		browserNoActivityTimeout: 60000,
-		browserDisconnectTimeout : 10000,
+		captureTimeout: 60 * 1000,
+		browserNoActivityTimeout: 2 * 60 * 1000,
+		browserDisconnectTimeout : 2 * 10 * 1000,
 		browserDisconnectTolerance: 1,
 		client: {
 			captureConsole: false
