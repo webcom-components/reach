@@ -107,7 +107,7 @@ Once connected to the room, a user can share a media stream with the other parti
 Only the room participants will be able to view that stream.
 
 ```javascript
-myRoom.share(Reach.types.AUDIO_VIDEO, Reach.media.constraint('HD'), localVideoContainerNode)
+myRoom.share(Reach.types.AUDIO_VIDEO, localVideoContainerNode, Reach.media.constraint('HD'))
     .then(localStream => {
         // The local Stream has been initiated, meaning `getUserMedia` has been called and that the video stream is displayed within
         // the `localVideoContainerNode`
