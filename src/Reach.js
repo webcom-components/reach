@@ -202,7 +202,7 @@ export default class Reach {
 		return new Promise((resolve, reject) => {
 			let p = Promise.resolve();
 			if(this.current != null) {
-				p = User.disconnect(this.current.uid);
+				p = User.disconnect(this.current);
 			}
 			p.then(() => {
 				Object.keys(this._callbacks).forEach(

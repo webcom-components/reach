@@ -22,7 +22,7 @@ export default class User {
 		const values = Object.assign({}, snapData.val());
 		/**
 		 * User's unique id
-		 * @type string
+		 * @type {string}
 		 */
 		this.uid = snapData.name();
 		/**
@@ -40,6 +40,11 @@ export default class User {
 		 * @type {number}
 		 */
 		this.lastSeen = values.lastSeen;
+		/**
+		 * Indicates if the user is an anonymous user
+		 * @type {boolean}
+		 */
+		this.anonymous = /^anonymous/.test(this.uid);
 		// TODO #Feat: Add 'extra' property for unrestricted additional information ?
 	}
 
@@ -99,14 +104,17 @@ export default class User {
 					}
 					return DataSync.push(`_/devices/${uid}`, deviceMetadata);
 				})
-				// Add Disconnect actions
+				// Save device
 				.then(deviceRef => {
-					if(!deviceId) {
+					if (!deviceId) {
 						deviceId = deviceRef.name();
 						Webcom.INTERNAL.PersistentStorage.set(uid, deviceId);
 					}
 					cache.device = deviceId;
-					// Remove device
+				})
+				// Add onDisconnect actions
+				.then(() => {
+					// Disconnect device
 					DataSync.onDisconnect(`_/devices/${uid}/${deviceId}`).update({
 						status: NOT_CONNECTED
 					});
@@ -134,19 +142,28 @@ export default class User {
 	/**
 	 * Disconnect the current user
 	 * @access protected
-	 * @param {string} uid The user's uid
+	 * @param {User} uid The current user
 	 * @returns {Promise}
 	 */
-	static disconnect(uid) {
-		return DataSync.set(`_/devices/${uid}/${cache.device}/status`, NOT_CONNECTED)
-			.then(() => DataSync.get(`_/devices/${uid}`))
+	static disconnect(user) {
+		if(user.anonymous) {
+			return DataSync.remove(`_/devices/${user.uid}`)
+				.then(() => {
+					Webcom.INTERNAL.PersistentStorage.remove(user.uid);
+				})
+				.then(() => DataSync.remove(`_/invites/${user.uid}`))
+				.then(() => DataSync.remove(`users/${user.uid}`))
+				.catch(Log.r('User#anonymous_disconnect'));
+		}
+		return DataSync.set(`_/devices/${user.uid}/${cache.device}/status`, NOT_CONNECTED)
+			.then(() => DataSync.get(`_/devices/${user.uid}`))
 			.then(devices => {
 				// Only change user's status if no other device connected
 				const hasConnectedDevices = devices.forEach(device => {
 					return (new RegExp(`^${CONNECTED}$`)).test(device.val().status);
 				});
 				if(!hasConnectedDevices) {
-					return DataSync.update(`users/${uid}`, {status: NOT_CONNECTED});
+					return DataSync.update(`users/${user.uid}`, {status: NOT_CONNECTED});
 				}
 				return true;
 			})
