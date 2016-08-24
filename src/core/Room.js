@@ -182,7 +182,7 @@ export default class Room {
 			obj = Events.room.toClass(event);
 		if(path && obj) {
 			const typedCallback = snapData => {
-				if(!/^STREAM_/.test(event) || !snapData) {
+				if(!/^STREAM_/i.test(event) || !snapData) {
 					Log.i(`Room~on(${event})`, snapData ? new obj(snapData) : null);
 					callback(snapData ? new obj(snapData) : null);
 				} else {

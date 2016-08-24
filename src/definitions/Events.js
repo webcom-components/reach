@@ -89,19 +89,19 @@ class _Events {
 		keys.forEach(key => {this[key] = key;});
 	}
 	supports(event) {
-		if(this[event] !== event) {
+		if(!event || typeof event !== 'string' || this[event] !== event.toUpperCase()) {
 			throw new Error(`Unsupported event. Use one of the following: ${JSON.stringify(Object.keys(this))}`);
 		}
 		return true;
 	}
 	toPath(event) {
 		if(this.supports(event)) {
-			return paths[event.replace(/_.*$/, '')] || (() => null);
+			return paths[event.toUpperCase().replace(/_.*$/, '')] || (() => null);
 		}
 	}
 	toClass(event) {
 		if(this.supports(event)) {
-			return classes[event.replace(/_.*$/, '')];
+			return classes[event.toUpperCase().replace(/_.*$/, '')];
 		}
 	}
 }
