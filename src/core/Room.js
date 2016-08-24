@@ -48,6 +48,12 @@ export default class Room {
 		this.status = values.status;
 
 		/**
+		 * Indicates that the room is public so all users can join
+		 * @type {boolean}
+		 */
+		this.public = !!values._public;
+
+		/**
 		 * Additional room informations
 		 * @type {Object}
 		 */
@@ -276,31 +282,33 @@ export default class Room {
 	 * @access protected
 	 * @param {String} [name] The room name
 	 * @param {object} [extra=null] Extra informations
+	 * @param {boolean} [publicRoom=false] Indicates public room
 	 * @returns {Promise<Room, Error>}
 	 */
-	static create (name, extra = null) {
+	static create (name, extra = null, publicRoom = false) {
 		if(!cache.user) {
 			return Promise.reject(new Error('Cannot create a Room without a User being logged in.'));
 		}
 
-		const roomMetaData = {
-			owner: cache.user.uid,
-			status: OPENED,
-			_created: DataSync.ts(),
-			name: name || `${cache.user.name}-${Date.now()}`,
-			extra
-		};
+		const
+			roomMetaData = {
+				owner: cache.user.uid,
+				_public: publicRoom,
+				name: name || `${cache.user.name}-${Date.now()}`
+			},
+			roomFullMetaData = Object.assign({
+				status: OPENED,
+				_created: DataSync.ts(),
+				extra
+			}, roomMetaData);
 
 		let roomId = null;
 		// Create public room infos
-		return DataSync.push('rooms', roomMetaData)
+		return DataSync.push('rooms', roomFullMetaData)
 			// Create private room infos
 			.then(roomRef => {
 				roomId = roomRef.name();
-				return DataSync.update(`_/rooms/${roomId}/meta`, {
-					owner: cache.user.uid,
-					name
-				});
+				return DataSync.update(`_/rooms/${roomId}/meta`, roomMetaData);
 			})
 			// Join the room
 			.then(() => DataSync.update(`_/rooms/${roomId}/participants/${cache.user.uid}`,
@@ -310,7 +318,7 @@ export default class Room {
 					_joined: DataSync.ts()
 				}
 			))
-			.then(() => new Room(Object.assign({uid: roomId}, roomMetaData)))
+			.then(() => new Room(Object.assign({uid: roomId}, roomFullMetaData)))
 			.catch(Log.r('Room#create'));
 	}
 
