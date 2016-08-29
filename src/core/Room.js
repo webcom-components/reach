@@ -143,25 +143,21 @@ export default class Room {
 			};
 		// Add users as participant so they can join the room
 		return Promise.all(users.map(user => DataSync.set(_path(user), _data)))
-			.then(() => {
-				// Send invites
-				return Promise.all(users.map(user => Invite.send(user, this, message)));
-			}, e => {
-				Log.e('Room~invite_1', e);
-			})
+			// Send invites
+			.then(() => Promise.all(users.map(user => Invite.send(user, this, message))))
 			.then(invites => {
 				const removeParticipant = invite => DataSync.remove(`_/rooms/${invite.room}/participants/${invite.to}`);
 				invites.forEach(invite => {
 					invite.on(REJECTED, removeParticipant);
 					invite.on(CANCELED, removeParticipant);
 				});
-				return invites;
-			}, e => {
-				Log.e('Room~invite_2', e);
-				users.forEach(user => DataSync.remove(`_/rooms/${this.uid}/participants/${user.uid}`));
+				return {room: this, invites};
 			})
-			.then(invites => ({room: this, invites}))
-			.catch(Log.r('Room~invite'));
+			.catch(e => {
+				Log.e('Room~invite', e);
+				users.forEach(user => DataSync.remove(`_/rooms/${this.uid}/participants/${user.uid}`));
+				return Promise.reject(e);
+			});
 	}
 
 	/**
