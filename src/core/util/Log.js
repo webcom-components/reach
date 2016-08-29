@@ -16,6 +16,12 @@ const isEnabled = level => {
 	return levels.indexOf(level.toUpperCase()) >= levels.indexOf(cache.logLevel.toUpperCase());
 };
 /**
+ * Global Console. (to avoid drop_console...)
+ * @access private
+ * @type {Console}
+ */
+const gConsole = global['console'];
+/**
  * Shorthand for console call
  * @access private
  * @param {string} method A method of the console object
@@ -23,7 +29,7 @@ const isEnabled = level => {
  * @param {*} messages the log content
  */
 const logger = (method, level, ...messages) => {
-	isEnabled(level) ? console[method.toLowerCase()].bind(console)(...messages) : () => {};
+	isEnabled(level) ? gConsole[method.toLowerCase()].bind(gConsole)(...messages) : () => {};
 };
 /**
  * Use a group to log
@@ -34,13 +40,13 @@ const logger = (method, level, ...messages) => {
  */
 const group = (level, message, ...items) => {
 	if (items.length > 0) {
-		logger.bind(undefined, console.group ? 'group' : level, level)(typeof message === 'string' ? message : '');
+		logger.bind(undefined, gConsole.group ? 'group' : level, level)(typeof message === 'string' ? message : '');
 		let values = (typeof message !== 'string' ? [message] : []).concat(items);
 		if (items.length === 1 && items[0] instanceof Array && typeof items[0].length !== undefined) {
 			values = items[0];
 		}
 		values.forEach(item => logger.bind(undefined, level, level)(item));
-		console.groupEnd && console.groupEnd();
+		gConsole.groupEnd && gConsole.groupEnd();
 	} else {
 		logger.bind(undefined, level, level, message);
 	}
@@ -69,7 +75,7 @@ export const w = group.bind(undefined, levels[2]);
  * @access protected
  * @see https://developer.mozilla.org/fr/docs/Web/API/Console/error
  */
-export const e = console.error.bind(console);
+export const e = gConsole.error.bind(gConsole);
 /**
  * Promise rejection logger to use with catch
  * @access protected
