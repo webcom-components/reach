@@ -70,7 +70,7 @@ const configure = (options) => {
 			new webpack.optimize.DedupePlugin(),
 			new webpack.optimize.OccurenceOrderPlugin(),
 			new webpack.optimize.AggressiveMergingPlugin(),
-			new webpack.optimize.UglifyJsPlugin({minimize: true})
+			new webpack.optimize.UglifyJsPlugin({compress: true})
 		]);
 	} else if(options.debug) {
 		config.devtool = 'inline-source-map';
