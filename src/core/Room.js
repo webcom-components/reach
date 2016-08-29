@@ -51,7 +51,7 @@ export default class Room {
 		 * Indicates that the room is public so all users can join
 		 * @type {boolean}
 		 */
-		this.public = !!values._public;
+		this._public = !!values._public;
 
 		/**
 		 * Additional room informations
