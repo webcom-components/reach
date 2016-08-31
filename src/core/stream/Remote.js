@@ -128,7 +128,7 @@ export default class Remote {
 		// Un-subscribe
 		!remote && DataSync.remove(`_/rooms/${this.roomId}/subscribers/${this.uid}/${cache.device}`);
 		// Close PeerConnection
-		return cache.peerConnections.close(this.uid, this.device);
+		return Promise.resolve(cache.peerConnections.close(this.uid, this.device));
 	}
 
 	/**

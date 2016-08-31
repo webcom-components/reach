@@ -230,6 +230,7 @@ export default class Local {
 
 	/**
 	 * Removes stream for published list, closes associated PeerConnections and stops current MediaStream
+	 * @returns {Promise}
 	 */
 	close() {
 		if(!~[CLOSED, CLOSING].indexOf(this.status)) {
@@ -238,6 +239,7 @@ export default class Local {
 			const path = `_/rooms/${this.roomId}/subscribers/${this.uid}`;
 			DataSync.off(path, 'child_added');
 			DataSync.off(path, 'child_removed');
+			// Remove subscribers
 			DataSync.remove(path);
 			// Remove stream
 			DataSync.remove(`_/rooms/${this.roomId}/streams/${this.uid}`);
@@ -245,6 +247,7 @@ export default class Local {
 			// Close
 			this.status = CLOSED;
 		}
+		return Promise.resolve(this.status);
 	}
 
 	/**
