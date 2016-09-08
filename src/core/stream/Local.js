@@ -5,6 +5,17 @@ import * as DataSync from '../util/DataSync';
 import Media from '../util/Media';
 import {NONE, CLOSED, CLOSING, CONNECTED} from '../util/constants';
 
+const _facingModes = [Media.facingMode.USER, Media.facingMode.ENVIRONMENT];
+
+const _getConstraintValue = (constraints, prop) => {
+	return constraints[prop].exact || constraints[prop].ideal || constraints[prop];
+};
+
+const _setConstrainValue = (constraints, prop, other, value) => {
+	constraints[prop] = {ideal: value};
+	delete constraints[other];
+};
+
 /**
  * The local stream
  */
@@ -78,6 +89,12 @@ export default class Local {
 			} else if(!values[type]){
 				values[type] = defaultConstraints[type];
 			}
+			if(values[type].deviceId || values[type].facingMode) {
+				this._inputs[type] = _getConstraintValue(
+					values[type],
+					values[type].facingMode ? 'facingMode' : 'deviceId'
+				);
+			}
 		});
 		Log.d('Local~set#contraints', values);
 		/**
@@ -105,8 +122,14 @@ export default class Local {
 		return navigator.mediaDevices.getUserMedia(this.constraints)
 			.then(media => {
 				['audio', 'video'].forEach(kind => {
-					if(this.constraints[kind] && this.constraints[kind].deviceId) {
-						this._inputs[kind] = this.constraints[kind].deviceId.exact || this.constraints[kind].deviceId;
+					const constraintsValue = this.constraints[kind];
+					if(constraintsValue) {
+						if (constraintsValue.deviceId || constraintsValue.facingMode) {
+							this._inputs[kind] = _getConstraintValue(
+								constraintsValue,
+								constraintsValue.facingMode ? 'facingMode' : 'deviceId'
+							);
+						}
 					}
 				});
 				this.media = media;
@@ -139,7 +162,7 @@ export default class Local {
 						if(devices[`${kind}input`]){
 							const deviceIds = devices[`${kind}input`]
 								.filter(device => device.label.length && device.label === checkDevices[kind]);
-							if(deviceIds.length === 1) {
+							if(deviceIds.length === 1 && !this._inputs[kind]) {
 								this._inputs[kind] = deviceIds[0].deviceId;
 							}
 						}
@@ -252,7 +275,7 @@ export default class Local {
 
 	/**
 	 * Switch video input device
-	 * @param {string} [deviceId] A video input device Id
+	 * @param {string} [deviceId] A video input device Id or the `facingMode` value
 	 * @returns {Promise<Local, Error>}
 	 */
 	switchCamera(deviceId) {
@@ -278,23 +301,35 @@ export default class Local {
 	_switchDevice(kind, deviceId) {
 		Log.d('Local~_switchDevice', kind, deviceId);
 		if(this.media.getTracks().some(track => track.kind === kind)) {
-			return Media.devices()
-				.then(d => {
-					// devices IDs
-					const devices = d[`${kind}input`].map(mediaDevice => mediaDevice.deviceId);
-					// Sort to ensure same order
-					devices.sort();
-					// New device
-					let nextDevice = deviceId;
-					if(deviceId && !devices.some(device => device === deviceId)) {
-						return Promise.reject(new Error(`Unknown ${kind} device`));
-					}
-					if(!deviceId && devices.length > 1) {
-						let idx = this._inputs[kind] ? devices.findIndex(v => v === this._inputs[kind], this) : 0;
-						nextDevice = devices[++idx % devices.length];
-					}
-					return nextDevice;
-				})
+			let next = Promise.resolve(deviceId);
+			const currentModeIdx = _facingModes.indexOf(this._inputs[kind]);
+			if(!deviceId && !!~currentModeIdx) {
+				// Loop facingModes
+				next = Promise.resolve(_facingModes[(currentModeIdx + 1) % _facingModes.length]);
+			} else if(!~_facingModes.indexOf(deviceId)) {
+				// Loop deviceIds
+				next = Media.devices()
+					.then(d => {
+						// devices IDs
+						const devices = d[`${kind}input`].map(mediaDevice => mediaDevice.deviceId);
+						// Sort to ensure same order
+						devices.sort();
+						// New device
+						let nextDevice = deviceId;
+						if(deviceId && !devices.some(device => device === deviceId)) {
+							return Promise.reject(new Error(`Unknown ${kind} device`));
+						}
+						if(!deviceId && devices.length > 1) {
+							let idx = this._inputs[kind] ? devices.findIndex(v => v === this._inputs[kind], this) : 0;
+							nextDevice = devices[++idx % devices.length];
+						}
+						return nextDevice;
+					});
+			} else {
+				next = Promise.resolve(deviceId);
+			}
+
+			return next
 				.then(device => {
 					if(this._inputs[kind] !== device) {
 						// Update video streams
@@ -303,7 +338,11 @@ export default class Local {
 						this.media.getTracks().forEach(track => track.stop());
 						// Update constraints
 						const constraints = Object.assign({}, this.constraints);
-						Object.assign(constraints[kind], {deviceId: {exact: device}});
+						let props = ['facingMode', 'deviceId'];
+						if(!~_facingModes.indexOf(device)) {
+							props = props.reverse();
+						}
+						_setConstrainValue(constraints[kind], props[0], props[1], device);
 						Log.d('Local~_switchDevice', kind, constraints);
 						return this.updateConstraints(constraints);
 					}

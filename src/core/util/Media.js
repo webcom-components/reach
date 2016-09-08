@@ -23,7 +23,9 @@ const presets = {
  */
 const _assignDevice = (constraint, deviceId) => {
 	if(constraint && deviceId) {
-		return Object.assign({deviceId}, constraint === true ? {} : constraint);
+		return Object.assign(
+			/^((user)|(environment))$/i.test(deviceId) ? {facingMode: deviceId} : {deviceId},
+			constraint === true ? {} : constraint);
 	}
 	return constraint;
 };
@@ -33,11 +35,22 @@ const _assignDevice = (constraint, deviceId) => {
  */
 export default class Media {
 	/**
+	 * facingMode values to use with constraints
+	 * @returns {{USER: string, ENVIRONMENT: string}}
+	 */
+	static get facingMode() {
+		return {
+			USER: 'user',
+			ENVIRONMENT: 'environment'
+		};
+	}
+
+	/**
 	 * Helpers to create a MediaStreamConstraints configuration object
 	 * @param {boolean|MediaTrackConstraints|string} [videoConstraints='HD'] a boolean, a video constraints object or a preset id (UHD, FHD, HD, SVGA, SD, VGA)
 	 * @param {boolean|MediaTrackConstraints} [audioConstraints=true] a boolean or an audio constraints object
 	 * @param {string} [type=ideal] type of constraints for video when using a preset (exact,min,max or ideal)
-	 * @param {string|object} [videoDeviceId] video input device id
+	 * @param {string|object} [videoDeviceId] video input device id or facingMode
 	 * @param {string|object} [audioDeviceId] audio input device id
 	 * @returns {object}
 	 * @throws {Error}
