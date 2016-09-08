@@ -3,6 +3,18 @@ import * as DataSync from './util/DataSync';
 import * as Log from './util/Log';
 import cache from './util/cache';
 
+const _flattenServers = servers => {
+	const _expand = servers.map(server => {
+		const {username, credential, urls, url} = server;
+		const uris = urls || url;
+		if(typeof uris !== 'string' ) {
+			return uris.map(uri => ({username, credential, urls: uri}));
+		}
+		return [server];
+	});
+	return [].concat(..._expand);
+};
+
 /**
  * The Reach configuration object
  * @class Config
@@ -108,15 +120,30 @@ export default class Config {
 				 */
 				this._iceServers = [].concat(servers || []);
 			} else {
-				this._iceServers = this._iceServers.concat(
-					(servers || []).filter(server =>
-						this._iceServers.some(iceServer =>
-							(iceServer.urls === server.urls || iceServer.url === server.url) &&
-							iceServer.username === server.username &&
-							iceServer.credential === server.credential
-						)
-					)
-				);
+				// flatten existing
+				const _currentServers = _flattenServers(this._iceServers);
+				// flatten new
+				const _newServers = _flattenServers(servers);
+				// Add only the missing servers
+				_newServers.forEach(newServer => {
+					if(!_currentServers.some(server =>
+							server.urls === newServer.urls &&
+							server.username === newServer.username &&
+							server.credential === newServer.credential)) {
+						_currentServers.push(newServer);
+					}
+				});
+				// Re-group by username/credential
+				this._iceServers = _currentServers.reduce((previous, current) => {
+					const {username, credential, urls} = current;
+					const idx = previous.findIndex(s => s.username === username && s.credential === credential);
+					if(idx >= 0) {
+						previous[idx].urls.push(urls);
+					} else {
+						previous.push({username, credential, urls: [urls]});
+					}
+					return previous;
+				}, []);
 			}
 		}
 	}
