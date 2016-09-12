@@ -14,7 +14,7 @@
     "lint": "eslint src/** test/**",
     "build": "npm run build:debug && npm run build:release",
     "build:release": "cross-env NODE_ENV=production webpack --release",
-    "build:debug": "webpack",
+    "build:debug": "webpack --debug",
     "start": "karma start --auto-watch",
     "jwt": "node ./jwt.js",
     "test": "karma start --single-run",
