@@ -12,7 +12,8 @@ Reach acts as a signaling framework for all your WebRTC needs.
 [![devDependency Status](https://david-dm.org/webcom-components/reach/dev-status.svg)](https://david-dm.org/webcom-components/reach#info=devDependencies)
 [![semantic-release](https://img.shields.io/badge/%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-
+[![Stories in Ready](https://img.shields.io/waffle/label/webcom-components/reach/ready.svg)](http://waffle.io/webcom-components/reach)
+[![Stories in Progress](https://img.shields.io/waffle/label/webcom-components/reach/in%20progress.svg)](http://waffle.io/webcom-components/reach)
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/webcomOps.svg)](https://saucelabs.com/u/webcomOps)
 
