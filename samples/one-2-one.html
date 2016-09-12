@@ -210,7 +210,11 @@
 										if(/input$/.test(kind)) {
 											var node = $('#' + kind);
 											node.empty();
-											devices[kind].forEach(function(device) {
+											var inputDevices = devices[kind];
+											if(kind === 'videoinput' && inputDevices.length > 1) {
+												inputDevices = inputDevices.concat([{deviceId: 'user'}, {deviceId: 'environment'}])
+											}
+											inputDevices.forEach(function(device) {
 												node.append(format(
 													'<li><a href="#!" data-deviceId="{0}" style="max-width:15em">{1}</a></li>', device.deviceId, device.label || device.deviceId
 												));
@@ -271,7 +275,7 @@
 			},
 			unSubscribe: function(btn) {
 				if(!$(btn).hasClass('disabled') && window._remoteStream) {
-					window._remoteStream.off();
+//					window._remoteStream.off();
 					window._remoteStream.unSubscribe();
 					stream.remoteBtns(false);
 				}
