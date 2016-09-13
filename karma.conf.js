@@ -66,7 +66,7 @@ const
 		sl_chrome_latest_1: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'Windows 10',
-			version: 'latest-1',
+			version: 'latest',
 			flags
 		}),
 		sl_chrome_minimum: sauceLabsBrowser({
