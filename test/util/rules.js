@@ -1,4 +1,4 @@
-/*global fetch*/
+/*global fetch,Headers*/
 import * as account from './account';
 import * as config from './config';
 import * as log from './logger';
@@ -32,23 +32,21 @@ export const set = rules => {
 			return account.admin(auth.token, ns);
 		})
 		.then(token => {
-			log.w(`rules#set#admin ${config.url}/base/${ns}/.settings/rules.json?auth=${token}`);
-			try {
-				log.w(`rules#set#size ${JSON.stringify({rules}).length}`);
-			} catch (e) {
-				log.w(`rules#set#json ${e.message}`);
-			}
+			log.w(`rules#set#admin ${ns}|${token}`);
+			const
+				url = `${config.url}/base/${ns}/.settings/rules.json?auth=${token}`,
+				body = JSON.stringify({rules}),
+				jsonHeaders = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+				method = 'PUT';
 
-			if(global.fetch) {
+			log.w(`rules#set#url ${url}`);
+			log.w(`rules#set#body ${body}`);
+			log.w(`rules#set#bodySize ${body.length}`);
+
+			if(fetch) {
 				try {
-					return fetch(`${config.url}/base/${ns}/.settings/rules.json?auth=${token}`,
-						{
-							method: 'PUT',
-							headers: new Headers({
-								'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-							}),
-							body: JSON.stringify({rules})
-						})
+					const headers = new Headers(jsonHeaders);
+					return fetch(url, {method, headers, body})
 						.then(response => {
 							log.w(`rules#set ${response.status}|${response.statusText}|${response.type}|${response.url}`); //eslint-disable-line
 							response.headers.forEach((v, k) => {
@@ -70,8 +68,9 @@ export const set = rules => {
 							});
 							return Promise.reject(e);
 						});
-				}catch(err) {
-					log.w(`rules#set#error ${err.message}`);
+				} catch(err) {
+					log.w('rules#set#error');
+					log.e(err);
 					return Promise.reject(err);
 				}
 			}
@@ -85,17 +84,18 @@ export const set = rules => {
 							resolve();
 						} else {
 							log.w('rules#set#fail');
-							reject({
-								status: req.status,
-								statusText: req.statusText
-							});
+							const error = new Error(req.statusText);
+							error.code = req.status;
+							error.response = req.responseText;
+							reject(error);
 						}
 					}
 				};
-				log.w(`rules#set#put '${config.url}/base/${ns}/.settings/rules.json?auth=${token}'`);
-				req.open('PUT', `${config.url}/base/${ns}/.settings/rules.json?auth=${token}`);
-				req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-				req.send(JSON.stringify({rules}));
+				req.open(method, url);
+				Object.keys(jsonHeaders).forEach(headerName => {
+					req.setRequestHeader(headerName, jsonHeaders[headerName]);
+				});
+				req.send(body);
 			});
 		});
 };

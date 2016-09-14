@@ -117,7 +117,6 @@ describe('Reach /', () => {
 				done();
 			})
 			.catch(e => {
-				log.w('Failed');
 				log.e('main#beforeAll', e);
 				fail(e.message);
 				done(e);
