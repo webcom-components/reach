@@ -44,7 +44,9 @@ const
 		//'--use-fake-device-for-media-stream',
 		// Bypass the media stream infobar by selecting the default device for media streams (e.g. WebRTC).
 		// Works with --use-fake-device-for-media-stream.
-		'--use-fake-ui-for-media-stream'
+		'--use-fake-ui-for-media-stream',
+		'--disable-web-security',
+		'--allow-running-insecure-content'
 	],
 	// firefox prefs
 	prefs = {
@@ -63,18 +65,24 @@ const
 			version: 'latest',
 			flags
 		}),
-		sl_chrome_latest_osx: sauceLabsBrowser({
+		sl_chrome_51_win10: sauceLabsBrowser({
 			browserName: 'chrome',
-			platform: 'OS X 10.11',
-			version: 'latest',
-			flags
-		}),
-		sl_chrome_latest_1_win7: sauceLabsBrowser({
-			browserName: 'chrome',
-			platform: 'Windows 7',
-			version: 'latest-1',
+			platform: 'Windows 10',
+			version: '51',
 			flags
 		})
+		// sl_chrome_latest_osx: sauceLabsBrowser({
+		// 	browserName: 'chrome',
+		// 	platform: 'OS X 10.11',
+		// 	version: 'latest',
+		// 	flags
+		// }),
+		// sl_chrome_latest_1_win7: sauceLabsBrowser({
+		// 	browserName: 'chrome',
+		// 	platform: 'Windows 7',
+		// 	version: 'latest-1',
+		// 	flags
+		// })
 		// sl_chrome_minimum: sauceLabsBrowser({
 		// 	browserName: 'chrome',
 		// 	platform: 'Linux',

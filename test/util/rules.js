@@ -65,9 +65,13 @@ export const set = rules => {
 							}
 						}
 					};
-					req.onerror = logError.bind(req, 'xhr fail');
+					req.onerror = e => {
+						logError('xhr fail', e);
+						reject(e);
+					};
 					req.onload = () => {
 						log.w('xhr success');
+						resolve();
 					};
 					req.open(method, url);
 					Object.keys(jsonHeaders).forEach(headerName => {
