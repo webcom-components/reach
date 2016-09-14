@@ -1,4 +1,5 @@
 /*global fetch,Headers*/
+/*eslint max-len: [0, 120] */
 import * as account from './account';
 import * as config from './config';
 import * as log from './logger';
@@ -40,8 +41,41 @@ export const set = rules => {
 				method = 'PUT';
 
 			log.w(`rules#set#url ${url}`);
-			log.w(`rules#set#body ${body}`);
+			// log.w(`rules#set#body ${body}`);
 			log.w(`rules#set#bodySize ${body.length}`);
+
+			const logError = (msg, e) => {
+				const {message, name, fileName, lineNumber, columnNumber, stack} = e;
+				log.w(`${msg}: ${JSON.stringify({message, name, fileName, lineNumber, columnNumber, stack})}`);
+			};
+			const _xhr = () => {
+				new Promise((resolve, reject) => {
+					const req = new XMLHttpRequest();
+					req.onreadystatechange = () => {
+						if (req.readyState === 4) {
+							if (req.status === 200) {
+								log.w('rules#set#success');
+								resolve();
+							} else {
+								log.w('rules#set#fail');
+								const error = new Error(req.statusText);
+								error.code = req.status;
+								error.response = req.responseText;
+								reject(error);
+							}
+						}
+					};
+					req.onerror = logError.bind(req, 'xhr fail');
+					req.onload = () => {
+						log.w('xhr success');
+					};
+					req.open(method, url);
+					Object.keys(jsonHeaders).forEach(headerName => {
+						req.setRequestHeader(headerName, jsonHeaders[headerName]);
+					});
+					req.send(body);
+				});
+			};
 
 			if(fetch) {
 				try {
@@ -51,7 +85,7 @@ export const set = rules => {
 					return _fetch
 						.then(response => {
 							log.w(`rules#set fetched ${response ? 'ok' : 'ko'}`);
-							log.w(`rules#set ${response.status}|${response.statusText}|${response.type}|${response.url}`); //eslint-disable-line
+							log.w(`rules#set ${response.status}|${response.statusText}|${response.type}|${response.url}`);
 							response.headers.forEach((v, k) => {
 								log.w(`${k}: ${v}`);
 							});
@@ -66,15 +100,9 @@ export const set = rules => {
 							log.w(`rules#set ${response}`);
 						})
 						.catch(e => {
-							log.w('Hmm this should not happen');
-							log.w(`TypeError ? ${e instanceof TypeError}`);
-							log.w(`message: ${e.message}`);
-							log.w(`name: ${e.name}`);
-							log.w(`fileName: ${e.fileName}`);
-							log.w(`lineNumber: ${e.lineNumber}`);
-							log.w(`columnNumber: ${e.columnNumber}`);
-							log.w(`stack: ${e.stack}`);
-							return Promise.reject(e);
+							const {message, name, fileName, lineNumber, columnNumber, stack} = e;
+							log.w(`Hmm this should not happen: ${JSON.stringify({message, name, fileName, lineNumber, columnNumber, stack})}`);
+							return _xhr();
 						});
 				} catch(err) {
 					log.w('rules#set#error');
@@ -83,27 +111,6 @@ export const set = rules => {
 				}
 			}
 
-			return new Promise((resolve, reject) => {
-				const req = new XMLHttpRequest();
-				req.onreadystatechange = function () {
-					if (req.readyState === 4) {
-						if (req.status === 200) {
-							log.w('rules#set#success');
-							resolve();
-						} else {
-							log.w('rules#set#fail');
-							const error = new Error(req.statusText);
-							error.code = req.status;
-							error.response = req.responseText;
-							reject(error);
-						}
-					}
-				};
-				req.open(method, url);
-				Object.keys(jsonHeaders).forEach(headerName => {
-					req.setRequestHeader(headerName, jsonHeaders[headerName]);
-				});
-				req.send(body);
-			});
+			return _xhr();
 		});
 };
