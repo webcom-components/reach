@@ -27,7 +27,7 @@ const
 
 	sauceLabsBrowser = d => {
 		d.base = 'SauceLabs';
-		if(process.env.PROXY) {
+		if(process.env.PROXY && process.env.TRAVIS === 'true') {
 			d.proxy = {
 				proxyType: 'manual',
 				httpProxy: process.env.PROXY,
@@ -57,16 +57,22 @@ const
 		// 	platform: 'Windows 10',
 		// 	version: '13'
 		// }),
-		sl_chrome_latest: sauceLabsBrowser({
-			browserName: 'chrome',
-			platform: 'OS X 10.11',
-			version: 'latest-2',
-			flags
-		}),
-		sl_chrome_latest_1: sauceLabsBrowser({
+		sl_chrome_latest_win10: sauceLabsBrowser({
 			browserName: 'chrome',
 			platform: 'Windows 10',
 			version: 'latest',
+			flags
+		}),
+		sl_chrome_latest_osx: sauceLabsBrowser({
+			browserName: 'chrome',
+			platform: 'OS X 10.11',
+			version: 'latest',
+			flags
+		}),
+		sl_chrome_latest_1_win7: sauceLabsBrowser({
+			browserName: 'chrome',
+			platform: 'Windows 7',
+			version: 'latest-1',
 			flags
 		}),
 		sl_chrome_minimum: sauceLabsBrowser({
@@ -75,15 +81,21 @@ const
 			version: '38',
 			flags
 		}),
-		sl_firefox_latest: sauceLabsBrowser({
+		sl_firefox_latest_win10: sauceLabsBrowser({
 			browserName: 'firefox',
 			platform: 'Windows 10',
 			version: 'latest',
 			prefs
 		}),
-		sl_firefox_latest_1: sauceLabsBrowser({
+		sl_firefox_latest_osx: sauceLabsBrowser({
 			browserName: 'firefox',
 			platform: 'OS X 10.11',
+			version: 'latest',
+			prefs
+		}),
+		sl_firefox_latest_1_win7: sauceLabsBrowser({
+			browserName: 'firefox',
+			platform: 'Windows 7',
 			version: 'latest-1',
 			prefs
 		}),
@@ -142,15 +154,15 @@ module.exports = function(config) {
 	config.set({
 		basePath: __dirname,
 		captureTimeout: 60 * 1000,
-		browserNoActivityTimeout: 2 * 60 * 1000,
+		browserNoActivityTimeout: 4 * 60 * 1000,
 		browserDisconnectTimeout : 2 * 10 * 1000,
-		browserDisconnectTolerance: 1,
+		browserDisconnectTolerance: 8,
 		client: {
 			captureConsole: false
 		},
 		colors: true,
 		frameworks: ['jasmine'],
-		concurrency: process.env.TRAVIS === 'true' ? 1 : Number.POSITIVE_INFINITY,
+		concurrency: sauceLabs ? 1 : Number.POSITIVE_INFINITY,
 		customLaunchers,
 		browsers,
 		reporters: (() => {
@@ -174,8 +186,8 @@ module.exports = function(config) {
 		autoWatchBatchDelay: 300,
 		files: [
 			{pattern: 'node_modules/webcom/webcom.js', included: true, watched: false},
-			{pattern: 'dist/rules.json', included: false, nocache: true},
-			{ pattern: 'src/**/*', watched: false, included: false, served: true, nocache: true },
+			{pattern: 'dist/rules.json', included: false, watched: false, nocache: true},
+			{pattern: 'src/**/*', included: false, watched: false, nocache: true, served: true},
 			`test/suites.${testSuite}.js`,
 			'test/main.js'
 		],
@@ -193,7 +205,8 @@ module.exports = function(config) {
 				vmVersion: 'dev-varnish',
 				directDomains: '*.datasync.orange.com',
 				noSslBumpDomains: '*.datasync.orange.com'
-			}
+			},
+			startConnect: sauceLabs && process.env.TRAVIS === 'true'
 		},
 		coverageReporter: (() => {
 			if (coverage) {
