@@ -4,7 +4,7 @@ import * as log from '../util/logger';
 import Webcom from 'webcom/webcom';
 
 describe('Entry point /', () => {
-	describe('Static /', () => {
+	xdescribe('Static /', () => {
 		it('Should expose possible stream types', () => {
 			expect(Reach.types).not.toBeNull();
 			expect(Reach.types.AUDIO_VIDEO).toEqual('audio-video');

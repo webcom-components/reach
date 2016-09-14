@@ -7,7 +7,7 @@ import * as log from '../util/logger';
 import * as namespace from '../util/namespace';
 import Message from '../../src/core/Message';
 
-describe('Rooms /', () => {
+xdescribe('Rooms /', () => {
 	let ref, user;
 	const getRooms = (u, own = true) => {
 		return ref.rooms()

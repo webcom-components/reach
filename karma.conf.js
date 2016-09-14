@@ -74,43 +74,43 @@ const
 			platform: 'Windows 7',
 			version: 'latest-1',
 			flags
-		}),
-		sl_chrome_minimum: sauceLabsBrowser({
-			browserName: 'chrome',
-			platform: 'Linux',
-			version: '38',
-			flags
-		}),
-		sl_firefox_latest_win10: sauceLabsBrowser({
-			browserName: 'firefox',
-			platform: 'Windows 10',
-			version: 'latest',
-			prefs
-		}),
-		sl_firefox_latest_osx: sauceLabsBrowser({
-			browserName: 'firefox',
-			platform: 'OS X 10.11',
-			version: 'latest',
-			prefs
-		}),
-		sl_firefox_latest_1_win7: sauceLabsBrowser({
-			browserName: 'firefox',
-			platform: 'Windows 7',
-			version: 'latest-1',
-			prefs
-		}),
-		sl_firefox_minimum: sauceLabsBrowser({
-			browserName: 'firefox',
-			version: '31',
-			prefs
-		}),
-		sl_android_lollipop: sauceLabsBrowser({
-			browserName: 'android',
-			platform: 'Linux',
-			version: '5.1',
-			deviceName: 'Android Emulator',
-			deviceOrientation: 'portrait'
 		})
+		// sl_chrome_minimum: sauceLabsBrowser({
+		// 	browserName: 'chrome',
+		// 	platform: 'Linux',
+		// 	version: '38',
+		// 	flags
+		// }),
+		// sl_firefox_latest_win10: sauceLabsBrowser({
+		// 	browserName: 'firefox',
+		// 	platform: 'Windows 10',
+		// 	version: 'latest',
+		// 	prefs
+		// }),
+		// sl_firefox_latest_osx: sauceLabsBrowser({
+		// 	browserName: 'firefox',
+		// 	platform: 'OS X 10.11',
+		// 	version: 'latest',
+		// 	prefs
+		// }),
+		// sl_firefox_latest_1_win7: sauceLabsBrowser({
+		// 	browserName: 'firefox',
+		// 	platform: 'Windows 7',
+		// 	version: 'latest-1',
+		// 	prefs
+		// }),
+		// sl_firefox_minimum: sauceLabsBrowser({
+		// 	browserName: 'firefox',
+		// 	version: '31',
+		// 	prefs
+		// }),
+		// sl_android_lollipop: sauceLabsBrowser({
+		// 	browserName: 'android',
+		// 	platform: 'Linux',
+		// 	version: '5.1',
+		// 	deviceName: 'Android Emulator',
+		// 	deviceOrientation: 'portrait'
+		// })
 	},
 
 	localBrowsers = noBrowser ? [] : omit({

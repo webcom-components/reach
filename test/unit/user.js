@@ -7,7 +7,7 @@ import {ONGOING} from '../../src/core/util/constants';
 
 import * as log from '../util/logger';
 
-describe('Users /', () => {
+xdescribe('Users /', () => {
 	let ref;
 
 	beforeAll(done => {
