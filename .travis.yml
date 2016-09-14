@@ -19,3 +19,6 @@ branches:
 addons:
   addons:
     sauce_connect: true
+cache:
+  directories:
+    - node_modules
