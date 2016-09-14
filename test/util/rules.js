@@ -46,11 +46,11 @@ export const set = rules => {
 			if(fetch) {
 				try {
 					log.w('rules#set fetch');
-					// const headers = new Headers(jsonHeaders);
-					log.w('rules#set fetch');
-					return fetch(url, {method, jsonHeaders, body})
+					const _fetch = fetch(url, {method, jsonHeaders, body});
+					log.w(`rules#set ${_fetch && _fetch.then ? 'ok' : 'ko'}`);
+					return _fetch
 						.then(response => {
-							log.w('rules#set fetched');
+							log.w(`rules#set fetched ${response ? 'ok' : 'ko'}`);
 							log.w(`rules#set ${response.status}|${response.statusText}|${response.type}|${response.url}`); //eslint-disable-line
 							response.headers.forEach((v, k) => {
 								log.w(`${k}: ${v}`);
@@ -67,10 +67,13 @@ export const set = rules => {
 						})
 						.catch(e => {
 							log.w('Hmm this should not happen');
-							log.e(e);
-							// e.response.text().then(r => {
-							// 	log.w(`rules#set#fail ${r}`);
-							// });
+							log.w(`TypeError ? ${e instanceof TypeError}`);
+							log.w(`message: ${e.message}`);
+							log.w(`name: ${e.name}`);
+							log.w(`fileName: ${e.fileName}`);
+							log.w(`lineNumber: ${e.lineNumber}`);
+							log.w(`columnNumber: ${e.columnNumber}`);
+							log.w(`stack: ${e.stack}`);
 							return Promise.reject(e);
 						});
 				} catch(err) {
