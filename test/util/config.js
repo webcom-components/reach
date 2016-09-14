@@ -1,7 +1,7 @@
 /*global WEBCOM_TOKEN, WEBCOM_EMAIL, WEBCOM_PASSWORD, WEBCOM_NAMESPACE, WEBCOM_PROTOCOL, WEBCOM_DOMAIN */
 'use strict';
 
-export const logLevel = 'error';
+export const logLevel = 'warn';
 export const domain = WEBCOM_DOMAIN;
 export const protocol = WEBCOM_PROTOCOL;
 export const namespace = WEBCOM_NAMESPACE;

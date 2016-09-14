@@ -158,7 +158,7 @@ module.exports = function(config) {
 		browserDisconnectTimeout : 2 * 10 * 1000,
 		browserDisconnectTolerance: 8,
 		client: {
-			captureConsole: false
+			captureConsole: true
 		},
 		colors: true,
 		frameworks: ['jasmine'],
