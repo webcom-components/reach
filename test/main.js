@@ -3,7 +3,25 @@ import * as namespace from './util/namespace';
 import * as rules from './util/rules';
 import * as log from './util/logger';
 import * as config from './util/config';
+import delay from 'lodash/delay';
 import data from './data';
+
+// HACK: Karma might start tests before the page is fully loaded (https://github.com/karma-runner/karma/issues/1403, https://github.com/karma-runner/karma-jasmine/issues/77)
+window.__karma__.start = (function(originalStartFn) {
+	return () => {
+		let ticks = 0;
+		const args = arguments;
+		const start = () => {
+			if(ticks++ > 5 || Webcom) {
+				originalStartFn(...args);
+			} else {
+				ticks++;
+				delay(start, 1000);
+			}
+		};
+		delay(start, 1000);
+	};
+})(window.__karma__.start);
 
 global.env = {};
 
@@ -110,15 +128,19 @@ describe('Reach /', () => {
 		log.d('main#afterAll');
 		// Force logout
 		global.env.base && global.env.base.logout();
-		Promise.all(global.env.createdUsers.map(user => global.env.base.removeUser(user.email, user.password)))
-			.then(() => {
-				global.env.createdUsers.length = 0;
-				return config.namespace ? Promise.resolve() : namespace.remove(global.env.namespace);
-			})
+		let destroy;
+		if(config.namespace) {
+			destroy = Promise.all(global.env.createdUsers.map(
+				user => global.env.base.removeUser(user.email, user.password))
+			);
+		} else{
+			destroy = namespace.remove(global.env.namespace);
+		}
+		destroy
 			.then(() => {
 				localStorage.clear();
+				done();
 			})
-			.then(() => done())
 			.catch(e => {
 				log.e(e);
 				done(e);
