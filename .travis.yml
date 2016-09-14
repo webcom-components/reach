@@ -19,8 +19,8 @@ branches:
 addons:
   addons:
     sauce_connect:
-      direct_domains: *.datasync.orange.com
-      no_ssl_bump_domains: *.datasync.orange.com
+      direct_domains: io.datasync.orange.com
+      no_ssl_bump_domains: io.datasync.orange.com
 cache:
   directories:
     - node_modules
