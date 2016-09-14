@@ -53,7 +53,7 @@ export const set = rules => {
 								log.w(`${k}: ${v}`);
 							});
 							// if (response.status >= 200 && response.status < 300) {
-							return response.text();
+							return response && response.text ? response.text() : 'Wait what??';
 							// }
 							// const error = new Error(response.statusText);
 							// error.response = response;
@@ -63,9 +63,11 @@ export const set = rules => {
 							log.w(`rules#set ${response}`);
 						})
 						.catch(e => {
-							e.response.text().then(r => {
-								log.w(`rules#set#fail ${r}`);
-							});
+							log.w('Hmm this should not happen');
+							log.e(e);
+							// e.response.text().then(r => {
+							// 	log.w(`rules#set#fail ${r}`);
+							// });
 							return Promise.reject(e);
 						});
 				} catch(err) {
