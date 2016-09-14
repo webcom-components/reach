@@ -18,9 +18,7 @@ branches:
     - /^v\d+\.\d+\.\d+$/
 addons:
   addons:
-    sauce_connect:
-      direct_domains: io.datasync.orange.com
-      no_ssl_bump_domains: io.datasync.orange.com
+    sauce_connect: true
 cache:
   directories:
     - node_modules
