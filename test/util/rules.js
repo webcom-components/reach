@@ -45,9 +45,12 @@ export const set = rules => {
 
 			if(fetch) {
 				try {
-					const headers = new Headers(jsonHeaders);
-					return fetch(url, {method, headers, body})
+					log.w('rules#set fetch');
+					// const headers = new Headers(jsonHeaders);
+					log.w('rules#set fetch');
+					return fetch(url, {method, jsonHeaders, body})
 						.then(response => {
+							log.w('rules#set fetched');
 							log.w(`rules#set ${response.status}|${response.statusText}|${response.type}|${response.url}`); //eslint-disable-line
 							response.headers.forEach((v, k) => {
 								log.w(`${k}: ${v}`);
