@@ -16,13 +16,14 @@ router.param('token', (req, res, next, token) => {
 });
 
 router.all('/set/:namespace/:token', (req, res) => {
-	console.log('HANDLE SET', req.ns, req.token, __dirname);
+	console.log('SET', req.ns);
+
 	fs.createReadStream(`${__dirname}/../../dist/rules.json`)
 		.pipe(request.put({
 			url: `${host}/base/${req.ns}/.settings/rules.json?auth=${req.token}`,
 			headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
 		}, (error, response, body) => {
-
+			console.log('SET', response.statusCode, body);
 			res
 				.type(response.headers['content-type'])
 				.status(response.statusCode)
@@ -31,11 +32,13 @@ router.all('/set/:namespace/:token', (req, res) => {
 });
 
 router.all('/reset/:namespace/:token', (req, res) => {
+	console.log('RESET', req.ns);
 	request.put({
 		url: `${host}/base/${req.ns}/.settings/rules.json?auth=${req.token}`,
 		headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
 		json: {rules: {'.write': true, '.read': true}}
 	}, (error, response, body) => {
+		console.log('RESET', response.statusCode, body);
 		res
 			.type(response.headers['content-type'])
 			.status(response.statusCode)

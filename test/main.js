@@ -12,8 +12,7 @@ window.__karma__.start = (function(originalStartFn) {
 		let ticks = 0;
 		const args = arguments;
 		const start = () => {
-			log.w(`start (${ticks}) - Webcom ${Webcom ? 'loaded' : 'missing'}`);
-			if(ticks++ > 30 || Webcom) {
+			if(ticks++ > 5 || Webcom) {
 				originalStartFn(...args);
 			} else {
 				ticks++;
@@ -55,24 +54,19 @@ describe('Reach /', () => {
 	jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
 
 	beforeAll(done => {
-		log.w('main#beforeAll');
+		log.d('main#beforeAll');
 		jasmine.addMatchers(customMatchers);
 		(config.namespace ? Promise.resolve(config.namespace) : namespace.create())
 			.then(ns => {
-				log.w(`Namespace: ${ns}`);
 				global.env.namespace = ns;
 				global.env.namespaceUrl = config.namespaceUrl(global.env.namespace);
 			})
+			.then(() => rules.set())
 			.then(() => {
-				log.w('Set Rules');
-				return rules.set();
-			})
-			.then(() => {
-				log.w(`Try to connect to ${global.env.namespaceUrl}`);
+				log.d('Try to connect to ', global.env.namespaceUrl);
 				global.env.base = new Webcom(global.env.namespaceUrl);
 			})
 			.then(() => {
-				log.w('Connected');
 				global.env.createdUsers = [];
 				const ts = Date.now();
 				const tmp = Array(5);
@@ -95,18 +89,15 @@ describe('Reach /', () => {
 					.reduce((previous, current) => previous.then(current), Promise.resolve());
 			})
 			.then(() => {
-				log.w(`Created ${global.env.createdUsers.length} users`);
 				log.g('info',
 					`Created ${global.env.createdUsers.length} users`,
 					global.env.createdUsers.map(JSON.stringify)
 				);
 				const d = data(global.env.createdUsers, Date.now());
-				log.w('Populate namespace');
-				log.g('debug', 'Populate namespace', [d]);
+				log.g('info', 'Populate namespace', [d]);
 				return namespace.set('/', d);
 			})
 			.then(() => {
-				log.w('Done');
 				global.env.base.logout();
 				localStorage.clear();
 				// Webcom.INTERNAL.PersistentStorage.remove('session');

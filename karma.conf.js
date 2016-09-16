@@ -44,9 +44,7 @@ const
 		//'--use-fake-device-for-media-stream',
 		// Bypass the media stream infobar by selecting the default device for media streams (e.g. WebRTC).
 		// Works with --use-fake-device-for-media-stream.
-		'--use-fake-ui-for-media-stream',
-		'--disable-web-security',
-		'--allow-running-insecure-content'
+		'--use-fake-ui-for-media-stream'
 	],
 	// firefox prefs
 	prefs = {
@@ -70,55 +68,55 @@ const
 			platform: 'Windows 10',
 			version: '51',
 			flags
+		}),
+		sl_chrome_latest_osx: sauceLabsBrowser({
+			browserName: 'chrome',
+			platform: 'OS X 10.11',
+			version: 'latest',
+			flags
+		}),
+		sl_chrome_latest_1_win7: sauceLabsBrowser({
+			browserName: 'chrome',
+			platform: 'Windows 7',
+			version: 'latest-1',
+			flags
+		}),
+		sl_chrome_minimum: sauceLabsBrowser({
+			browserName: 'chrome',
+			platform: 'Linux',
+			version: '38',
+			flags
+		}),
+		sl_firefox_latest_win10: sauceLabsBrowser({
+			browserName: 'firefox',
+			platform: 'Windows 10',
+			version: 'latest',
+			prefs
+		}),
+		sl_firefox_latest_osx: sauceLabsBrowser({
+			browserName: 'firefox',
+			platform: 'OS X 10.11',
+			version: 'latest',
+			prefs
+		}),
+		sl_firefox_latest_1_win7: sauceLabsBrowser({
+			browserName: 'firefox',
+			platform: 'Windows 7',
+			version: 'latest-1',
+			prefs
+		}),
+		sl_firefox_minimum: sauceLabsBrowser({
+			browserName: 'firefox',
+			version: '31',
+			prefs
+		}),
+		sl_android_lollipop: sauceLabsBrowser({
+			browserName: 'android',
+			platform: 'Linux',
+			version: '5.1',
+			deviceName: 'Android Emulator',
+			deviceOrientation: 'portrait'
 		})
-		// sl_chrome_latest_osx: sauceLabsBrowser({
-		// 	browserName: 'chrome',
-		// 	platform: 'OS X 10.11',
-		// 	version: 'latest',
-		// 	flags
-		// }),
-		// sl_chrome_latest_1_win7: sauceLabsBrowser({
-		// 	browserName: 'chrome',
-		// 	platform: 'Windows 7',
-		// 	version: 'latest-1',
-		// 	flags
-		// })
-		// sl_chrome_minimum: sauceLabsBrowser({
-		// 	browserName: 'chrome',
-		// 	platform: 'Linux',
-		// 	version: '38',
-		// 	flags
-		// }),
-		// sl_firefox_latest_win10: sauceLabsBrowser({
-		// 	browserName: 'firefox',
-		// 	platform: 'Windows 10',
-		// 	version: 'latest',
-		// 	prefs
-		// }),
-		// sl_firefox_latest_osx: sauceLabsBrowser({
-		// 	browserName: 'firefox',
-		// 	platform: 'OS X 10.11',
-		// 	version: 'latest',
-		// 	prefs
-		// }),
-		// sl_firefox_latest_1_win7: sauceLabsBrowser({
-		// 	browserName: 'firefox',
-		// 	platform: 'Windows 7',
-		// 	version: 'latest-1',
-		// 	prefs
-		// }),
-		// sl_firefox_minimum: sauceLabsBrowser({
-		// 	browserName: 'firefox',
-		// 	version: '31',
-		// 	prefs
-		// }),
-		// sl_android_lollipop: sauceLabsBrowser({
-		// 	browserName: 'android',
-		// 	platform: 'Linux',
-		// 	version: '5.1',
-		// 	deviceName: 'Android Emulator',
-		// 	deviceOrientation: 'portrait'
-		// })
 	},
 
 	localBrowsers = noBrowser ? [] : omit({
@@ -166,11 +164,11 @@ module.exports = function(config) {
 		browserDisconnectTimeout : 2 * 10 * 1000,
 		browserDisconnectTolerance: 8,
 		client: {
-			captureConsole: true
+			captureConsole: false
 		},
 		colors: true,
 		frameworks: ['jasmine'],
-		concurrency: sauceLabs ? 1 : Number.POSITIVE_INFINITY,
+		concurrency: 1,//sauceLabs ? 1 : Number.POSITIVE_INFINITY,
 		customLaunchers,
 		browsers,
 		reporters: (() => {
@@ -194,7 +192,6 @@ module.exports = function(config) {
 		autoWatchBatchDelay: 300,
 		files: [
 			{pattern: 'node_modules/webcom/webcom.js', included: true, watched: false},
-			{pattern: 'dist/rules.json', included: false, watched: false, nocache: true},
 			{pattern: 'src/**/*', included: false, watched: false, nocache: true, served: true},
 			`test/suites.${testSuite}.js`,
 			'test/main.js'

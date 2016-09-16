@@ -38,7 +38,7 @@ const testUser = (done, action, userInfos, ereg = uidRegExp) => {
 		});
 };
 
-xdescribe('Register & Login /', () => {
+describe('Register & Login /', () => {
 	let ref;
 
 	const login = (user, nick) => {
