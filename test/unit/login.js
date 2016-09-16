@@ -154,7 +154,7 @@ xdescribe('Register & Login /', () => {
 
 		beforeAll(done => {
 			log.d('login#anon#beforeAll');
-			rules.set({'.read': true, '.write': true})
+			rules.reset()
 				.then(() => {
 					// Reset repos to force new persistent connection to be established
 					Webcom.Context.getInstance().repos_ = {};
@@ -177,7 +177,7 @@ xdescribe('Register & Login /', () => {
 
 		afterAll(done => {
 			log.d('login#anon#afterAll');
-			rules.set(global.env.rules)
+			rules.set()
 				.then(done)
 				.catch(e => {
 					log.e('login#anon#afterAll', e);

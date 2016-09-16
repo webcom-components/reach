@@ -63,11 +63,9 @@ describe('Reach /', () => {
 				global.env.namespace = ns;
 				global.env.namespaceUrl = config.namespaceUrl(global.env.namespace);
 			})
-			.then(() => rules.get())
-			.then(r => {
-				log.w('Rules retrieved');
-				global.env.rules = r;
-				return rules.set(global.env.rules);
+			.then(() => {
+				log.w('Set Rules');
+				return rules.set();
 			})
 			.then(() => {
 				log.w(`Try to connect to ${global.env.namespaceUrl}`);
