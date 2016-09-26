@@ -25,7 +25,7 @@ describe('Users /', () => {
 		it('Should not be able to list users', done => {
 			ref.users()
 				.then(() => {
-					fail('Should not have been able to list users');
+					done.fail('Should not have been able to list users');
 				})
 				.catch(e => {
 					expect(e).toBePermissionDenied();
@@ -79,8 +79,7 @@ describe('Users /', () => {
 					done();
 				})
 				.catch(e => {
-					fail(e.message);
-					done(e);
+					done.fail(e.message);
 				});
 		});
 

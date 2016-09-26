@@ -17,7 +17,6 @@ router.param('token', (req, res, next, token) => {
 
 router.all('/set/:namespace/:token', (req, res) => {
 	console.log('SET', req.ns);
-
 	fs.createReadStream(`${__dirname}/../../dist/rules.json`)
 		.pipe(request.put({
 			url: `${host}/base/${req.ns}/.settings/rules.json?auth=${req.token}`,

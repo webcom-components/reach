@@ -71,6 +71,7 @@ describe('Rooms /', () => {
 				});
 			}));
 	};
+
 	beforeAll(done => {
 		ref = new Reach(global.env.base);
 		done();
@@ -86,7 +87,7 @@ describe('Rooms /', () => {
 		it('Should not be able to list rooms', done => {
 			ref.rooms()
 				.then(() => {
-					fail('Should not have been able to list rooms');
+					done.fail('Should not have been able to list rooms');
 				})
 				.catch(e => {
 					expect(e).toBePermissionDenied();
@@ -190,8 +191,7 @@ describe('Rooms /', () => {
 					return user1Rooms.pop().join();
 				})
 				.then(() => {
-					fail('Should not have been able to join a room uninvited');
-					done();
+					done.fail('Should not have been able to join a room uninvited');
 				}).catch(e => {
 					expect(e).toBePermissionDenied();
 					done(e);
@@ -202,8 +202,7 @@ describe('Rooms /', () => {
 			getRoom([user, global.env.createdUsers[3]], false)
 				.then(room => room.participants())
 				.then(() => {
-					fail('Should not have been able to list the participants of a room he has not joined');
-					done();
+					done.fail('Should not have been able to list the participants of a room he has not joined');
 				}).catch(e => {
 					expect(e).toBePermissionDenied();
 					done(e);
@@ -214,8 +213,7 @@ describe('Rooms /', () => {
 			getRoom([user, global.env.createdUsers[3]], false)
 				.then(room => room.sendMessage('test message'))
 				.then(() => {
-					fail('Should not have been able to send a message to a room he has not joined');
-					done();
+					done.fail('Should not have been able to send a message to a room he has not joined');
 				})
 				.catch(e => {
 					expect(e).toBePermissionDenied();
@@ -235,8 +233,7 @@ describe('Rooms /', () => {
 				.then(() => {done();})
 				.catch(e => {
 					log.e(e);
-					fail(e.message);
-					done(e);
+					done.fail(e.message);
 				});
 		});
 
@@ -269,8 +266,7 @@ describe('Rooms /', () => {
 				.then(() => {done();})
 				.catch(e => {
 					log.e(e);
-					fail(e.message);
-					done(e);
+					done.fail(e.message);
 				});
 		});
 
@@ -286,8 +282,7 @@ describe('Rooms /', () => {
 				.then(() => {done();})
 				.catch(e => {
 					log.e(e);
-					fail(e.message);
-					done(e);
+					done.fail(e.message);
 				});
 		});
 	});

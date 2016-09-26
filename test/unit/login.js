@@ -33,8 +33,7 @@ const testUser = (done, action, userInfos, ereg = uidRegExp) => {
 		})
 		.then(done)
 		.catch(e => {
-			fail(e.message);
-			done(e);
+			done.fail(e.message);
 		});
 };
 
@@ -100,11 +99,11 @@ describe('Register & Login /', () => {
 			.then(status => {
 				if (status) {
 					expect(status).toBe(NOT_CONNECTED);
+					done();
 				} else {
-					fail('Cannot get User\'s status');
+					done.fail('Cannot get User\'s status');
 				}
 			})
-			.then(() => done())
 			.catch(e => {
 				log.e(e);
 				done(e);
@@ -138,11 +137,11 @@ describe('Register & Login /', () => {
 			.then(status => {
 				if (status) {
 					expect(status).toBe(CONNECTED);
+					done();
 				} else {
-					fail('Cannot get User\'s status');
+					done.fail('Cannot get User\'s status');
 				}
 			})
-			.then(() => done())
 			.catch(e => {
 				log.e(e);
 				done(e);
