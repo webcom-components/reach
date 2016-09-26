@@ -1,6 +1,6 @@
 import Reach from '../../src/Reach';
 import * as datasync from '../../src/core/util/DataSync';
-import * as rules from '../util/rules';
+// import * as rules from '../util/rules';
 import * as log from '../util/logger';
 import * as namespace from '../util/namespace';
 import {CONNECTED, NOT_CONNECTED} from '../../src/core/util/constants';
@@ -148,7 +148,7 @@ describe('Register & Login /', () => {
 			});
 		});
 	});
-
+/*
 	xdescribe('Anonymous Users /', () => {
 
 		beforeAll(done => {
@@ -184,4 +184,5 @@ describe('Register & Login /', () => {
 				});
 		});
 	});
+*/
 });
