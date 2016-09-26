@@ -149,7 +149,7 @@ describe('Register & Login /', () => {
 		});
 	});
 
-	describe('Anonymous Users /', () => {
+	xdescribe('Anonymous Users /', () => {
 
 		beforeAll(done => {
 			log.d('login#anon#beforeAll');
