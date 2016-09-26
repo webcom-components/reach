@@ -61,11 +61,7 @@ describe('Reach /', () => {
 				global.env.namespace = ns;
 				global.env.namespaceUrl = config.namespaceUrl(global.env.namespace);
 			})
-			.then(() => rules.get())
-			.then(r => {
-				global.env.rules = r;
-				return rules.set(global.env.rules);
-			})
+			.then(() => rules.set())
 			.then(() => {
 				log.d('Try to connect to ', global.env.namespaceUrl);
 				global.env.base = new Webcom(global.env.namespaceUrl);
@@ -111,8 +107,7 @@ describe('Reach /', () => {
 			})
 			.catch(e => {
 				log.e('main#beforeAll', e);
-				fail(e.message);
-				done(e);
+				done.fail(e.message);
 			});
 	});
 

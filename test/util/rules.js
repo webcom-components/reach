@@ -1,28 +1,6 @@
 import * as account from './account';
-import * as config from './config';
 
-export const get = () => new Promise((resolve, reject) => {
-	const req = new XMLHttpRequest();
-	req.onreadystatechange = () => {
-		if (req.readyState === 4) {
-			if (req.status === 200) {
-				resolve(JSON.parse(req.responseText).rules);
-			} else {
-				reject(new Error('No security rules found.'));
-			}
-		}
-	};
-	req.open('GET', '/base/dist/rules.json');
-	req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-	req.send();
-});
-
-/**
- * Set security rules on namespace
- * @param {String} namespace
- * @returns {*}
- */
-export const set = rules => {
+const _set = action => {
 	const ns = global.env.namespace;
 	return account.login()
 		.then(auth => account.admin(auth.token, ns))
@@ -33,12 +11,25 @@ export const set = rules => {
 					if (req.status === 200) {
 						resolve();
 					} else {
-						reject();
+						const error = new Error(req.statusText);
+						error.code = req.status;
+						error.response = req.responseText;
+						reject(error);
 					}
 				}
 			};
-			req.open('PUT', `${config.url}/base/${ns}/.settings/rules.json?auth=${token}`);
-			req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-			req.send(JSON.stringify({rules}));
+			req.open('GET', `http://localhost:8080/rules/${action}/${ns}/${token}`, true);
+			req.send();
 		}));
+};
+
+export const reset = () => {
+	return _set('reset');
+};
+/**
+ * Set security rules on namespace
+ * @returns {*}
+ */
+export const set = () => {
+	return _set('set');
 };

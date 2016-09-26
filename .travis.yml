@@ -5,6 +5,7 @@ before_script:
   - npm prune
 script:
   - npm run schema
+  - node test/app.js &
   - npm run test:coverage
 after_script:
   - npm install -g codeclimate-test-reporter
@@ -19,3 +20,6 @@ branches:
 addons:
   addons:
     sauce_connect: true
+cache:
+  directories:
+    - node_modules

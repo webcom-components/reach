@@ -66,8 +66,7 @@ describe('Entry point /', () => {
 				})
 				.catch(e => {
 					log.e(e);
-					fail(e.message);
-					done(e);
+					done.fail(e.message);
 				});
 		});
 	});

@@ -1,6 +1,6 @@
 import Reach from '../../src/Reach';
 import * as datasync from '../../src/core/util/DataSync';
-import * as rules from '../util/rules';
+// import * as rules from '../util/rules';
 import * as log from '../util/logger';
 import * as namespace from '../util/namespace';
 import {CONNECTED, NOT_CONNECTED} from '../../src/core/util/constants';
@@ -33,8 +33,7 @@ const testUser = (done, action, userInfos, ereg = uidRegExp) => {
 		})
 		.then(done)
 		.catch(e => {
-			fail(e.message);
-			done(e);
+			done.fail(e.message);
 		});
 };
 
@@ -100,11 +99,11 @@ describe('Register & Login /', () => {
 			.then(status => {
 				if (status) {
 					expect(status).toBe(NOT_CONNECTED);
+					done();
 				} else {
-					fail('Cannot get User\'s status');
+					done.fail('Cannot get User\'s status');
 				}
 			})
-			.then(() => done())
 			.catch(e => {
 				log.e(e);
 				done(e);
@@ -138,23 +137,23 @@ describe('Register & Login /', () => {
 			.then(status => {
 				if (status) {
 					expect(status).toBe(CONNECTED);
+					done();
 				} else {
-					fail('Cannot get User\'s status');
+					done.fail('Cannot get User\'s status');
 				}
 			})
-			.then(() => done())
 			.catch(e => {
 				log.e(e);
 				done(e);
 			});
 		});
 	});
-
-	describe('Anonymous Users /', () => {
+/*
+	xdescribe('Anonymous Users /', () => {
 
 		beforeAll(done => {
 			log.d('login#anon#beforeAll');
-			rules.set({'.read': true, '.write': true})
+			rules.reset()
 				.then(() => {
 					// Reset repos to force new persistent connection to be established
 					Webcom.Context.getInstance().repos_ = {};
@@ -177,7 +176,7 @@ describe('Register & Login /', () => {
 
 		afterAll(done => {
 			log.d('login#anon#afterAll');
-			rules.set(global.env.rules)
+			rules.set()
 				.then(done)
 				.catch(e => {
 					log.e('login#anon#afterAll', e);
@@ -185,4 +184,5 @@ describe('Register & Login /', () => {
 				});
 		});
 	});
+*/
 });
