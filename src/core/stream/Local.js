@@ -361,6 +361,9 @@ export default class Local {
 	 * @returns {Promise<Local, Error>}
 	 */
 	static share(roomId, type, container, constraints) {
+		if(!cache.user) {
+			return Promise.reject(new Error('Only an authenticated user can share a stream.'));
+		}
 		const streamMetaData = {
 				from: cache.user.uid,
 				device: cache.device,

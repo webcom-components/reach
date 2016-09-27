@@ -74,6 +74,9 @@ export default class Remote {
 	 * @returns {Promise}
 	 */
 	subscribe(remoteStreamContainer) {
+		if(!cache.user) {
+			return Promise.reject(new Error('Only an authenticated user can subscribe to a Room\'s stream.'));
+		}
 		// TODO: Test if not already subscribed ?
 		this.container = remoteStreamContainer || cache.config.remoteStreamContainer;
 		Log.d('Remote~subscribe', this.container);

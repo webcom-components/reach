@@ -54,6 +54,9 @@ export default class User {
 	 * @return {Promise<{room: Room, invite: Invite}, Error>}
 	 */
 	invite(message) {
+		if(!cache.user) {
+			return Promise.reject(new Error('Only an authenticated user can invite another User.'));
+		}
 		return Room.create(`${cache.user.uid}-${this.uid}`)
 			.then(room => {
 				return room.invite([this], null, message);

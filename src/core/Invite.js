@@ -257,7 +257,7 @@ export default class Invite {
 	 */
 	static send(invitee, room, message = null) {
 		if(!cache.user) {
-			return Promise.reject(new Error('Cannot send an Invite without a User being logged in.'));
+			return Promise.reject(new Error('Only an authenticated user can send an invite.'));
 		}
 
 		const inviteMetaData = {

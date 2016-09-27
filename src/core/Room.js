@@ -90,6 +90,9 @@ export default class Room {
 	 * @access private
 	 */
 	_streams(localStreams) {
+		if(!cache.user) {
+			return Promise.reject(new Error('Only an authenticated user can list a Room\'s streams.'));
+		}
 		return DataSync.get(`_/rooms/${this.uid}/streams`)
 			.then(snapData => {
 				const values = snapData.val();
@@ -187,7 +190,7 @@ export default class Room {
 				if(!/^STREAM_/i.test(event) || !snapData) {
 					Log.i(`Room~on(${event})`, snapData ? new obj(snapData) : null);
 					callback(snapData ? new obj(snapData) : null);
-				} else {
+				} else if(cache.user) {
 					const streamData = Object.assign({uid: snapData.name(), roomId: this.uid}, snapData.val());
 					if(streamData.from !== cache.user.uid || streamData.device !== cache.device) {
 						const remoteStream = cache.streams.getRemote(streamData);
@@ -231,6 +234,9 @@ export default class Room {
 	 */
 	join() {
 		Log.i('Room~join', this);
+		if(!cache.user) {
+			return Promise.reject(new Error('Only an authenticated user can join a Room.'));
+		}
 		return DataSync.update(`_/rooms/${this.uid}/participants/${cache.user.uid}`, {
 			status: CONNECTED,
 			_joined: DataSync.ts()
@@ -244,6 +250,9 @@ export default class Room {
 	 * @return {Promise}
 	 */
 	leave() {
+		if(!cache.user) {
+			return Promise.reject(new Error('Only an authenticated user can leave a Room.'));
+		}
 		Log.i('Room~leave', this);
 		// Disconnect user's callbacks
 		Object.keys(this._callbacks).forEach(event => {
@@ -283,7 +292,7 @@ export default class Room {
 	 */
 	static create (name, extra = null, publicRoom = false) {
 		if(!cache.user) {
-			return Promise.reject(new Error('Cannot create a Room without a User being logged in.'));
+			return Promise.reject(new Error('Only an authenticated user can create a Room.'));
 		}
 
 		const

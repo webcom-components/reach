@@ -64,7 +64,7 @@ export default class Message {
 		return DataSync.remove(`/rooms/${this.roomId}/messages/${this.uid}`)
 			.catch(Log.r('Message~remove'));
 	}
-	
+
 	/**
 	 *
 	 * @param {Room} room The room to send the message to
@@ -72,6 +72,9 @@ export default class Message {
 	 * @return {Promise<Message>}
 	 */
 	static send(room, text) {
+		if(!cache.user) {
+			return Promise.reject(new Error('Cannot send a message to the Room without a User being logged in.'));
+		}
 		const data = {
 			from: cache.user.uid,
 			_created: DataSync.ts(),

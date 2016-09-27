@@ -30,6 +30,9 @@ export default class PeerConnectionManager {
 	 * @return {*}
 	 */
 	getPeerConnection(stream, remote, publish) {
+		if(!cache.user) {
+			return Promise.reject(new Error('Only an authenticated user can get a PeerConnection\'s object.'));
+		}
 		const stackId = getStackId(remote.device, cache.device);
 
 		if(this.stacks[stackId] && this.stacks[stackId][stream.uid]) {
