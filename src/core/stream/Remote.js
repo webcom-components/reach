@@ -87,6 +87,7 @@ export default class Remote {
 				_created: DataSync.ts()
 			}))
 			.then(() => {
+				DataSync.onDisconnect(`_/rooms/${this.roomId}/subscribers/${this.uid}/${cache.device}`).remove();
 				let subscribed = false;
 				DataSync.on(`_/rooms/${this.roomId}/streams/${this.uid}`, 'value', snapData => {
 					const values = snapData.val();
@@ -126,6 +127,8 @@ export default class Remote {
 	 * @private
 	 */
 	_close(remote) {
+		// Cancel onDisconnect
+		DataSync.onDisconnect(`_/rooms/${this.roomId}/subscribers/${this.uid}/${cache.device}`).cancel();
 		// Stop listening to stream modifications
 		DataSync.off(`_/rooms/${this.roomId}/streams/${this.uid}`, 'value');
 		// Un-subscribe

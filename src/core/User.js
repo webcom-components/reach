@@ -118,9 +118,7 @@ export default class User {
 				// Add onDisconnect actions
 				.then(() => {
 					// Disconnect device
-					DataSync.onDisconnect(`_/devices/${uid}/${deviceId}`).update({
-						status: NOT_CONNECTED
-					});
+					DataSync.onDisconnect(`_/devices/${uid}/${deviceId}/status`).set(NOT_CONNECTED);
 					// Update user status
 					DataSync.onDisconnect(`users/${uid}`).update({
 						status: NOT_CONNECTED,
@@ -149,6 +147,10 @@ export default class User {
 	 * @returns {Promise}
 	 */
 	static disconnect(user) {
+		// Cancel onDisconnect
+		DataSync.onDisconnect(`_/devices/${user.uid}/${cache.device}/status`).cancel();
+		DataSync.onDisconnect(`users/${user.uid}`).cancel();
+
 		if(user.anonymous) {
 			return DataSync.remove(`_/devices/${user.uid}`)
 				.then(() => {

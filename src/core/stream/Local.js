@@ -262,6 +262,9 @@ export default class Local {
 			const path = `_/rooms/${this.roomId}/subscribers/${this.uid}`;
 			DataSync.off(path, 'child_added');
 			DataSync.off(path, 'child_removed');
+			// Cancel onDisconnects
+			DataSync.onDisconnect(`_/rooms/${this.roomId}/streams/${this.uid}`).cancel();
+			DataSync.onDisconnect(`_/rooms/${this.roomId}/subscribers/${this.uid}`).cancel();
 			// Remove subscribers
 			DataSync.remove(path);
 			// Remove stream
@@ -381,6 +384,8 @@ export default class Local {
 				cache.streams.shared[sharedStream.uid] = sharedStream;
 				// Remove shared stream on Disconnect
 				DataSync.onDisconnect(`_/rooms/${roomId}/streams/${sharedStream.uid}`).remove();
+				// Remove shared stream on Disconnect
+				DataSync.onDisconnect(`_/rooms/${roomId}/subscribers/${sharedStream.uid}`).remove();
 				// Start listening to subscribers
 				const
 					path = `_/rooms/${sharedStream.roomId}/subscribers/${sharedStream.uid}`,

@@ -9,6 +9,25 @@ import * as Events from '../definitions/Events';
 import * as Log from './util/Log';
 import {REJECTED, CANCELED} from './util/constants';
 
+const _joinRoom = (room, role) => {
+	const participant = {
+		status: CONNECTED,
+		_joined: DataSync.ts()
+	};
+	if(role) {
+		participant.role = role;
+	}
+	Log.w('Room#join', [participant, `_/rooms/${room.uid}/participants/${cache.user.uid}`]);
+	return DataSync
+		.update(`_/rooms/${room.uid}/participants/${cache.user.uid}`, participant)
+		.then(() => {
+			DataSync
+				.onDisconnect(`_/rooms/${room.uid}/participants/${cache.user.uid}/status`)
+				.set(WAS_CONNECTED);
+			return room;
+		});
+};
+
 /**
  * Room information
  * @access public
@@ -237,12 +256,7 @@ export default class Room {
 		if(!cache.user) {
 			return Promise.reject(new Error('Only an authenticated user can join a Room.'));
 		}
-		return DataSync.update(`_/rooms/${this.uid}/participants/${cache.user.uid}`, {
-			status: CONNECTED,
-			_joined: DataSync.ts()
-		})
-		.then(() => {return this;})
-		.catch(Log.r('Room~join'));
+		return _joinRoom(this).catch(Log.r('Room~join'));
 	}
 
 	/**
@@ -254,6 +268,9 @@ export default class Room {
 			return Promise.reject(new Error('Only an authenticated user can leave a Room.'));
 		}
 		Log.i('Room~leave', this);
+		// Cancel onDisconnect
+		DataSync.onDisconnect(`_/rooms/${this.uid}/participants/${cache.user.uid}/status`).cancel();
+
 		// Disconnect user's callbacks
 		Object.keys(this._callbacks).forEach(event => {
 			DataSync.off(Events.room.toPath(event)(this), event);
@@ -307,23 +324,16 @@ export default class Room {
 				extra
 			}, roomMetaData);
 
-		let roomId = null;
+		let room = null;
 		// Create public room infos
 		return DataSync.push('rooms', roomFullMetaData)
 			// Create private room infos
 			.then(roomRef => {
-				roomId = roomRef.name();
-				return DataSync.update(`_/rooms/${roomId}/meta`, roomMetaData);
+				room = new Room(Object.assign({uid: roomRef.name()}, roomFullMetaData));
+				return DataSync.update(`_/rooms/${room.uid}/meta`, roomMetaData);
 			})
 			// Join the room
-			.then(() => DataSync.update(`_/rooms/${roomId}/participants/${cache.user.uid}`,
-				{
-					status: CONNECTED,
-					role: OWNER,
-					_joined: DataSync.ts()
-				}
-			))
-			.then(() => new Room(Object.assign({uid: roomId}, roomFullMetaData)))
+			.then(() => _joinRoom(room, OWNER))
 			.catch(Log.r('Room#create'));
 	}
 
