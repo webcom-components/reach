@@ -12,7 +12,7 @@ const _getConstraintValue = (constraints, prop) => {
 };
 
 const _setConstrainValue = (constraints, prop, other, value) => {
-	constraints[prop] = {ideal: value};
+	constraints[prop] = {exact: value};
 	delete constraints[other];
 };
 
