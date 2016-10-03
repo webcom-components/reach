@@ -38,7 +38,7 @@
 			} else {
 				os = 'win';
 			}
-			localEmail = format('{0}.{1}.{2}@reach.io', Reach.browser.browser, Reach.browser.version, os);
+			localEmail = format('{0}.{1}.{2}.{3}.@reach.io', Reach.browser.browser, Reach.browser.version, os, Date.now());
 			localStorage.setItem('reachtest:mail', localEmail);
 		}
 
@@ -62,6 +62,44 @@
 					logLevel: 'DEBUG',
 					constraints: Reach.media.constraints()
 				});
+
+				var _radio = function(node, name, idx, label, value) {
+					$(node).append(
+						format(
+							'<p><input name="{0}" type="radio" id="{0}_{1}" value="{3}" {4}/><label for="{0}_{1}">{2}</label></p>',
+							name, idx, label, value, (idx === 0 ? 'checked' : '')
+						)
+					)
+				};
+				var _radios = function(node, name, values) {
+					values.forEach(function(item, i){
+						_radio(node, name, i, item.label, item.value);
+					})
+				};
+
+				Reach.media.devices()
+					.then(function(devices) {
+						var map_devices = function(type) {
+							return devices[type].map(function(d){return {label: d.label || d.deviceId, value: d.deviceId}})
+						};
+						var facingModes = Object.keys(Reach.media.facingMode).map(function(m){
+							var v = Reach.media.facingMode[m];
+							return {value: v, label: v}
+						});
+						_radios('#vdevices', 'vdevice', map_devices('videoinput').concat(facingModes));
+						_radios('#adevices', 'adevice', map_devices('audioinput'));
+					});
+
+				var map_values = function(arr) {
+					return arr.map(function(m){return {value: m, label: m}});
+				};
+				var map_codecs = function(type) {
+					return map_values(Object.keys(Reach.codecs[type]));
+				};
+				_radios('#vcodecs', 'vcodec', map_codecs('video'));
+				_radios('#acodecs', 'acodec', map_codecs('audio'));
+
+				_radios('#vpresets', 'vpreset', map_values(['HD', 'SD', 'FHD', 'UHD', 'SVGA', 'VGA']));
 			}
 		});
 
@@ -81,7 +119,7 @@
 							u.invite()
 								.then(function (d) {
 									window._room = d.room;
-									room.join();
+									room.join(true);
 								});
 						}
 					});
@@ -125,11 +163,49 @@
 			}
 		};
 
+		var constraints = {
+			show: function(){
+				$('#aconstraints').show();
+				$('#vconstraints').show();
+			},
+			hide: function(){
+				$('#aconstraints').hide();
+				$('#vconstraints').hide();
+			},
+			update: function(){
+				// Update constraints
+				var val = function(name) {
+					return $('[name='+name+']:checked').val();
+				};
+
+				window.reachtest.config.constraints = Reach.media.constraints(
+					val('vpreset'),
+					true,
+					'exact',
+					val('vdevice'),
+					val('adevice')
+				);
+				window.reachtest.config.preferredAudioCodec = Reach.codecs.audio[val('acodec')];
+				window.reachtest.config.preferredVideoCodec = Reach.codecs.video[val('vcodec')];
+
+				console.group('NEW CONSTRAINTS');
+				console.warn('Preset', val('vpreset'));
+				console.warn('Video device', val('vdevice'));
+				console.warn('Audio device', val('adevice'));
+				console.warn('Video codec', val('vcodec'), window.reachtest.config.preferredVideoCodec);
+				console.warn('Audio codec', val('acodec'), window.reachtest.config.preferredAudioCodec);
+				console.warn('Constraints', window.reachtest.config.constraints);
+				console.groupEnd();
+
+			}
+		};
+
 		var room = {
-			join: function() {
-			   window._room.join()
+			join: function(joined) {
+				(joined ? Promise.resolve(window._room) : window._room.join())
 					.then(function(_room) {
 						$('#users').hide();
+						constraints.show();
 						var roomNode = $('#room');
 						roomNode.find('table tbody').empty();
 						Object.keys(_room)
@@ -154,6 +230,7 @@
 							}
 						});
 						_room.on(Reach.events.room.PARTICIPANT_ADDED, function(participant) {
+							console.warn(Reach.events.room.PARTICIPANT_ADDED, participant.uid, participant.status);
 							var userName = participant.uid === reachtest.current.uid ? localEmail : $('#users_list').find(format('tr[data-userId={0}] td:first-child', participant.uid)).text();
 							$("#participants").append(
 								format(
@@ -163,6 +240,7 @@
 							);
 						});
 						_room.on(Reach.events.room.PARTICIPANT_CHANGED, function(participant) {
+							console.warn(Reach.events.room.PARTICIPANT_CHANGED, participant.uid, participant.status);
 							var userName = $('#users_list').find(format('tr[data-userId={0}] td:first-child', participant.uid)).text();
 							$("#participants")
 								.find(format('tr[data-userId={0}]', participant.uid))
@@ -174,6 +252,7 @@
 								);
 						});
 						_room.on(Reach.events.room.PARTICIPANT_REMOVED, function(participant) {
+							console.warn(Reach.events.room.PARTICIPANT_REMOVED, participant.uid, participant.status);
 							$("#participants").find(format('tr[data-userId={0}]', participant.uid)).remove();
 							room._leave();
 						});
@@ -182,6 +261,7 @@
 			_leave: function() {
 				window._room && window._room.leave().then(function () {
 					$('#users').show();
+					constraints.hide();
 					$('#local').hide();
 					$('#remote').hide();
 					$('#room').hide();
@@ -196,10 +276,12 @@
 			},
 			publish: function(btn, type) {
 				if(!$(btn).hasClass('disabled')) {
+					constraints.update();
 					window._room.share(type)
 						.then(function(localStream) {
 							window._localStream = localStream;
 							$('#local').show();
+							constraints.hide();
 							$('#share_bts').find('a').toggleClass('disabled', true);
 							$('#audio_bt').toggle(/audio/i.test(type));
 							$('#video_bt').toggle(/video/i.test(type));
@@ -227,6 +309,7 @@
 								});
 						})
 						.catch(function(e){
+							constraints.show();
 							modalError('Publish fail', e.message);
 							console.error('Publish fail', e);
 						});
@@ -243,6 +326,7 @@
 			},
 			close: function(){
 				window._localStream && window._localStream.close();
+				constraints.show();
 				$('#local').hide();
 				$('#share_bts').find('a').toggleClass('disabled', false);
 			},
@@ -334,6 +418,7 @@
 					.then(function(){
 						$('#current').find('a').toggleClass('disabled');
 						$('#users').show();
+						constraints.hide();
 						room.leave();
 						reachtest.on(Reach.events.reach.INVITE_ADDED, invite.add);
 						reachtest.on(Reach.events.reach.USER_ADDED, user.add);
@@ -355,6 +440,7 @@
 				reachtest.logout()
 					.then(function(){
 						$('#users').hide();
+						constraints.hide();
 						$('#users_list').empty();
 						$('#current').find('a').toggleClass('disabled');
 						$('#local').hide();
@@ -417,6 +503,34 @@
 					</thead>
 					<tbody id="users_list"></tbody>
 				</table>
+			</div>
+		</div>
+	</div>
+	<div class="col s6" id="vconstraints" style="display:none">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">Default Video Constraints</span>
+				<form action="#">
+					<h5>Device</h5>
+					<div id="vdevices"></div>
+					<h5>Preferred Codec</h5>
+					<div id="vcodecs"></div>
+					<h5>Preset</h5>
+					<div id="vpresets"></div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="col s6" id="aconstraints" style="display:none">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">Default Audio Constraints</span>
+				<form action="#">
+					<h5>Device</h5>
+					<div id="adevices"></div>
+					<h5>Preferred Codec</h5>
+					<div id="acodecs"></div>
+				</form>
 			</div>
 		</div>
 	</div>
