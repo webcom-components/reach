@@ -73,18 +73,24 @@ describe('Entry point /', () => {
 
 	describe('Configuration / ', () => {
 		let ref;
+		let testEnvUrl;
+
+		beforeEach(() => {
+			testEnvUrl = global.env.namespaceUrl.replace(`${WEBCOM_DOMAIN}`, 'io.datasync.orange.com');
+		});
+
 		afterEach(() => {
 			ref && ref.config.reset();
 		});
 
 		it('Should use the url specified for the base', () => {
 			ref = new Reach(global.env.namespaceUrl);
-			expect(ref.base.toString()).toBe(global.env.namespaceUrl);
+			expect(ref.base.toString()).toBe(testEnvUrl);
 		});
 
 		it('Should use the specified Webcom reference for the base', () => {
 			ref = new Reach(new Webcom(`${global.env.namespaceUrl}/ref`));
-			expect(ref.base.toString()).toBe(`${global.env.namespaceUrl}/ref`);
+			expect(ref.base.toString()).toBe(`${testEnvUrl}/ref`);
 		});
 
 		it('Should use default configuration if no configuration is specified', () => {
