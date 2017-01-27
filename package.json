@@ -8,6 +8,9 @@
     "rules": "https://webcom-components.github.io/reach-schema/draft-00/security/rules.json"
   },
   "scripts": {
+    "precommit": "cross-env-test TRAVIS=true || (npm run lint -s && git reset dist/*.js)",
+    "commitmsg": "validate-commit-msg",
+    "prepush": "cross-env-test TRAVIS=true || npm run test -s",
     "doc": "esdoc -c esdoc.json",
     "doc:all": "esdoc -c esdoc.all.json",
     "serve": "node ./serve.esdoc.js",
@@ -37,15 +40,15 @@
   "author": "Webcom <webcom.ops@orange.com>",
   "license": "MIT",
   "peerDependencies": {
-    "webcom": "~1.0.3"
+    "webcom": "^1.2.2"
   },
   "dependencies": {
-    "webcom": "~1.0.3"
+    "webcom": "^1.2.2"
   },
   "devDependencies": {
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
-    "babel-plugin-istanbul": "^2.0.0",
+    "babel-plugin-istanbul": "^3.1.2",
     "babel-plugin-transform-inline-environment-variables": "^6.8.0",
     "babel-plugin-transform-member-expression-literals": "^6.8.0",
     "babel-plugin-transform-merge-sibling-variables": "^6.8.0",
@@ -56,13 +59,14 @@
     "babel-runtime": "^6.11.6",
     "browser-sync": "^2.15.0",
     "cors": "^2.8.1",
-    "cross-env": "^2.0.1",
+    "cross-env": "^3.1.4",
+    "cross-env-test": "^0.1.1",
     "cz-conventional-changelog": "^1.1.7",
-    "esdoc": "^0.4.8",
+    "esdoc": "^0.5.2",
     "eslint": "^3.5.0",
     "express": "^4.14.0",
-    "ghooks": "^1.3.2",
-    "inquirer": "^1.1.3",
+    "husky": "^0.13.1",
+    "inquirer": "^3.0.1",
     "jasmine": "^2.5.1",
     "jasmine-core": "^2.5.1",
     "js-yaml": "^3.6.1",
@@ -77,23 +81,18 @@
     "karma-sauce-launcher": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webdriver-launcher": "^1.0.4",
-    "karma-webpack": "^1.8.0",
+    "karma-webpack": "^2.0.2",
     "lodash": "^4.14.2",
     "minimist": "^1.2.0",
     "moment": "^2.15.0",
-    "semantic-release": "^4.3.5",
+    "semantic-release": "^6.3.2",
     "validate-commit-msg": "^2.8.0",
-    "webpack": "^1.13.2",
-    "webrtc-adapter": "^2.0.3"
+    "webpack": "^1.14.0",
+    "webrtc-adapter": "^3.1.0"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
-    },
-    "ghooks": {
-      "pre-commit": "node ./git.hooks.js --hook pre-commit",
-      "commit-msg": "validate-commit-msg",
-      "pre-push": "node ./git.hooks.js --hook pre-push"
     }
   }
 }

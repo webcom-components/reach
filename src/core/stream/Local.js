@@ -142,7 +142,7 @@ export default class Local {
 	 */
 	set media (mediaStream) {
 		if(mediaStream) {
-			if(!mediaStream instanceof MediaStream) {
+			if(!(mediaStream instanceof MediaStream)) {
 				throw new Error('The media MUST be a MediaStream');
 			}
 
