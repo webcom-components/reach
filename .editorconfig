@@ -14,7 +14,7 @@ trim_trailing_whitespace = true
 charset = utf-8
 
 # Set indent style for JS & html
-[{src/**.js,test/**.js,./*.js,samples/*.html}]
+[{src/**.js,test/**.js,./*.js,config.*.js,samples/*.html}]
 indent_style = tab
 
 # Set indent style for conf files

@@ -29,6 +29,11 @@ if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
     mkdir -p esdoc/coverage
     cp -R coverage/html/* esdoc/coverage/
 
+    # Copy bundle analysis report
+    mkdir -p esdoc/analysis
+    cp bundleAnalysis.html esdoc/analysis/index.html
+    cp bundleAnalysis.json esdoc/analysis/stats.json
+
     # gh-pages push
     cd esdoc
     git init

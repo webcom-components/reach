@@ -3,6 +3,7 @@
 const
 	webpack = require('webpack'),
 	minimist = require('minimist'),
+	BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin,
 	path = require('path'),
 	readFileSync = require('fs').readFileSync,
 	packageInfo = require('./package.json'),
@@ -70,7 +71,14 @@ const configure = (options) => {
 			new webpack.optimize.DedupePlugin(),
 			new webpack.optimize.OccurenceOrderPlugin(),
 			new webpack.optimize.AggressiveMergingPlugin(),
-			new webpack.optimize.UglifyJsPlugin({compress: true})
+			new webpack.optimize.UglifyJsPlugin({compress: true}),
+			new BundleAnalyzerPlugin({
+				analyzerMode: 'static',
+				reportFilename: path.join(__dirname, 'bundleAnalysis.html'),
+				openAnalyzer: false,
+				generateStatsFile: true,
+				statsFilename: path.join(__dirname, 'bundleAnalysis.json')
+			})
 		]);
 	} else if(options.debug) {
 		config.devtool = 'inline-source-map';
