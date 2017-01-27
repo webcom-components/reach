@@ -17,11 +17,17 @@ if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
 
     # Copy test report
     mkdir -p esdoc/report
+    echo "<html><body><ul>" > esdoc/report/index.html
+    for file in $(ls report/ | grep .html);
+    do
+        echo "<li><a href='$file'>$file</a></li>" >> esdoc/report/index.html;
+    done
+    echo "</ul></body></html>" >> esdoc/report/index.html;
     cp report/*.html esdoc/report/
 
     # Copy coverage report
     mkdir -p esdoc/coverage
-    cp -R coverage/lcov-report/* esdoc/coverage/
+    cp -R coverage/html/* esdoc/coverage/
 
     # gh-pages push
     cd esdoc

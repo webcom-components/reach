@@ -1,0 +1,8 @@
+globals:
+  WEBCOM_EMAIL: true
+  WEBCOM_PASSWORD: true
+  WEBCOM_TOKEN: true
+  WEBCOM_DOMAIN: true
+  WEBCOM_PROTOCOL: true
+  WEBCOM_NAMESPACE: true
+  NODE_ENV: true
