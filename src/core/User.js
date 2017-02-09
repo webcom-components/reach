@@ -153,11 +153,20 @@ export default class User {
 
 		if(user.anonymous) {
 			return DataSync.remove(`_/devices/${user.uid}`)
+				.then(() => DataSync.get(`_/invites/${user.uid}`))
+				.then(invites => {
+					const inviteIds = [];
+					invites.forEach(invite => {
+						inviteIds.push(invite.name());
+					});
+					return Promise.all(inviteIds.map(inviteId => DataSync.remove(`_/invites/${user.uid}/${inviteId}`)));
+				})
+				// TODO refactor data model for invites so we can delete _/invites/${user.uid}
+				// .then(() => DataSync.remove(`_/invites/${user.uid}`))
+				.then(() => DataSync.remove(`users/${user.uid}`))
 				.then(() => {
 					Webcom.INTERNAL.PersistentStorage.remove(user.uid);
 				})
-				.then(() => DataSync.remove(`_/invites/${user.uid}`))
-				.then(() => DataSync.remove(`users/${user.uid}`))
 				.catch(Log.r('User#anonymous_disconnect'));
 		}
 		return DataSync.set(`_/devices/${user.uid}/${cache.device}/status`, NOT_CONNECTED)

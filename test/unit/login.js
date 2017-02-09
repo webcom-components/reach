@@ -148,41 +148,53 @@ describe('Register & Login /', () => {
 			});
 		});
 	});
-/*
-	xdescribe('Anonymous Users /', () => {
 
-		beforeAll(done => {
-			log.d('login#anon#beforeAll');
-			rules.reset()
-				.then(() => {
-					// Reset repos to force new persistent connection to be established
-					Webcom.Context.getInstance().repos_ = {};
-					done();
-				})
-				.catch(e => {
-					log.e('login#anon#beforeAll', e);
-					done(e);
+	describe('Anonymous Users /', () => {
+		const anon = (nick) => {
+			return ref
+				.anonymous(nick)
+				.then(user => {
+					expect(ref.current.uid).toEqual(user.uid);
+					return user;
 				});
-		});
+		};
 
 		it('Should be able to login as an anonymous user', done => {
 			testUser(
 				done,
-				ref.anonymous('Homer'),
+				anon('Homer'),
 				{name: 'Homer'},
-				/^anonymous:\d+$/
+				/^anonymous:[0-9a-z\-]+$/
 			);
 		});
 
-		afterAll(done => {
-			log.d('login#anon#afterAll');
-			rules.set()
+		it('Should be able to logout', done => {
+			let currentUid = null;
+			anon('Homer')
+				.then(user => {currentUid = user.uid;})
+				.then(() => ref.logout())
+				.then(() => {
+					expect(ref.current).toBeNull();
+				})
+				.then(() => namespace.get(`users/${currentUid}`))
+				.then(user => {
+					expect(user.val()).toBeNull();
+				})
+				.then(() => namespace.get(`_/devices/${currentUid}`))
+				.then(devices => {
+					expect(devices.hasChildren()).toBeFalsy();
+					expect(devices.val()).toBeNull();
+				})
+				.then(() => namespace.get(`_/invites/${currentUid}`))
+				.then(invites => {
+					expect(invites.hasChildren()).toBeFalsy();
+					expect(invites.val()).toBeNull();
+				})
 				.then(done)
 				.catch(e => {
-					log.e('login#anon#afterAll', e);
+					log.e(e);
 					done(e);
 				});
 		});
 	});
-*/
 });

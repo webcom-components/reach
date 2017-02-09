@@ -139,14 +139,13 @@ export default class Reach {
 	 * @returns {Promise<User>}
 	 */
 	login(email, password, name, rememberMe = false) {
-		const method = email === null && password === null ? 'authAnonymously' : 'authWithPassword';
 		// Force logout to bypass Webcom bug
 		let p = Promise.resolve();
 		if(this.current && this.current.email !== email) {
 			p = this.logout();
 		}
 		return p
-			.then(() => cache.base[method]({email, password, rememberMe}))
+			.then(() => cache.base.authWithPassword({email, password, rememberMe}))
 			.then(auth => User.init(auth.uid, name))
 			.then(u => {
 				cache.user = u;
@@ -184,9 +183,14 @@ export default class Reach {
 	 * @returns {Promise<User>}
 	 */
 	anonymous(name) {
-		// HACK #Feat #DataSync Uncomment this line when anonymous login is available
-		// return this.login(null, null, name);
-		return User.init(`anonymous:${Date.now()}`, name)
+		// Force logout to bypass Webcom bug
+		let p = Promise.resolve();
+		if(this.current && (!this.current.anonymous || this.current.name !== name)) {
+			p = this.logout();
+		}
+		return p
+			.then(() => cache.base.authAnonymously())
+			.then(auth => User.init(auth.uid, name))
 			.then(u => {
 				cache.user = u;
 				return u;
