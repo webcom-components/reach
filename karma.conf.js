@@ -165,15 +165,13 @@ console.info(
 	`\n\tBranch: ${branchName}`
 );
 
-const webpackConfig = require('./webpack.config.js').configure({
+const webpackConfig = require('./config/webpack-common.config.js').configure({
 	output: false,
 	release: false,
 	debug: !singleRun && !coverage,
 	coverage
 });
-webpackConfig.entry = {};
-
-console.warn(browsers, singleRun, coverage);
+delete webpackConfig.entry;
 
 module.exports = function(config) {
 	config.set({
