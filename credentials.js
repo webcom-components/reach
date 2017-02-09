@@ -1,5 +1,4 @@
 'use strict';
-const path = require('path');
 const mapValues = require('lodash/mapValues');
 const pick = require('lodash/pick');
 const fs = require('fs');
@@ -20,7 +19,7 @@ const load = dir => {
  * @returns {object}
  */
 const loadConf = () => {
-	const fileName = load(process.env.HOME) || load(path(`${__dirname}/..`));
+	const fileName = load(process.env.HOME) || load(__dirname);
 	if (fileName) {
 		log(`Reading credentials from: ${fileName.replace(process.env.HOME, '$HOME')}`);
 		const fileContent = fs.readFileSync(fileName, 'utf8');
