@@ -1,4 +1,4 @@
-## Getting started
+# Getting started
 
 ### Init your namespace
 
@@ -129,4 +129,3 @@ hisRoom.on(Reach.event.room.STREAM_PUBLISHED, remoteStream => {
         });
 });
 ```
-

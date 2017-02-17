@@ -3,12 +3,15 @@
   "destination": "./esdoc",
   "title": "Reach",
   "access": ["public"],
+  "index": "./manual/index.md",
   "manual": {
-    "overview": ["./manual/overview.md"],
-    "installation": ["./manual/install.md"],
-    "configuration": ["./manual/configuration.md"],
-    "tutorial": ["./manual/tutorial.md", "./manual/sharing.md", "./manual/model.md"],
-    "example": ["./manual/example.md"],
-    "faq": ["./manual/faq.md", "./CONTRIBUTING.md"]
+    "design": ["./manual/design/index.md"],
+    "installation": ["./manual/installation/index.md"],
+    "usage": ["./manual/usage/index.md"],
+    "tutorial": ["./manual/tutorial/index.md"],
+    "configuration": ["./manual/configuration/index.md"],
+    "example": ["./manual/example/index.md"],
+    "faq": ["./manual/faq/index.md", "./CONTRIBUTING.md"],
+    "changelog": ["./manual/changelog/index.md"]
   }
 }

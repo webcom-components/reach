@@ -1,18 +1,15 @@
-## ICE management
+# ICE management
 
 Reach comes with default TURN &amp; TURNS servers configured:
 
 ```json
 {
-    username: 'admin',
-    credential: 'webcom1234',
-    urls: [
-        'turns:turn1.webcom.orange.com:443',
-        'turns:turn2.webcom.orange.com:443',
-        'turns:turn3.webcom.orange.com:443',
-        'turn:turn1.webcom.orange.com',
-        'turn:turn2.webcom.orange.com',
-        'turn:turn3.webcom.orange.com'
+    "username": "admin",
+    "credential": "webcom1234",
+    "urls": [
+        "turns:turn1.webcom.orange.com:443",
+        "turn:turn1.webcom.orange.com:443?transport=tcp",
+        "turn:turn1.webcom.orange.com:3478?transport=tcp"
     ]
 }
 ```
@@ -24,18 +21,15 @@ But if needed, you can over overwrite this settings either when instantiating Re
 Pass your ICE servers list when instantiating Reach:
 
 ```
-const myReach = new Reach('https://io.datasync.orange.com', {
+const myReach = new Reach('https://io.datasync.orange.com/base/<MY_BASE>', {
     iceServers: [
         {
             username: 'admin',
             credential: 'webcom1234',
             urls: [
                 'turns:turn1.webcom.orange.com:443',
-                'turns:turn2.webcom.orange.com:443',
-                'turns:turn3.webcom.orange.com:443',
-                'turn:turn1.webcom.orange.com:3478',
-                'turn:turn2.webcom.orange.com',
-                'turn:turn3.webcom.orange.com'
+                'turn:turn1.webcom.orange.com:443?transport=tcp',
+                'turn:turn1.webcom.orange.com:3478?transport=tcp'
             ]
         }
     ]
@@ -54,12 +48,12 @@ All ICE servers must be of this type:
 
 ```json
 {
-    username: <String?>,
-    credential: <String?>,
-    urls: <String|String[]>
+    "username": <String?>,
+    "credential": <String?>,
+    "urls": <String|String[]>
 }
 ```
 
 ### Limitations
 
-To date, Mozilla Firefox doesn't support TURNS server (but it's ok for TURN et STUN server). If TURNS server are specified,  they will be ignored on Firefox
+To date, Mozilla Firefox doesn't support TURNS server (but it's ok for TURN et STUN server). If TURNS server are specified, they will be ignored on Firefox

@@ -1,4 +1,6 @@
-# Is my browser supported ?
+# FAQ
+
+## Is my browser supported ?
 
 Reach works on the following browsers:
 
@@ -16,11 +18,11 @@ Since Reach uses [WebRTC's adapter][adapterJS] to insulate the SDK from spec cha
 [adapterJS]: https://github.com/webrtc/adapter
 [caniuse]: http://caniuse.com/#search=webrtc
 
-# Is version 2+ compatible with previous versions ?
+## Is version 2+ compatible with previous versions ?
 
 No. Both model &amp; API have been completely changed.
 
-# What's next ?
+## What's next ?
 
 - Documentation:
     - Add tutorial on user presence

@@ -1,16 +1,16 @@
-## Sharing streams
+# Sharing streams
 
 Stream can only be shared within a Room using the [share](../class/src/core/Room.js~Room.html#instance-method-share) method.
 
-### The `share` method
+## The `share` method
 
 The [share](../class/src/core/Room.js~Room.html#instance-method-share) method can take up to 3 arguments.
 
-#### The stream type
+### The stream type
 
 Can be `AUDIO`, `VIDEO`, `AUDIO_VIDEO` or any of the stream type defined [here](../typedef/index.html#static-typedef-StreamTypes)
 
-#### The Media constraints
+### The Media constraints
 
 The media constraints can be defined when calling [share](../class/src/core/Room.js~Room.html#instance-method-share):
 
@@ -38,11 +38,11 @@ console.log(Reach.media.constraints('SD'));
 // Will output {"video":{"width":{"min":640,"ideal":720,"max":1280},"height":{"min":480,"ideal":576,"max":720}},"audio":true}
 ```
 
-#### The container node
+### The container node
 
 You only need to provide a container node (i.e. a div), Reach will create the appropriate media element (i.e. audio or video) for the given stream.
 
-### Switching the camera
+## Switching the camera
 
 Once a stream is shared, you can switch between media devices:
 
@@ -59,13 +59,13 @@ You can specify which device you want to switch to by passing the device's id to
  
 The same method exists for switching the microphone.
 
-### Prefer Codecs
+## Prefer Codecs
 
 On init, you can specify a preferred codec to use when negotiating the PeerConnection.
 
 ```javascript
 const myReach = new Reach('https://io.datasync.orange.com/<your_namespace>', {
-    preferredAudioCodec: Reach.codecs.audio.OPUS
+    preferredAudioCodec: Reach.codecs.audio.OPUS,
     preferredVideoCodec: Reach.codecs.video.VP9
 });
 ```
@@ -73,3 +73,4 @@ const myReach = new Reach('https://io.datasync.orange.com/<your_namespace>', {
 The preferred codec must be specified as a RegExp. You can find predefined ones in Reach.codecs.
 
 On negotiation, Reach will edit the SDP offer before sending it and reorder the available codecs to suit your configuration
+

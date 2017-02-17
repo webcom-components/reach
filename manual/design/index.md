@@ -1,4 +1,4 @@
-## The Data Model
+# The Data Model
 
 The data model is described as a JSON schema on github in the [webcom-components/reach-schema](https://github.com/webcom-components/reach-schema) repo.
  

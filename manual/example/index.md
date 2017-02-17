@@ -1,4 +1,4 @@
-> All examples are still using the legacy version of Reach
+# Example 
 
 ## visio-sample
 
@@ -7,6 +7,8 @@
 You can check the code for this sample in the dedicated Github [repo][VisioSampleRepo].
 
 ## webirtc
+
+> webirtc is still using the legacy version of Reach
 
 [webirtc](https://io.datasync.orange.com/samples/webirtc/) is another example of a multimedia chat based on Reach.
 

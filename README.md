@@ -17,15 +17,20 @@ Reach acts as a signaling framework for all your WebRTC needs.
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/webcomOps.svg)](https://saucelabs.com/u/webcomOps)
 
-### Get Started ###
 
-* [Discover Flexible DataSync][Quickstart] and learn how you can exchange data in real-time with a few lines of code.
+## Discover Flexible DataSync
 
-* [Get started][ReachSDKDoc] in minutes &amp; add video communication capabilities to your web app.
+Reach rely heavily on [Flexible DataSync][Quickstart] to exchange data between peers. Take a look at the [Flexible DataSync][Quickstart] documentation and learn how you can exchange data in real-time with a few lines of code.
 
-* [See it work][VisioSampleRepo] with an example of a visio web app available [here][VisioSampleApp]. You can check the code for this sample in the dedicated Github [repo][VisioSampleRepo]
+## Get started
+
+[Get started][ReachSDKDoc] in minutes &amp; add audio and/or video capabilities to your web app.
+
+## Live example
+
+[See how it works][VisioSampleRepo] with an example of a visio web app available [here][VisioSampleApp]. You can check the code for this sample in the dedicated Github [repo][VisioSampleRepo]
 
 [Quickstart]: https://datasync.orange.com/doc/tutorial-quickstart.html
-[ReachSDKDoc]: https://doc.esdoc.org/github.com/webcom-components/reach/manual/tutorial.html#getting-started
+[ReachSDKDoc]: https://doc.esdoc.org/github.com/webcom-components/reach/manual/tutorial/index.html#getting-started
 [VisioSampleRepo]: https://github.com/webcom-components/visio-sample
 [VisioSampleApp]: https://webcom-components.github.io/visio-sample

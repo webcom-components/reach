@@ -1,3 +1,5 @@
+# Installation
+
 ## from CDN
 
 The fastest way to get started is to serve JavaScript from [jsdelivr](https://www.jsdelivr.com/projects/webcom-reach)
