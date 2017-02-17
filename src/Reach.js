@@ -179,7 +179,6 @@ export default class Reach {
 	/**
 	 * Sign-in an anonymous user
 	 * @param {string} name The display name of the user
-	 * @experimental Not compatible with security rules for now (waiting for anonymous login support from Webcom)
 	 * @returns {Promise<User>}
 	 */
 	anonymous(name) {

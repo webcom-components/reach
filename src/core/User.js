@@ -143,7 +143,7 @@ export default class User {
 	/**
 	 * Disconnect the current user
 	 * @access protected
-	 * @param {User} uid The current user
+	 * @param {User} user The current user
 	 * @returns {Promise}
 	 */
 	static disconnect(user) {
