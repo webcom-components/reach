@@ -2,42 +2,38 @@
 
 ## from CDN
 
-The fastest way to get started is to serve JavaScript from [jsdelivr](https://www.jsdelivr.com/projects/webcom-reach)
+The fastest way to get started is to serve JavaScript from [jsdelivr][JSDELIVR] or [unpkg][UNPKG]:
 
 ```html
 <!-- The Flexible DataSync library -->
-<script type='text/javascript' src='https://datasync.orange.com/libjs/latest/webcom.js'></script>
+<script type='text/javascript' src='https://unpkg.com/webcom/webcom'></script>
 <!-- The Reach Library -->
+<script type='text/javascript' src='https://unpkg.com/webcom-reach'></script>
+<!-- OR -->
 <script type='text/javascript' src='https://cdn.jsdelivr.net/webcom-reach/latest/reach.js'></script>
 ```
 
-## from `bower` or `npm`
+## Using your favorite package manager
 
-If you'd like to use a package manager, like [bower](https://bower.io):
-
-```bash
-bower install --save webcom-reach
-```
-
-or [npm](https://www.npmjs.com/package/webcom-reach):
+### [npm][NPM]
 
 ```bash
 npm i --save webcom-reach
 ```
 
-Then either include the Flexible DataSync dependency to your app:
+### [yarn][YARN]
 
-```html
-<!-- The Flexible DataSync library -->
-<script type='text/javascript' src='./PACKAGES_FOLDER/webcom/webcom.js'></script>
-<!-- The Reach Library -->
-<script type='text/javascript' src='./PACKAGES_FOLDER/webcom-reach/dist/reach.js'></script>
+```bash
+yarn add webcom-reach
 ```
 
-`PACKAGES_FOLDER` being `node_modules` when using `npm` &amp; `bower_components` when using `bower`.
-
-or just import Reach within your code :
+Then just import Reach within your code :
 
 ```javascript
 import Reach from 'webcom-reach';
 ```
+
+[JSDELIVR]: https://www.jsdelivr.com/projects/webcom-reach
+[UNPKG]: https://unpkg.com/webcom-reach/
+[NPM]: https://www.npmjs.com/package/webcom-reach
+[YARN]: https://yarnpkg.com/search/?q=webcom-reach
