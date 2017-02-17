@@ -2,13 +2,13 @@
 
 ### Init your namespace
 
-- Go to [Flexible DataSync](https://io.datasync.orange.com/home)
+- Go to [Flexible DataSync](https://io.datasync.orange.com/)
 - Create a new namespace
 - Download the security rules from the [reach-schema](https://webcom-components.github.io/reach-schema/draft-00/security/rules.json) repo and import them in the `security` section
 
 ### Get the library
 
-See [installation](./installation.html) on how to retrieve the Reach library and its dependencies.
+See [installation](./installation/) on how to retrieve the Reach library and its dependencies.
 
 ### The bases
 
@@ -17,10 +17,10 @@ See [installation](./installation.html) on how to retrieve the Reach library and
 The Reach object is your only entry point.
 
 ```javascript
-const myReach = new Reach('https://io.datasync.orange.com/<your_namespace>');
+const myReach = new Reach('https://io.datasync.orange.com/base/<your_namespace>');
 ```
 
-See [configuration](./configuration.html) to learn more on the available configuration possibilities.
+See [configuration](./configuration/) to learn more on the available configuration possibilities.
 
 #### Register a new User
 

@@ -21,7 +21,7 @@ But if needed, you can over overwrite this settings either when instantiating Re
 Pass your ICE servers list when instantiating Reach:
 
 ```
-const myReach = new Reach('https://io.datasync.orange.com/base/<MY_BASE>', {
+const myReach = new Reach('https://io.datasync.orange.com/base/<your_namespace>', {
     iceServers: [
         {
             username: 'admin',
@@ -40,7 +40,7 @@ const myReach = new Reach('https://io.datasync.orange.com/base/<MY_BASE>', {
 
 This method prevents you from having to re-deploy your app everytime you want/need to reconfigure your ICE servers:
 
-* go to [Flexible DataSync](https://io.datasync.orange.com/home)'s console
+* go to [Flexible DataSync](https://io.datasync.orange.com/)'s console
 * select your namespace
 * add your ICE servers using the `data` section on the `_/ice/` path.
 

@@ -21,7 +21,7 @@ room.share(Reach.types.AUDIO_VIDEO, {audio: true, video: {width: 1080}});
 or on init: 
 
 ```javascript
-const myReach = new Reach('https://io.datasync.orange.com/<your_namespace>', {
+const myReach = new Reach('https://io.datasync.orange.com/base/<your_namespace>', {
     constraints: {audio: true, video: {width: 1080}}
 });
 ```
@@ -64,7 +64,7 @@ The same method exists for switching the microphone.
 On init, you can specify a preferred codec to use when negotiating the PeerConnection.
 
 ```javascript
-const myReach = new Reach('https://io.datasync.orange.com/<your_namespace>', {
+const myReach = new Reach('https://io.datasync.orange.com/base/<your_namespace>', {
     preferredAudioCodec: Reach.codecs.audio.OPUS,
     preferredVideoCodec: Reach.codecs.video.VP9
 });
