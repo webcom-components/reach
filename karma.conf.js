@@ -117,7 +117,7 @@ const sauceLabsBrowsers = {
 	}),
 	sl_firefox_minimum: sauceLabsBrowser({
 		browserName: 'firefox',
-		version: '31',
+		version: '45',
 		prefs
 	}),
 	sl_android_lollipop: sauceLabsBrowser({
