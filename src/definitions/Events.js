@@ -44,6 +44,7 @@ import {ACCEPTED, REJECTED, CANCELED} from '../core/util/constants';
  * The events supported by {@link Remote#on}.
  * @typedef {Object} Events/Stream
  * @property {string} MUTE Fired when the mute status of the stream changes
+ * @property {string} SIZE Fired when the size of the stream changes
  */
 
 /**
@@ -127,7 +128,7 @@ export const room = new _Events([
 /**
  * @ignore
  */
-export const stream = new _Events(['MUTE']);
+export const stream = new _Events(['MUTE', 'SIZE']);
 
 /**
  * @ignore

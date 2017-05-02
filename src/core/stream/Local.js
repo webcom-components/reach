@@ -375,11 +375,29 @@ export default class Local {
 			sharedStream = new Local(Object.assign({roomId, constraints, container}, streamMetaData));
 		Log.d('Local~share', sharedStream, sharedStream.constraints);
 		return navigator.mediaDevices.getUserMedia(sharedStream.constraints)
-			.then(media => {sharedStream.media = media;})
+			.then(media => {
+				sharedStream.media = media;
+			})
 			// Got MediaStream, publish it
 			.then(() => DataSync.push(`_/rooms/${roomId}/streams`, streamMetaData))
 			.then(streamRef => {
 				sharedStream.uid = streamRef.name();
+				sharedStream.node.onloadeddata = function() {
+					const streamSize = {
+						height: sharedStream.node.videoHeight,
+						width: sharedStream.node.videoWidth,
+					};
+					streamRef.update(streamSize);
+				};
+				window.addEventListener('orientationchange', (() => {
+					if (sharedStream.node != null) {
+						const streamSize = {
+							height: sharedStream.node.videoHeight,
+							width: sharedStream.node.videoWidth,
+						};
+						streamRef.update(streamSize);
+					}
+				}));
 				// Save sharedStream
 				cache.streams.shared[sharedStream.uid] = sharedStream;
 				// Remove shared stream on Disconnect

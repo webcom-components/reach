@@ -55,7 +55,7 @@ const configure = (options) => {
 
 	if(options.output) {
 		config.entry = './src/Reach.js';
-		config.output.path = './dist';
+		config.output.path = path.resolve(root, './dist');
 		config.output.filename = options.release ? 'reach.js' : 'reach-debug.js';
 	}
 
