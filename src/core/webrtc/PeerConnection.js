@@ -132,7 +132,7 @@ export default class PeerConnection {
 			}
 		};
 		this.pc.oniceconnectionstatechange = () => {
-			Log.d('PeerConnection~oniceconnectionstatechange', this.pc.iceConnectionState);
+			Log.d('PeerConnection~oniceconnectionstatechange', this.pc);
 			const iceConnectionState = this.pc.iceConnectionState;
 			switch (iceConnectionState) {
 				case ICE_CONNECTION_STATE_CHECKING:
@@ -148,7 +148,7 @@ export default class PeerConnection {
 				case ICE_CONNECTION_STATE_DISCONNECTED:
 				case ICE_CONNECTION_STATE_CLOSED:
 				case ICE_CONNECTION_STATE_FAILED:
-					Log.d('PeerConnection~oniceconnectionstatechange', 'Close PeerConnection');
+					Log.d('PeerConnection~stateclosed', 'Close PeerConnection');
 					this.close();
 					break;
 			}

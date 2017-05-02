@@ -39,6 +39,14 @@ export default class Remote {
 		 */
 		this.device = values.device;
 		/**
+		 * @type {string}
+		 */
+		this.height = values.height;
+		/**
+		 * @type {string}
+		 */
+		this.width = values.width;
+		/**
 		 * The local DOM container element where the {@link Local~media} is displayed
 		 * @type {Element}
 		 */
@@ -95,6 +103,15 @@ export default class Remote {
 					if(values) {
 						// Update type
 						this.type = values.type;
+						//update stream size
+						const height = values.height;
+						const width = values.width;
+						if((height || width) && (height !== this.height || width !== this.height)) {
+							this.height = values.height;
+							this.width = values.width;
+							Log.w(this._callbacks[Events.stream.SIZE]);
+							(this._callbacks[Events.stream.SIZE] || []).forEach(cb => cb(this.height, this.width));
+						}
 						// Update mute status
 						const muted = values.muted;
 						if(muted && (muted.audio !== this.muted.audio || muted.video !== this.muted.video)) {
