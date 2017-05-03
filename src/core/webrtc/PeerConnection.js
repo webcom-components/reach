@@ -146,8 +146,10 @@ export default class PeerConnection {
 					this._remoteICECandidates(false);
 					break;
 				case ICE_CONNECTION_STATE_DISCONNECTED:
-				case ICE_CONNECTION_STATE_CLOSED:
 				case ICE_CONNECTION_STATE_FAILED:
+					Log.e('PeerConnection~stateDisconnected', 'Disconnect PeerConnection');
+					break;
+				case ICE_CONNECTION_STATE_CLOSED:
 					Log.d('PeerConnection~stateclosed', 'Close PeerConnection');
 					this.close();
 					break;
