@@ -48,12 +48,12 @@ export default class Local {
 		/**
 		 * The local DOM container element where the {@link Local~media} is displayed
 		 * @type {Element}
-		 */
+	  */
 		this.container = values.container || cache.config.localStreamContainer;
 		/**
-		 * The local DOM media element where the {@link Local~media} is displayed
-		 * @type {Element}
-		 */
+	  * The local DOM media element where the {@link Local~media} is displayed
+	  * @type {Element}
+	  */
 		this.node = null;
 		/**
 		 * List of the PeerConnections associated to this local stream
@@ -65,6 +65,11 @@ export default class Local {
 		 * @type {string}
 		 */
 		this.status = NONE;
+		/**
+		 * is the video is loaded int the local DOM media element
+		 * @type {boolean}
+		 */
+		this.isVideoLoaded = false;
 		/**
 		 * @access private
 		 * @type {{audio: string, video: string}}
@@ -171,8 +176,11 @@ export default class Local {
 			}
 			// Display
 			this.node = Media.attachStream(mediaStream, this.container, this.node, 0);
+			this.node.onloadeddata = () => {
+				this.isVideoLoaded = true;
+			};
 			this.status = CONNECTED;
-			Log.d('Local~set media', mediaStream, this.node);
+			Log.d('Local~set media', {mediaStream}, this.node);
 			// Renegotiate
 			this.peerConnections.forEach(peerConnection => peerConnection.renegotiate(this._media, mediaStream));
 		} else if(this.media && !mediaStream) {
@@ -373,7 +381,7 @@ export default class Local {
 				type
 			},
 			sharedStream = new Local(Object.assign({roomId, constraints, container}, streamMetaData));
-		Log.d('Local~share', sharedStream, sharedStream.constraints);
+		Log.d('Local~share', {sharedStream});
 		return navigator.mediaDevices.getUserMedia(sharedStream.constraints)
 			.then(media => {
 				sharedStream.media = media;
@@ -382,13 +390,21 @@ export default class Local {
 			.then(() => DataSync.push(`_/rooms/${roomId}/streams`, streamMetaData))
 			.then(streamRef => {
 				sharedStream.uid = streamRef.name();
-				sharedStream.node.onloadeddata = function() {
+				if (sharedStream.isVideoLoaded) {
 					const streamSize = {
 						height: sharedStream.node.videoHeight,
 						width: sharedStream.node.videoWidth,
 					};
 					streamRef.update(streamSize);
-				};
+				} else {
+					sharedStream.node.onloadeddata = function() {
+						const streamSize = {
+							height: sharedStream.node.videoHeight,
+							width: sharedStream.node.videoWidth,
+						};
+						streamRef.update(streamSize);
+					};
+				}
 				window.addEventListener('orientationchange', (() => {
 					if (sharedStream.node != null) {
 						const streamSize = {
@@ -426,7 +442,7 @@ export default class Local {
 					},
 					Log.e.bind(Log)
 				);
-				Log.d('Local~shared', sharedStream);
+				Log.d('Local~shared', {sharedStream});
 				return sharedStream;
 			});
 	}
