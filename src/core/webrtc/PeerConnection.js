@@ -364,7 +364,10 @@ export default class PeerConnection {
 	 */
 	renegotiate(oldStream, newStream) {
 		Log.d('PeerConnection~renegotiate');
-		if(Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'getSenders')){
+		if((Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'getSenders'))
+			&& ('RTCRtpSender' in window)
+			&& Object.getOwnPropertyDescriptor(RTCRtpSender.prototype, 'replaceTrack')){
+
 			// mozRTCPeerConnection implementation
 			this.pc.getSenders().forEach(sender => {
 				let newTracks;
