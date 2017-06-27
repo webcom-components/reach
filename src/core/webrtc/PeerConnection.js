@@ -1,4 +1,5 @@
 /*global RTCPeerConnection*/
+/*global RTCRtpSender*/
 import cache from '../util/cache';
 import * as Log from '../util/Log';
 import Media from '../util/Media';

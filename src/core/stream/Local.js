@@ -405,8 +405,8 @@ export default class Local {
 						streamRef.update(streamSize);
 					};
 				}
-				window.addEventListener('orientationchange', (() => {
-					if (sharedStream.node != null) {
+				window.addEventListener('resize', (() => {
+						if (sharedStream.node != null) {
 						const streamSize = {
 							height: sharedStream.node.videoHeight,
 							width: sharedStream.node.videoWidth,
