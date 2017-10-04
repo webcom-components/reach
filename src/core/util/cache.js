@@ -153,6 +153,7 @@ class CacheManager {
 	}
 }
 
+
 /**
  * The singleton instance
  * @ignore
