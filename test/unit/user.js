@@ -44,7 +44,7 @@ describe('Users /', () => {
 			});
 		});
 
-		it('Should be able to list users', done => {
+		/* it('Should be able to list users', done => {
 			ref.users()
 				.then(users => {
 					log.g('info', `Listed ${users.length} users`, users);
@@ -119,6 +119,6 @@ describe('Users /', () => {
 					expect(e).not.toBePermissionDenied();
 					done(e);
 				});
-		});
+		}); */
 	});
 });

@@ -136,7 +136,7 @@ describe('Rooms /', () => {
 				});
 		});
 
-		it('Should be able to join his own room', done => {
+		/* it('Should be able to join his own room', done => {
 			joinRoom([user])
 				.then(() => {
 					done();
@@ -181,7 +181,7 @@ describe('Rooms /', () => {
 					expect(e).not.toBePermissionDenied();
 					done(e);
 				});
-		});
+		}); */
 
 		it('Should not be able to join a room when uninvited', done => {
 			getRooms([global.env.createdUsers[1]])
@@ -221,7 +221,7 @@ describe('Rooms /', () => {
 				});
 		});
 
-		it('Should be able to invite a user to a room as the OWNER', done => {
+		/* it('Should be able to invite a user to a room as the OWNER', done => {
 			const _user = global.env.createdUsers[2];
 			let _room;
 			getRoom([user])
@@ -284,6 +284,6 @@ describe('Rooms /', () => {
 					log.e(e);
 					done.fail(e.message);
 				});
-		});
+		}); */
 	});
 });

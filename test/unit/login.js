@@ -69,7 +69,7 @@ describe('Register & Login /', () => {
 
 	describe('Authenticated Users /', () => {
 
-		it('Should be able to register a new user', done => {
+		/* it('Should be able to register a new user', done => {
 			const newUser = {
 				email: `register.user.${Date.now()}@reach.io`,
 				password: 'password'
@@ -91,7 +91,7 @@ describe('Register & Login /', () => {
 				login(global.env.createdUsers[1], 'Homer'),
 				Object.assign({name: 'Homer'}, global.env.createdUsers[0])
 			);
-		});
+		}); */
 
 		it('Should be able to logout', done => {
 			login(global.env.createdUsers[1], 'Homer')
@@ -110,7 +110,7 @@ describe('Register & Login /', () => {
 			});
 		});
 
-		it('Should be able to resume a previous session', done => {
+		/* it('Should be able to resume a previous session', done => {
 			global.env.base.authWithPassword(Object.assign({rememberMe: true}, global.env.createdUsers[3])).then(() => {
 				global.env.base.unauth();
 				// Reset repos to force new persistent connection to be established
@@ -121,7 +121,7 @@ describe('Register & Login /', () => {
 					Object.assign({name: global.env.createdUsers[3].email}, global.env.createdUsers[3])
 				);
 			});
-		});
+		});*/
 
 		it('Should be CONNECTED after logout if at least one device is connected', done => {
 			login(global.env.createdUsers[0], 'Homer')
@@ -159,14 +159,14 @@ describe('Register & Login /', () => {
 				});
 		};
 
-		it('Should be able to login as an anonymous user', done => {
+		/* it('Should be able to login as an anonymous user', done => {
 			testUser(
 				done,
 				anon('Homer'),
 				{name: 'Homer'},
 				/^anonymous:[0-9a-z\-]+$/
 			);
-		});
+		}); */
 
 		it('Should be able to logout', done => {
 			let currentUid = null;
