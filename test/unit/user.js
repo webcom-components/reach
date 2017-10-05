@@ -1,11 +1,11 @@
 import Reach from '../../src/Reach';
-import User from '../../src/core/User';
-import Room from '../../src/core/Room';
-import Invite from '../../src/core/Invite';
-import Participant from '../../src/core/Participant';
-import {ONGOING} from '../../src/core/util/constants';
+//import User from '../../src/core/User';
+//import Room from '../../src/core/Room';
+//import Invite from '../../src/core/Invite';
+//import Participant from '../../src/core/Participant';
+//import {ONGOING} from '../../src/core/util/constants';
 
-import * as log from '../util/logger';
+//import * as log from '../util/logger';
 
 describe('Users /', () => {
 	let ref;

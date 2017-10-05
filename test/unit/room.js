@@ -1,11 +1,12 @@
-import {OPENED, CONNECTED, MODERATOR, NONE, ONGOING} from '../../src/core/util/constants';
+//import {OPENED, CONNECTED, MODERATOR, NONE, ONGOING} from '../../src/core/util/constants';
+import {OPENED} from '../../src/core/util/constants';
 import Reach from '../../src/Reach';
 import Room from '../../src/core/Room';
-import Invite from '../../src/core/Invite';
-import Participant from '../../src/core/Participant';
+//import Invite from '../../src/core/Invite';
+//import Participant from '../../src/core/Participant';
 import * as log from '../util/logger';
-import * as namespace from '../util/namespace';
-import Message from '../../src/core/Message';
+//import * as namespace from '../util/namespace';
+//import Message from '../../src/core/Message';
 
 describe('Rooms /', () => {
 	let ref, user;
@@ -21,7 +22,7 @@ describe('Rooms /', () => {
 	const getRoom = (u, own) => {
 		return getRooms(u, own).then(rooms => rooms.pop());
 	};
-	const joinRoom = (u, own) => {
+	/*const joinRoom = (u, own) => {
 		return getRoom(u, own).then(room => room.join());
 	};
 	const invite = (from, to, room, role, text) => { // eslint-disable-line max-params
@@ -70,7 +71,7 @@ describe('Rooms /', () => {
 					reject(e);
 				});
 			}));
-	};
+	};*/
 
 	beforeAll(done => {
 		ref = new Reach(global.env.base);

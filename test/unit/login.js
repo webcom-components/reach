@@ -1,15 +1,15 @@
 import Reach from '../../src/Reach';
-import * as datasync from '../../src/core/util/DataSync';
+//import * as datasync from '../../src/core/util/DataSync';
 // import * as rules from '../util/rules';
 import * as log from '../util/logger';
 import * as namespace from '../util/namespace';
 import {CONNECTED, NOT_CONNECTED} from '../../src/core/util/constants';
 import Device from '../../src/core/Device';
-import Webcom from 'webcom/webcom';
+//import Webcom from 'webcom/webcom';
 
-const uidRegExp = /^[a-z0-9\-:]+$/;
+//const uidRegExp = /^[a-z0-9\-:]+$/;
 
-const testUser = (done, action, userInfos, ereg = uidRegExp) => {
+/* const testUser = (done, action, userInfos, ereg = uidRegExp) => {
 	action
 		.then(user => {
 			expect(user.name).toEqual(userInfos.name || userInfos.email);
@@ -35,7 +35,7 @@ const testUser = (done, action, userInfos, ereg = uidRegExp) => {
 		.catch(e => {
 			done.fail(e.message);
 		});
-};
+};*/
 
 describe('Register & Login /', () => {
 	let ref;
