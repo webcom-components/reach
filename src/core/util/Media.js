@@ -115,6 +115,9 @@ export default class Media {
 			if (!_node || _node.tagName.toLowerCase() !== tagName) {
 				_node = document.createElement(tagName);
 				_node.autoplay = true;
+				// set these attributes in order to launch the video on IOS
+				_node.setAttribute('playsinline',true);
+				_node.setAttribute('muted',true);
 			}
 			if (container) {
 				if (previous && previous !== _node) {
@@ -124,7 +127,8 @@ export default class Media {
 				}
 			}
 			_node.srcObject = mediaStream;
-			_node.disabled = false;
+			// disabled doesn't seem to be needed
+			// _node.disabled = false;
 			_node.volume = volume;
 			return _node;
 		}

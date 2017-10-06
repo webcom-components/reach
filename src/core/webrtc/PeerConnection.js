@@ -198,6 +198,7 @@ export default class PeerConnection {
 	_attachStream () {
 		if(this.remoteStream && this.isConnected) {
 			this.node = Media.attachStream(this.remoteStream, this.container, this.node);
+			this.node.muted = false;
 		}
 	}
 
