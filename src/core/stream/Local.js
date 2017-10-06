@@ -406,7 +406,7 @@ export default class Local {
 					};
 				}
 				window.addEventListener('resize', (() => {
-						if (sharedStream.node != null) {
+					if (sharedStream.node != null) {
 						const streamSize = {
 							height: sharedStream.node.videoHeight,
 							width: sharedStream.node.videoWidth,
