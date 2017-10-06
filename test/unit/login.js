@@ -1,3 +1,5 @@
+// put in comment some tests becaue of authentication webcom changes
+
 import Reach from '../../src/Reach';
 //import * as datasync from '../../src/core/util/DataSync';
 // import * as rules from '../util/rules';

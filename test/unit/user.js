@@ -1,3 +1,5 @@
+// put in comment some tests becaue of authentication webcom changes
+
 import Reach from '../../src/Reach';
 //import User from '../../src/core/User';
 //import Room from '../../src/core/Room';

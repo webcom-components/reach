@@ -1,3 +1,5 @@
+// put in comment some tests becaue of authentication webcom changes
+
 //import {OPENED, CONNECTED, MODERATOR, NONE, ONGOING} from '../../src/core/util/constants';
 import {OPENED} from '../../src/core/util/constants';
 import Reach from '../../src/Reach';
