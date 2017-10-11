@@ -94,6 +94,11 @@ export default class Media {
 		return {video, audio};
 	}
 
+	_correctBug(node) {
+		//set border radius to correct the bug on chrome 61
+		node.style.borderRadius = '1px';
+	}
+
 	/**
 	 * Init stream display node depending on stream type
 	 * @param {MediaStream} mediaStream The MediaStream to display
@@ -118,6 +123,8 @@ export default class Media {
 				// set these attributes in order to launch the video on IOS
 				_node.setAttribute('playsinline',true);
 				_node.setAttribute('muted',true);
+
+				this._correctBug(_node);
 			}
 			if (container) {
 				if (previous && previous !== _node) {
