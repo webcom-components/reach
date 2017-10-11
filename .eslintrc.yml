@@ -41,7 +41,7 @@ rules:
     - 4
   max-statements:
     - 2
-    - 20
+    - 30
   require-jsdoc:
     - 2
   no-var:
