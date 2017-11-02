@@ -1,5 +1,6 @@
 /*eslint max-params: [2, 5], max-len: [0, 120] */
 import * as Log from './Log';
+import Reach from '../../Reach';
 
 /**
  * Video resolution presets
@@ -116,9 +117,10 @@ export default class Media {
 				_node = document.createElement(tagName);
 				_node.autoplay = true;
 				// set these attributes in order to launch the video on IOS
-				_node.setAttribute('playsinline',true);
-				_node.setAttribute('muted',true);
-
+				if (Reach.browser.browser === 'safari') {
+				  _node.setAttribute('playsinline',true);
+				  _node.setAttribute('muted',true);
+				}
 				_node.style.borderRadius = '1px';
 			}
 			if (container) {
