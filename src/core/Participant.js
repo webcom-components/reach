@@ -1,3 +1,6 @@
+import * as DataSync from './util/DataSync';
+import * as Log from './util/Log';
+
 /**
  * {@link Room} participant
  * @public
@@ -37,4 +40,18 @@ export default class Participant {
 		 */
 		this._joined = values._joined;
 	}
+
+	/**
+	 * Get a participant of a room by its uid
+	 * @access private
+	 * @param {string} roomId The room's uid
+	 * @param {string} uid The user's uid
+	 * @returns {Promise<User, Error>}
+	 */
+	static get(roomId, uid) {
+		return DataSync.get(`_/rooms/${roomId}/participants/${uid}`)
+		.then(snapData => snapData ? new Participant(snapData) : null)
+		.catch(Log.r('Participant#get'));
+	}
+
 }

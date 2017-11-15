@@ -98,4 +98,17 @@ export default class PeerConnectionManager {
 		}
 		return false;
 	}
+
+	/**
+	 * Close all PeerConnections
+	 */
+	closeAllPeerConnecions() {
+		for (const stackId in this.stacks) {
+			for (const streamId in this.stacks[stackId]) {
+				const pc = this.stacks[stackId][streamId];
+				pc.close();
+			}
+		}
+		this.stacks = {};
+	}
 }
