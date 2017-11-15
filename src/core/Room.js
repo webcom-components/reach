@@ -262,6 +262,9 @@ export default class Room {
 		if(!cache.user) {
 			return Promise.reject(new Error('Only an authenticated user can join a Room.'));
 		}
+		if (cache.user.name === 'Gateway') {
+			return _joinRoom(this,'GATEWAY').catch(Log.r('Room~join'));
+		}
 		return _joinRoom(this).catch(Log.r('Room~join'));
 	}
 
@@ -324,7 +327,7 @@ export default class Room {
 				owner: cache.user.uid,
 				_public: publicRoom,
 				name: name || `${cache.user.name}-${Date.now()}`,
-				useMediaServer: useMediaServer
+				mediaServer: useMediaServer
 			},
 			roomFullMetaData = Object.assign({
 				status: OPENED,

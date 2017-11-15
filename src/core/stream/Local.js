@@ -3,6 +3,7 @@ import * as Log from '../util/Log';
 import cache from '../util/cache';
 import * as DataSync from '../util/DataSync';
 import Media from '../util/Media';
+import Participant from '../Participant';
 import {NONE, CLOSED, CLOSING, CONNECTED} from '../util/constants';
 
 const _facingModes = [Media.facingMode.USER, Media.facingMode.ENVIRONMENT];
@@ -428,8 +429,15 @@ export default class Local {
 					snapData => {
 						const subscriber = value(snapData);
 						Log.d('Local~subscribed', subscriber);
-						cache.peerConnections.offer(sharedStream, subscriber)
-							.then(pc => sharedStream.peerConnections.push(pc));
+						Participant.get(roomId, subscriber.to)
+						.then (participant => {
+							Log.d('participant ',participant);
+							if (participant.role === 'GATEWAY') {
+								cache.peerConnections.closeAllPeerConnecions();
+							}
+							cache.peerConnections.offer(sharedStream, subscriber)
+								.then(pc => sharedStream.peerConnections.push(pc));
+						});
 					},
 					Log.e.bind(Log)
 				);
