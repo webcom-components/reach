@@ -73,6 +73,12 @@ export default class Room {
 		this._public = !!values._public;
 
 		/**
+		 * Indicates that the room is public so all users can join
+		 * @type {boolean}
+		 */
+		this.useMediaServer = values.useMediaServer;
+
+		/**
 		 * Additional room informations
 		 * @type {Object}
 		 */
@@ -305,9 +311,10 @@ export default class Room {
 	 * @param {String} [name] The room name
 	 * @param {object} [extra=null] Extra informations
 	 * @param {boolean} [publicRoom=false] Indicates public room
+	 * @param {boolean} [useMediaServer=false] Indicates if a Media Server is available
 	 * @returns {Promise<Room, Error>}
 	 */
-	static create (name, extra = null, publicRoom = false) {
+	static create (name, extra = null, publicRoom = false, useMediaServer = false) {
 		if(!cache.user) {
 			return Promise.reject(new Error('Only an authenticated user can create a Room.'));
 		}
@@ -316,7 +323,8 @@ export default class Room {
 			roomMetaData = {
 				owner: cache.user.uid,
 				_public: publicRoom,
-				name: name || `${cache.user.name}-${Date.now()}`
+				name: name || `${cache.user.name}-${Date.now()}`,
+				useMediaServer: useMediaServer
 			},
 			roomFullMetaData = Object.assign({
 				status: OPENED,

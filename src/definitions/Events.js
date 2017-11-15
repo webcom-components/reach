@@ -23,7 +23,7 @@ import {ACCEPTED, REJECTED, CANCELED} from '../core/util/constants';
  * The events supported by {@link Room#on}
  * @typedef {Object} Events/Room
  * @property {string} PARTICIPANT_ADDED Fired when a new participant is added to the room. Does not mean he's connected but that he's invited to
- * @property {string} PARTICIPANT_CHANGED Fired when a participant changes is status (enter/leaves the room)
+ * @property {string} PARTICIPANT_CHANGED Fired when a participant changes his status (enter/leaves the room)
  * @property {string} PARTICIPANT_REMOVED Fired when a user leaves definitely or is banned
  * @property {string} MESSAGE_ADDED Fired when a new instant message is sent to the room
  * @property {string} MESSAGE_CHANGED Fired when an instant message is edited
