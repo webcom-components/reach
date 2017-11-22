@@ -298,13 +298,14 @@ export default class Reach {
 	 * @param {string} [name] The room name
 	 * @param {object} [extra] Extra informations
 	 * @param {boolean} [publicRoom=false] Indicates public room
+	 * @param {boolean} [dataChannelRoom=false] Indicates if a datachannel is created for each peer connection in the room
 	 * @returns {Promise<Room>}
 	 */
-	createRoom(name, extra, publicRoom = false) {
+	createRoom(name, extra, publicRoom = false, dataChannelRoom = false) {
 		if(!this.current) {
 			return Promise.reject(new Error('Cannot create a Room without a User being logged in.'));
 		}
-		return Room.create(name, extra, publicRoom);
+		return Room.create(name, extra, publicRoom, dataChannelRoom);
 	}
 
 	/**

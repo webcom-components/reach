@@ -73,6 +73,12 @@ export default class Room {
 		this._public = !!values._public;
 
 		/**
+		 * Indicates if a datachannel is created for each peer connection in the room
+		 * @type {boolean}
+		 */
+		this.dataChannelUse = values.dataChannelUse;
+
+		/**
 		 * Additional room informations
 		 * @type {Object}
 		 */
@@ -194,10 +200,12 @@ export default class Room {
 	 * - STREAM_PUBLISHED: a participant published a new Stream
 	 * - STREAM_CHANGED: a participant changes his published Stream (moderation, type, mute...)
 	 * - STREAM_UNPUBLISHED: a participant stops the publication of his Stream
+	 * - DATACHANNEL_MESSAGE: a participant sends a message using a datachannel
 	 * @param {function} callback The callback for the event, the arguments depends on the type of event:
 	 * - PARTICIPANT_* : callback({@link Participant} p [, Error e])
 	 * - MESSAGE_* : callback({@link Message} m [, Error e])
-	 * - STREAM_* : callback({@link Remote} s [, Error e])
+	 * - STREAM_* : callback({@link Remote} r [, Error e])
+	 * - DATACHANNEL_* : callback({string} s [, Error e])
 	 * @param {Webcom/api.Query~cancelCallback} cancelCallback The error callback for the event, takes an Error as only argument
 	 */
 	on(event, callback, cancelCallback) {
@@ -223,7 +231,19 @@ export default class Room {
 				this._callbacks[event] = [];
 			}
 			this._callbacks[event].push(typedCallback);
+		} else if (/^DATACHANNEL_/i.test(event)) {
+			if (this.dataChannelUse) {
+				cache.peerConnections.onDataChannelMessage(callback);
+			}
 		}
+	}
+
+	/**
+	 * Send data via the data channels
+	 * @param {string} message The message to send
+	 */
+	sendData(message) {
+		cache.peerConnections.sendDataChannelMessage(message);
 	}
 
 	/**
@@ -305,9 +325,14 @@ export default class Room {
 	 * @param {String} [name] The room name
 	 * @param {object} [extra=null] Extra informations
 	 * @param {boolean} [publicRoom=false] Indicates public room
+	 * @param {boolean} [dataChannelRoom=false] Indicates if a datachannel is created for each peer connection in the room
 	 * @returns {Promise<Room, Error>}
 	 */
-	static create (name, extra = null, publicRoom = false) {
+	static create (name, extra = null, publicRoom = false, dataChannelRoom = false) {
+		console.log(`name vaut ${name}`);
+		console.log(`extra vaut ${extra}`);
+		console.log(`publicRoom vaut ${publicRoom}`);
+		console.log(`dataChannelRoom vaut ${dataChannelRoom}`);
 		if(!cache.user) {
 			return Promise.reject(new Error('Only an authenticated user can create a Room.'));
 		}
@@ -316,7 +341,8 @@ export default class Room {
 			roomMetaData = {
 				owner: cache.user.uid,
 				_public: publicRoom,
-				name: name || `${cache.user.name}-${Date.now()}`
+				name: name || `${cache.user.name}-${Date.now()}`,
+				dataChannelUse : dataChannelRoom,
 			},
 			roomFullMetaData = Object.assign({
 				status: OPENED,
@@ -346,9 +372,20 @@ export default class Room {
 	static get (uid) {
 		return DataSync.get(`rooms/${uid}`)
 			.then(snapData => {
+				console.log('on fait un get pour récupérer la room');
+				console.log(snapData.val());
 				if(snapData.val()) {
 					return new Room(snapData);
 				}
 			});
+	}
+
+	/**
+	 * Get the dataChannelUse property of a Room
+	 * @access protected
+	 * @returns {boolean}
+	 */
+	static isDataChannelUse () {
+		return this.dataChannelUse;
 	}
 }

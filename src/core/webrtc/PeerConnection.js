@@ -84,6 +84,21 @@ export default class PeerConnection {
 		 */
 		this.remoteDevice = remoteDevice;
 		/**
+		 * publish : a created peer connection or a remote one
+		 * @type {boolean}
+		 */
+		this.publish = publish;
+		/**
+		 * The data channel associated to this peer connection
+		 * @type {RTCDataChannel}
+		 */
+		this.dataChannel = null;
+		/**
+		 * The callback called when a message is received on the data channel
+		 * @type {function}
+		 */
+		this.dataChannelCallback = null;
+		/**
 		 * Path for local signalization
 		 * @access private
 		 * @type {string}
@@ -199,6 +214,56 @@ export default class PeerConnection {
 		if(this.remoteStream && this.isConnected) {
 			this.node = Media.attachStream(this.remoteStream, this.container, this.node);
 			this.node.muted = false;
+		}
+	}
+
+	/**
+	 * create the data Channel if needed
+	 * @access protected
+	 */
+	createDataChannel () {
+		this.dataChannel = this.pc.createDataChannel('data');
+	}
+
+	/**
+	 * listen on the remote data Channel
+	 * @access protected
+	 * @param {function} callback
+	 */
+	onRemoteDataChannel (callback) {
+		this.pc.ondatachannel = (evt) => {
+			this.dataChannel = evt.channel;
+			if (callback) {
+				this.dataChannel.onmessage = (message) => {
+					callback(message);
+				};
+			}
+		};
+	}
+
+	/**
+	 * set the callback triggers when a message is recevied on the the data Channel
+	 * @param {function} callback
+	 * @access protected
+	 */
+	onMessage (callback) {
+		this.dataChannelCallback = callback;
+		if (this.dataChannel) {
+			this.dataChannel.onmessage = (message) => {
+				callback(message);
+			};
+		}
+	}
+
+	/**
+	 * send data on the the data Channel
+	 * @access protected
+	 */
+	sendMessage (message) {
+		if (this.dataChannel) {
+			if (this.dataChannel.readyState === 'open') {
+				this.dataChannel.send(message);
+			}
 		}
 	}
 

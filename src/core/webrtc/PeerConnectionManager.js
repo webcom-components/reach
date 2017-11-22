@@ -1,4 +1,5 @@
 import PeerConnection from './PeerConnection';
+import Room from '../Room';
 import cache from '../util/cache';
 import * as Log from '../util/Log';
 import * as DataSync from '../util/DataSync';
@@ -19,6 +20,11 @@ export default class PeerConnectionManager {
 		 * @type {{*: {*: PeerConnection}}}
 		 */
 		this.stacks = {};
+		/**
+		 * Data Channel callback when a message is received
+		 * @type {function}
+		 */
+		this.dataChannelCallback = null;
 	}
 
 
@@ -50,6 +56,13 @@ export default class PeerConnectionManager {
 		return DataSync.update(`_/webrtc/${stackId}`, users)
 			.then(() => new PeerConnection(stackId, stream.uid, remote.device, publish))
 			.then(pc => {
+				if(Room.isDataChannelUse) {
+					if (publish) {
+						pc.createDataChannel();
+					} else {
+						pc.onRemoteDataChannel(this.dataChannelCallback);
+					}
+				}
 				Log.d('PeerConnectionManager~getPeerConnection', {stackId, streamId: stream.uid, pc});
 				this.stacks[stackId][stream.uid] = pc;
 				return pc;
@@ -97,5 +110,36 @@ export default class PeerConnectionManager {
 			return pc;
 		}
 		return false;
+	}
+
+	/**
+	 * callback called when a message is received on a data channel
+	 * @param {function} callback
+	 */
+	onDataChannelMessage(callback) {
+		this.dataChannelCallback = callback;
+		//set the callback for all the peer connections already created
+		for (const stackId in this.stacks) {
+			for (const streamId in this.stacks[stackId]) {
+				const pc = this.stacks[stackId][streamId];
+				if (!pc.publish) {
+					pc.onMessage(callback);
+				}
+			}
+		}
+	}
+
+	/**
+	 * send a message on the data channel on all Peer connections
+	 */
+	sendDataChannelMessage(message) {
+		for (const stackId in this.stacks) {
+			for (const streamId in this.stacks[stackId]) {
+				const pc = this.stacks[stackId][streamId];
+				if (pc.publish) {
+					pc.sendMessage(message);
+				}
+			}
+		}
 	}
 }

@@ -28,8 +28,11 @@ import {ACCEPTED, REJECTED, CANCELED} from '../core/util/constants';
  * @property {string} MESSAGE_ADDED Fired when a new instant message is sent to the room
  * @property {string} MESSAGE_CHANGED Fired when an instant message is edited
  * @property {string} MESSAGE_REMOVED Fired when an instant message is removed
+ * @property {string} STREAM_CHANGED Fired when a participant changes his published Stream (moderation, type, mute...)
  * @property {string} STREAM_PUBLISHED Fired when a participant publishes a stream
  * @property {string} STREAM_UNPUBLISHED Fired when a participant stops the publishing of his stream
+ * @property {string} STREAM_UNPUBLISHED Fired when a participant stops the publishing of his stream
+ * @property {string} DATACHANNEL_MESSAGE Fired when a participant sends a message using a datachannel
  */
 
 /**
@@ -122,7 +125,7 @@ export const reach = new _Events([
 export const room = new _Events([
 	'MESSAGE_ADDED', 'MESSAGE_CHANGED', 'MESSAGE_REMOVED',
 	'PARTICIPANT_ADDED', 'PARTICIPANT_CHANGED', 'PARTICIPANT_REMOVED',
-	'STREAM_PUBLISHED', 'STREAM_UNPUBLISHED'
+	'STREAM_PUBLISHED', 'STREAM_UNPUBLISHED', 'DATACHANNEL_MESSAGE'
 ]);
 
 /**
