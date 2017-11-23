@@ -118,8 +118,8 @@ export default class Media {
 				_node.autoplay = true;
 				// set these attributes in order to launch the video on IOS
 				if (Reach.browser.browser === 'safari') {
-				  _node.setAttribute('playsinline',true);
-				  _node.setAttribute('muted',true);
+					_node.setAttribute('playsinline',true);
+					_node.setAttribute('muted',true);
 				}
 				_node.style.borderRadius = '1px';
 			}
