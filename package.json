@@ -9,7 +9,6 @@
   },
   "scripts": {
     "precommit": "cross-env-test TRAVIS=true || (npm run lint -s && git reset dist/*.js)",
-    "commitmsg": "validate-commit-msg",
     "prepush": "cross-env-test TRAVIS=true || npm run test -s",
     "doc": "rimraf esdoc/* && esdoc -c esdoc.json",
     "doc:all": "rimraf esdoc/* && esdoc -c esdoc.all.json",
@@ -88,10 +87,9 @@
     "moment": "^2.15.0",
     "rimraf": "^2.5.4",
     "semantic-release": "^6.3.2",
-    "validate-commit-msg": "^2.8.0",
     "webpack": "^2.2.1",
     "webpack-bundle-analyzer": "^2.2.1",
-    "webrtc-adapter": "^6.0.0"
+    "webrtc-adapter": "^4.0.0"
   },
   "config": {
     "commitizen": {
