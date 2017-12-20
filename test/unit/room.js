@@ -7,6 +7,7 @@ import Room from '../../src/core/Room';
 //import Invite from '../../src/core/Invite';
 //import Participant from '../../src/core/Participant';
 import * as log from '../util/logger';
+//import * as config from '../util/config';
 //import * as namespace from '../util/namespace';
 //import Message from '../../src/core/Message';
 

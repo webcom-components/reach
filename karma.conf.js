@@ -42,7 +42,8 @@ const flags = [
 	//'--use-fake-device-for-media-stream',
 	// Bypass the media stream infobar by selecting the default device for media streams (e.g. WebRTC).
 	// Works with --use-fake-device-for-media-stream.
-	'--use-fake-ui-for-media-stream'
+	'--use-fake-ui-for-media-stream',
+	'--auto-open-devtools-for-tabs'
 ];
 // firefox prefs
 const prefs = {

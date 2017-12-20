@@ -59,6 +59,7 @@ export const remove = (tempNamespace) => {
 			};
 			req.open('POST', `${config.protocol}://${config.domain}/admin/base/${tempNamespace}`);
 			formData.append('token', auth.token);
+			// formData.append('token', token);
 			formData.append('_method', 'DELETE');
 			formData.append('namespace', tempNamespace);
 			req.send(formData);

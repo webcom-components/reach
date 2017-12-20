@@ -21,6 +21,7 @@
     "start": "karma start --auto-watch",
     "jwt": "node ./jwt.js",
     "test": "karma start --single-run",
+    "test:debug": "karma start --single-run=false --browsers=Chrome",
     "test:coverage": "cross-env NODE_ENV=test karma start --single-run --coverage",
     "prepublish-dist": "npm run build",
     "publish-dist": "echo \"machine github.com login $GH_TOKEN\" >> ~/.netrc && git config user.name \"webcomOps\" && git config user.email \"webcom.ops@orange.com\" && git add dist && git commit --no-verify --message \"chore(publish): publish dist [ci skip]\" dist && git push --no-verify origin HEAD:master",
@@ -43,9 +44,11 @@
     "webcom": "^1.2.3"
   },
   "dependencies": {
+    "request": "^2.83.0",
     "webcom": "^1.2.3"
   },
   "devDependencies": {
+    "axios": "^0.17.1",
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
     "babel-plugin-istanbul": "^4.0.0",
@@ -55,7 +58,7 @@
     "babel-plugin-transform-property-literals": "^6.8.0",
     "babel-plugin-transform-remove-debugger": "^6.8.0",
     "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-preset-env": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0",
     "babel-runtime": "^6.11.6",
     "browser-sync": "^2.15.0",
     "cors": "^2.8.1",
@@ -82,16 +85,17 @@
     "karma-sauce-launcher": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webdriver-launcher": "^1.0.4",
-    "karma-webpack": "^2.0.2",
+    "karma-webpack": "^2.0.9",
     "lodash": "^4.14.2",
     "minimist": "^1.2.0",
-    "moment": "^2.15.0",
+    "moment": "^2.20.0",
+    "qs": "^6.5.1",
     "rimraf": "^2.5.4",
     "semantic-release": "^6.3.2",
     "validate-commit-msg": "^2.8.0",
     "webpack": "^2.2.1",
     "webpack-bundle-analyzer": "^2.2.1",
-    "webrtc-adapter": "^4.0.0"
+    "webrtc-adapter": "^4.2.2"
   },
   "config": {
     "commitizen": {
