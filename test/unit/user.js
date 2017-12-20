@@ -1,13 +1,13 @@
 // put in comment some tests becaue of authentication webcom changes
 
 import Reach from '../../src/Reach';
-//import User from '../../src/core/User';
+import User from '../../src/core/User';
 //import Room from '../../src/core/Room';
 //import Invite from '../../src/core/Invite';
 //import Participant from '../../src/core/Participant';
 //import {ONGOING} from '../../src/core/util/constants';
 
-//import * as log from '../util/logger';
+import * as log from '../util/logger';
 
 describe('Users /', () => {
 	let ref;
@@ -46,7 +46,7 @@ describe('Users /', () => {
 			});
 		});
 
-		/* it('Should be able to list users', done => {
+		it('Should be able to list users', done => {
 			ref.users()
 				.then(users => {
 					log.g('info', `Listed ${users.length} users`, users);
@@ -74,7 +74,7 @@ describe('Users /', () => {
 				});
 		});
 
-		it('Should be able to list invites', done => {
+		/* it('Should be able to list invites', done => {
 			ref.invites()
 				.then(invites => {
 					expect(invites).toBeAnArrayOf(Invite);
@@ -121,6 +121,6 @@ describe('Users /', () => {
 					expect(e).not.toBePermissionDenied();
 					done(e);
 				});
-		}); */
+		});*/
 	});
 });

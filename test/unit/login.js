@@ -1,17 +1,17 @@
 // put in comment some tests becaue of authentication webcom changes
 
 import Reach from '../../src/Reach';
-//import * as datasync from '../../src/core/util/DataSync';
+import * as datasync from '../../src/core/util/DataSync';
 // import * as rules from '../util/rules';
 import * as log from '../util/logger';
 import * as namespace from '../util/namespace';
 import {CONNECTED, NOT_CONNECTED} from '../../src/core/util/constants';
 import Device from '../../src/core/Device';
-//import Webcom from 'webcom/webcom';
+// import Webcom from 'webcom/webcom';
 
-//const uidRegExp = /^[a-z0-9\-:]+$/;
+const uidRegExp = /^[a-z0-9\-:]+$/;
 
-/* const testUser = (done, action, userInfos, ereg = uidRegExp) => {
+const testUser = (done, action, userInfos, ereg = uidRegExp) => {
 	action
 		.then(user => {
 			expect(user.name).toEqual(userInfos.name || userInfos.email);
@@ -37,7 +37,7 @@ import Device from '../../src/core/Device';
 		.catch(e => {
 			done.fail(e.message);
 		});
-};*/
+};
 
 describe('Register & Login /', () => {
 	let ref;
@@ -71,7 +71,7 @@ describe('Register & Login /', () => {
 
 	describe('Authenticated Users /', () => {
 
-		/* it('Should be able to register a new user', done => {
+		/*it('Should be able to register a new user', done => {
 			const newUser = {
 				email: `register.user.${Date.now()}@reach.io`,
 				password: 'password'
@@ -85,7 +85,7 @@ describe('Register & Login /', () => {
 				),
 				newUser
 			);
-		});
+		});*/
 
 		it('Should be able to login as an existing user', done => {
 			testUser(
@@ -93,7 +93,7 @@ describe('Register & Login /', () => {
 				login(global.env.createdUsers[1], 'Homer'),
 				Object.assign({name: 'Homer'}, global.env.createdUsers[0])
 			);
-		}); */
+		});
 
 		it('Should be able to logout', done => {
 			login(global.env.createdUsers[1], 'Homer')
@@ -151,7 +151,7 @@ describe('Register & Login /', () => {
 		});
 	});
 
-	describe('Anonymous Users /', () => {
+	/* describe('Anonymous Users /', () => {
 		const anon = (nick) => {
 			return ref
 				.anonymous(nick)
@@ -161,14 +161,14 @@ describe('Register & Login /', () => {
 				});
 		};
 
-		/* it('Should be able to login as an anonymous user', done => {
+		it('Should be able to login as an anonymous user', done => {
 			testUser(
 				done,
 				anon('Homer'),
 				{name: 'Homer'},
 				/^anonymous:[0-9a-z\-]+$/
 			);
-		}); */
+		});
 
 		it('Should be able to logout', done => {
 			let currentUid = null;
@@ -198,5 +198,5 @@ describe('Register & Login /', () => {
 					done(e);
 				});
 		});
-	});
+	});*/
 });

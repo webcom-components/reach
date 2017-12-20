@@ -1,4 +1,6 @@
 import Webcom from 'webcom/webcom';
+import axios from 'axios';
+import qs from 'qs';
 import * as namespace from './util/namespace';
 import * as rules from './util/rules';
 import * as log from './util/logger';
@@ -24,6 +26,65 @@ window.__karma__.start = (function(originalStartFn) {
 })(window.__karma__.start);
 
 global.env = {};
+
+const Api = () => {
+	return axios.create({
+		baseURL: `${config.protocol}://${config.domain}`,
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded'
+		}/*,
+		proxy: {
+			host: 'proxy.rd.francetelecom.fr',
+			port: 8080
+		}*/
+	});
+};
+
+const getToken = () => {
+	return new Promise((resolve, reject) => {
+		const auth = {
+			email: config.credentials.email,
+			password: config.credentials.password
+		};
+		Api().post(
+			'/auth/v2/accounts/password/signin',
+			qs.stringify(auth)
+		)
+		.then((res) => {
+			return res.data.token;
+		})
+		.then((token) => {
+			global.env.authToken = token;
+			return Api().get(
+				`/admin/base/${global.env.namespace}/token?token=${token}`
+			);
+		})
+		.then((res) => {
+			resolve(res.data.authToken);
+		})
+		.catch((err) => {
+			log.e(err);
+			reject(err);
+		});
+	});
+};
+
+	// axios.defaults.baseURL = `${config.protocol}://${config.domain}`;
+	// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+	/*axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+	console.log('on va faire le post');
+	axios.post(
+		`${config.protocol}://${config.domain}/auth/v2/accounts/password/signin`,
+		auth)
+		.then( function (response) {
+			console.log('la requete est bonne');
+			console.log(response);
+		})
+		.catch(function (error) {
+			console.log('la requete ne amrche pas');
+    	console.log(error);
+  	});
+} */
 
 const customMatchers = {
 	toBePermissionDenied: ()  => ({
@@ -54,19 +115,31 @@ describe('Reach /', () => {
 	jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
 
 	beforeAll(done => {
+		// Workaround test in error "some of your tests did a full page reload"
+		window.onbeforeunload = () => {};
+
 		log.d('main#beforeAll');
 		jasmine.addMatchers(customMatchers);
 		(config.namespace ? Promise.resolve(config.namespace) : namespace.create())
 			.then(ns => {
+				log.d('namespace created');
 				global.env.namespace = ns;
 				global.env.namespaceUrl = config.namespaceUrl(global.env.namespace);
 			})
-			.then(() => rules.set())
+			.then(() => {
+				log.d('set des rules');
+				rules.set();
+			})
 			.then(() => {
 				log.d('Try to connect to ', global.env.namespaceUrl);
 				global.env.base = new Webcom(global.env.namespaceUrl);
 			})
 			.then(() => {
+				log.d('Generate authToken');
+				return getToken();
+			})
+			.then((authToken) => {
+				global.env.createToken = authToken;
 				global.env.createdUsers = [];
 				const ts = Date.now();
 				const tmp = Array(5);
@@ -77,14 +150,26 @@ describe('Reach /', () => {
 							email: `new.user.${i}@${ts}.reach.io`,
 							password: `password${ts}`
 						};
-						return () => global.env.base.createUser(user.email, user.password)
+						return () => Api().post(
+							`/admin/base/${global.env.namespace}/createConfirmedUser?auth=${global.env.createToken}
+								&email=${user.email}`,
+							qs.stringify({
+								password: user.password
+							})
+						)
+						.then((res) => {
+							user.uid = res.data.uid;
+							global.env.createdUsers.push(user);
+							return user;
+						});
+						/* global.env.base.createUser(user.email, user.password)
 							.then(auth => {
 								if (auth) {
 									user.uid = auth.uid;
 									global.env.createdUsers.push(user);
 									return user;
 								}
-							});
+							}); */
 					})
 					.reduce((previous, current) => previous.then(current), Promise.resolve());
 			})

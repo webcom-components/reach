@@ -352,7 +352,11 @@ export default class PeerConnection {
 	 */
 	_alterStream(stream, method) {
 		if(Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, `${method}Track`)) {
-			stream.getTracks().forEach(track => this.pc[`${method}Track`](track, stream), this);
+			if (method === 'add') {
+				stream.getTracks().forEach(track => this.pc[`${method}Track`](track, stream), this);
+			} else {
+				this.pc.getSenders().forEach(sender => this.pc[`${method}Track`](sender), this);
+			}
 		} else {
 			this.pc[`${method}Stream`](stream);
 		}

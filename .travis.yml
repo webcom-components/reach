@@ -1,4 +1,7 @@
 language: node_js
+before_install:
+  - rm -rf ./node_modules ./package-lock.json
+  - npm cache clean --force
 before_script:
   - npm prune
 script:
