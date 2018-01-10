@@ -103,6 +103,7 @@ export default class PeerConnectionManager {
 	 * Close all PeerConnections
 	 */
 	closeAllPeerConnecions() {
+		Log.d('PeerConnectionManager~closeAllPeerConnecions');
 		for (const stackId in this.stacks) {
 			for (const streamId in this.stacks[stackId]) {
 				const pc = this.stacks[stackId][streamId];
