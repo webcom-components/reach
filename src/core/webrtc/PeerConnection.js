@@ -3,12 +3,10 @@
 import cache from '../util/cache';
 import * as Log from '../util/Log';
 import Media from '../util/Media';
-import Reach from '../../Reach';
 import Device from '../Device';
 import * as DataSync from '../util/DataSync';
 import {OPENED, CLOSING, CLOSED} from '../util/constants';
 import 'core-js/fn/array/find';
-import {browser} from '../../definitions/Browser';
 
 const DtlsSrtpKeyAgreement = {DtlsSrtpKeyAgreement: true};
 const sdpConstraints = receive => ({OfferToReceiveAudio: receive, OfferToReceiveVideo: receive});
@@ -347,18 +345,18 @@ export default class PeerConnection {
 		const remoteUserId = this.remote.to ? this.remote.to : this.remote.from;
 		Device.get(remoteUserId, this.remote.device)
 			.then((remoteDevice) => {
-				let sdpOffer = this.pc.localDescription.sdp;
+				const sdpOffer = this.pc.localDescription.sdp;
 				let newSdp = sdpOffer;
 				if (navigator.userAgent.indexOf('Chrome')!== -1 &&
 					navigator.userAgent.indexOf('Android') !== -1 &&
 					remoteDevice.userAgent.indexOf('Safari')!== -1) {
-						newSdp =	sdpOffer.replace('42001f','42e01f');
-				};
+					newSdp =	sdpOffer.replace('42001f','42e01f');
+				}
 				if (navigator.userAgent.indexOf('Safari')!== -1 &&
 					remoteDevice.userAgent.indexOf('Chrome')!== -1 &&
 					remoteDevice.userAgent.indexOf('Android')!== -1) {
-						newSdp =	sdpOffer.replace('42e01f','42001f');
-				};
+					newSdp =	sdpOffer.replace('42e01f','42001f');
+				}
 				Log.d('PeerConnection~_sendSdpToRemote#localSDP Modified', newSdp);
 				const descriptionChanged = {
 					sdp: newSdp,
@@ -380,7 +378,7 @@ export default class PeerConnection {
 			.then(description => this._setPreferredCodecs(description))
 			.then(description => this.pc.setLocalDescription(description))
 			.then(() => Log.d('PeerConnection~_sendOffer#localDescription', this.pc.localDescription))
-			.then(() => this._sendSdpToRemote())
+			.then(() => this._sendSdpToRemote());
 	}
 
 	/**
