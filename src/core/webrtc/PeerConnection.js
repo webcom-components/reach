@@ -3,9 +3,12 @@
 import cache from '../util/cache';
 import * as Log from '../util/Log';
 import Media from '../util/Media';
+import Reach from '../../Reach';
+import Device from '../Device';
 import * as DataSync from '../util/DataSync';
 import {OPENED, CLOSING, CLOSED} from '../util/constants';
 import 'core-js/fn/array/find';
+import {browser} from '../../definitions/Browser';
 
 const DtlsSrtpKeyAgreement = {DtlsSrtpKeyAgreement: true};
 const sdpConstraints = receive => ({OfferToReceiveAudio: receive, OfferToReceiveVideo: receive});
@@ -64,10 +67,10 @@ export default class PeerConnection {
 	 * @access protected
 	 * @param {string} stackId The WebRTC stack ID
 	 * @param {string} streamId The Stream UID
-	 * @param {string} remoteDevice The remote device's UID
+	 * @param {Remote|{to: string||from: string, device:string}} remote The remote information
 	 * @param {boolean} publish Publish or Subscribe ?
 	 */
-	constructor(stackId, streamId, remoteDevice, publish) {
+	constructor(stackId, streamId, remote, publish) {
 		/**
 		 * The stack identifier. Used to identify exchanges between 2 devices
 		 * @type {string}
@@ -79,10 +82,15 @@ export default class PeerConnection {
 		 */
 		this.streamId = streamId;
 		/**
-		 * The remote device Id
+		 * The remote device
 		 * @type {string}
 		 */
-		this.remoteDevice = remoteDevice;
+		this.remote = remote;
+		/**
+		 * publish : a created peer connection or a remote one
+		 * @type {boolean}
+		 */
+		this.publish = publish;
 		/**
 		 * Path for local signalization
 		 * @access private
@@ -94,7 +102,7 @@ export default class PeerConnection {
 		 * @access private
 		 * @type {string}
 		 */
-		this._remotePath = `_/webrtc/${this.stackId}/${this.streamId}/${this.remoteDevice}`;
+		this._remotePath = `_/webrtc/${this.stackId}/${this.streamId}/${this.remote.device}`;
 		/**
 		 * Indicates if the PeerConnection has been established. (Useful for renegotiation).
 		 * @type {boolean}
@@ -277,8 +285,8 @@ export default class PeerConnection {
 						Log.d('PeerConnection~localDescription', this.pc.localDescription);
 						this._remoteICECandidates(true);
 					})
-					.then(() => DataSync.update(`${this._localPath}/sdp`, _toJSON(this.pc.localDescription)))
-					.catch(Log.r('PeerConnection~localDescription'));
+					.then(() => this._sendSdpToRemote())
+					.catch(Log.r('PeerConnection~localDescription#error'));
 			}
 		});
 
@@ -331,6 +339,37 @@ export default class PeerConnection {
 	}
 
 	/**
+	 * Send SDP offer to the remote via DataSync
+	 * @private
+	 */
+	_sendSdpToRemote() {
+		Log.d('PeerConnection~_sendSdpToRemote#localSDP', this.pc.localDescription.sdp);
+		const remoteUserId = this.remote.to ? this.remote.to : this.remote.from;
+		Device.get(remoteUserId, this.remote.device)
+			.then((remoteDevice) => {
+				let sdpOffer = this.pc.localDescription.sdp;
+				let newSdp = sdpOffer;
+				if (navigator.userAgent.indexOf('Chrome')!== -1 &&
+					navigator.userAgent.indexOf('Android') !== -1 &&
+					remoteDevice.userAgent.indexOf('Safari')!== -1) {
+						newSdp =	sdpOffer.replace('42001f','42e01f');
+				};
+				if (navigator.userAgent.indexOf('Safari')!== -1 &&
+					remoteDevice.userAgent.indexOf('Chrome')!== -1 &&
+					remoteDevice.userAgent.indexOf('Android')!== -1) {
+						newSdp =	sdpOffer.replace('42e01f','42001f');
+				};
+				Log.d('PeerConnection~_sendSdpToRemote#localSDP Modified', newSdp);
+				const descriptionChanged = {
+					sdp: newSdp,
+					type: this.pc.localDescription.type
+				};
+				DataSync.update(`${this._localPath}/sdp`, _toJSON(descriptionChanged));
+
+			});
+	}
+
+	/**
 	 * Create SDP offer and push it
 	 * @returns {Promise}
 	 * @private
@@ -340,8 +379,8 @@ export default class PeerConnection {
 		return this.pc.createOffer()
 			.then(description => this._setPreferredCodecs(description))
 			.then(description => this.pc.setLocalDescription(description))
-			.then(() => Log.d('PeerConnection~renegotiate#localDescription', this.pc.localDescription))
-			.then(() => DataSync.update(`${this._localPath}/sdp`, _toJSON(this.pc.localDescription)));
+			.then(() => Log.d('PeerConnection~_sendOffer#localDescription', this.pc.localDescription))
+			.then(() => this._sendSdpToRemote())
 	}
 
 	/**

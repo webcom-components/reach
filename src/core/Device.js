@@ -1,3 +1,6 @@
+import * as DataSync from './util/DataSync';
+import * as Log from './util/Log';
+
 /**
  * User device
  * @access protected
@@ -40,4 +43,19 @@ export default class Device {
 		this.sdk = values.sdk;
 		// TODO #Feat: Add 'extra' property for unrestricted additional information ?
 	}
+
+
+	/**
+	 * Get a device by its user uid and its uid
+	 * @access private
+	 * @param {string} userUid The user's uid
+	 * @param {string} deviceUid The device's uid
+	 * @returns {Promise<Device, Error>}
+	 */
+	static get(userUid, deviceUid) {
+		return DataSync.get(`_/devices/${userUid}/${deviceUid}`)
+		.then(snapData => snapData ? new Device(snapData) : null)
+		.catch(Log.r('Device#get'));
+	}
+
 }

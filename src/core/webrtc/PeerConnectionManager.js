@@ -48,7 +48,7 @@ export default class PeerConnectionManager {
 		users[remote.from || remote.to] = true;
 
 		return DataSync.update(`_/webrtc/${stackId}`, users)
-			.then(() => new PeerConnection(stackId, stream.uid, remote.device, publish))
+			.then(() => new PeerConnection(stackId, stream.uid, remote, publish))
 			.then(pc => {
 				Log.d('PeerConnectionManager~getPeerConnection', {stackId, streamId: stream.uid, pc});
 				this.stacks[stackId][stream.uid] = pc;
