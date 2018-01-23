@@ -268,7 +268,7 @@ export default class PeerConnection {
 			const sdpOffer = snap.val();
 			Log.d('Offer', sdpOffer);
 			if(sdpOffer != null) {
-				Log.d('PeerConnection~offered', sdpOffer);
+				Log.d('PeerConnection~offered', sdpOffer.sdp);
 				this.pc.setRemoteDescription(sdpOffer)
 					.then(() => Log.d('PeerConnection~remoteDescription', this.pc.remoteDescription))
 					.then(() => {
@@ -279,6 +279,7 @@ export default class PeerConnection {
 					})
 					.then(description => this._setPreferredCodecs(description))
 					.then(description => this.pc.setLocalDescription(description))
+					.then(() => console.log('PeerConnection-answer#localSDP', this.pc.localDescription.sdp))
 					.then(() => {
 						Log.d('PeerConnection~localDescription', this.pc.localDescription);
 						this._remoteICECandidates(true);
@@ -337,6 +338,75 @@ export default class PeerConnection {
 	}
 
 	/**
+	 * Edits the SDP to set the preferred audio/video codec
+	 * @access private
+	 * @param {string} sdp The sdp to be modified
+	 * @returns {string}}
+	*/
+	_addVP8Codec(sdp) {
+		 let sdpresult = sdp;
+		 Log.d('PeerConnection~_addVP8Codec');
+		 console.error(`PeerConnection~_addVP8Codec sdp=${sdp}`);
+		 if (sdpresult === null) { return null; }
+		 const sdpLines = sdpresult.split(/\r?\n/);
+		 const medias = {audio: [], video: []};
+		 let current = null;
+		 let vp8InVideoList = false;
+		 let h264InVideoList = false;
+		 let lastIndex = 0;
+		 // Parse SDP
+		 sdpLines.forEach((sdpLine, i) => {
+			 if(/^m=video/.test(sdpLine)) {
+				 const d = /^m=(\w+)\s[0-9\/]+\s[A-Za-z0-9\/]+\s([0-9\s]+)/.exec(sdpLine);
+				 current = { fmt: d[2].split(/\s/), index: i, codecs: [] };
+				 medias[d[1]].push(current);
+				 lastIndex = current.fmt[current.fmt.length - 1];
+			 } else if(current && /^a=rtpmap:/.test(sdpLine)) {
+				 const c = /^a=rtpmap:(\d+)\s([a-zA-Z0-9\-\/]+)/.exec(sdpLine);
+				 if(c) {
+					current.codecs.push({ id: c[1], name: c[2], index: i });
+					if (c[0].toUpperCase().indexOf('VP8') !== -1) { vp8InVideoList=true; }
+					if (c[0].toUpperCase().indexOf('H264') !== -1) { h264InVideoList=true; }
+				 }
+			 }
+		 });
+		 const videoIndex = medias.video[0].index;
+		 if (!vp8InVideoList) {
+			 console.error('Add VP8 codec to sdp');
+			 lastIndex++;
+			 // console.error(sdpLines[videoIndex] );
+			 sdpLines[videoIndex] = sdpLines[videoIndex].concat(` ${lastIndex} `);
+			 // console.error(sdpLines[videoIndex] );
+			 sdpresult = sdpLines.join('\r\n');
+			 sdpresult += `a=rtpmap:${lastIndex} VP8/90000 \r\n`+
+											 `a=rtcp-fb:${lastIndex} ccm fir \r\n`+
+											 `a=rtcp-fb:${lastIndex} nack \r\n`+
+											 `a=rtcp-fb:${lastIndex} nack pli \r\n`+
+											 `a=rtcp-fb:${lastIndex} goog-remb \r\n`+
+											 `a=rtcp-fb:${lastIndex} transport-cc \r\n`;
+		 }
+		 if (!h264InVideoList) {
+			 console.error('Add h264 codec to sdp');
+			 lastIndex++;
+			 // console.error(sdpLines[videoIndex] );
+			 sdpLines[videoIndex] = sdpLines[videoIndex].concat(` ${lastIndex} `);
+			 // console.error(sdpLines[videoIndex] );
+			 sdpresult = sdpLines.join('\r\n');
+			 sdpresult += `a=rtpmap:${lastIndex} H264/90000 \r\n`+
+											 `a=rtcp-fb:${lastIndex} ccm fir \r\n`+
+											 `a=rtcp-fb:${lastIndex} nack \r\n`+
+											 `a=rtcp-fb:${lastIndex} nack pli \r\n`+
+											 `a=rtcp-fb:${lastIndex} goog-remb \r\n`+
+											 `a=rtcp-fb:${lastIndex} transport-cc \r\n`+
+											 `a=rtcp-fb:${lastIndex} `+
+											 'level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f \r\n';
+		 }
+		 Log.d('PeerConnection~AddCodecToSdp', sdpresult);
+		 console.error(sdpresult);
+		 return sdpresult;
+	 }
+
+/**
 	 * Send SDP offer to the remote via DataSync
 	 * @private
 	 */
@@ -350,12 +420,14 @@ export default class PeerConnection {
 				if (navigator.userAgent.indexOf('Chrome')!== -1 &&
 					navigator.userAgent.indexOf('Android') !== -1 &&
 					remoteDevice.userAgent.indexOf('Safari')!== -1) {
-					newSdp =	sdpOffer.replace('42001f','42e01f');
+					newSdp =	this._addVP8Codec(sdpOffer);
+					newSdp =	newSdp.replace('42001f','42e01f');
 				}
 				if (navigator.userAgent.indexOf('Safari')!== -1 &&
 					remoteDevice.userAgent.indexOf('Chrome')!== -1 &&
 					remoteDevice.userAgent.indexOf('Android')!== -1) {
-					newSdp =	sdpOffer.replace('42e01f','42001f');
+					newSdp =	this._addVP8Codec(sdpOffer);
+					newSdp =	newSdp.replace('42e01f','42001f');
 				}
 				Log.d('PeerConnection~_sendSdpToRemote#localSDP Modified', newSdp);
 				const descriptionChanged = {
@@ -376,7 +448,10 @@ export default class PeerConnection {
 		Log.d('PeerConnection~_sendOffer');
 		return this.pc.createOffer()
 			.then(description => this._setPreferredCodecs(description))
-			.then(description => this.pc.setLocalDescription(description))
+			.then(description => {
+				console.log('PeerConnection-offer#localSDP', description.sdp)
+				return this.pc.setLocalDescription(description);
+			})
 			.then(() => Log.d('PeerConnection~_sendOffer#localDescription', this.pc.localDescription))
 			.then(() => this._sendSdpToRemote());
 	}

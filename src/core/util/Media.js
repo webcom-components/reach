@@ -120,6 +120,10 @@ export default class Media {
 				if (Reach.browser.browser === 'safari') {
 					_node.setAttribute('playsinline',true);
 					_node.setAttribute('muted',true);
+					_node.setAttribute('type','video/Webm;codec=VP8');
+					//_node.type = 'video/Webm';
+				} else {
+					_node.setAttribute('type','video/mp4');
 				}
 				_node.style.borderRadius = '1px';
 			}
