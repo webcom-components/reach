@@ -324,7 +324,7 @@ export default class PeerConnection {
 			DataSync.on(`${this._remotePath}/sdp`, 'value', snap => {
 				const sdpAnswer = snap.val();
 				if(sdpAnswer != null) {
-					Log.d('PeerConnection~offer#answered', sdpAnswer);
+					Log.d('PeerConnection~offer#answered', sdpAnswer.sdp);
 					this.pc.setRemoteDescription(sdpAnswer)
 						.then(() => {
 							Log.d('PeerConnection~offer#remoteDescription', this.pc.remoteDescription);
@@ -344,67 +344,68 @@ export default class PeerConnection {
 	 * @returns {string}}
 	*/
 	_addVP8Codec(sdp) {
-		 let sdpresult = sdp;
-		 Log.d('PeerConnection~_addVP8Codec');
-		 console.error(`PeerConnection~_addVP8Codec sdp=${sdp}`);
-		 if (sdpresult === null) { return null; }
-		 const sdpLines = sdpresult.split(/\r?\n/);
-		 const medias = {audio: [], video: []};
-		 let current = null;
-		 let vp8InVideoList = false;
-		 let h264InVideoList = false;
-		 let lastIndex = 0;
-		 // Parse SDP
-		 sdpLines.forEach((sdpLine, i) => {
-			 if(/^m=video/.test(sdpLine)) {
-				 const d = /^m=(\w+)\s[0-9\/]+\s[A-Za-z0-9\/]+\s([0-9\s]+)/.exec(sdpLine);
-				 current = { fmt: d[2].split(/\s/), index: i, codecs: [] };
-				 medias[d[1]].push(current);
-				 lastIndex = current.fmt[current.fmt.length - 1];
-			 } else if(current && /^a=rtpmap:/.test(sdpLine)) {
-				 const c = /^a=rtpmap:(\d+)\s([a-zA-Z0-9\-\/]+)/.exec(sdpLine);
-				 if(c) {
+		let sdpresult = sdp;
+		Log.d('PeerConnection~_addVP8Codec');
+		console.error(`PeerConnection~_addVP8Codec sdp=${sdp}`);
+		if (sdpresult === null) { return null; }
+		const sdpLines = sdpresult.split(/\r?\n/);
+		const medias = {audio: [], video: []};
+		let current = null;
+		let vp8InVideoList = false;
+		let h264InVideoList = false;
+		let lastIndex = 0;
+		// Parse SDP
+		sdpLines.forEach((sdpLine, i) => {
+			if(/^m=video/.test(sdpLine)) {
+				const d = /^m=(\w+)\s[0-9\/]+\s[A-Za-z0-9\/]+\s([0-9\s]+)/.exec(sdpLine);
+				current = { fmt: d[2].split(/\s/), index: i, codecs: [] };
+				medias[d[1]].push(current);
+				lastIndex = current.fmt[current.fmt.length - 1];
+			} else if(current && /^a=rtpmap:/.test(sdpLine)) {
+				const c = /^a=rtpmap:(\d+)\s([a-zA-Z0-9\-\/]+)/.exec(sdpLine);
+				if(c) {
 					current.codecs.push({ id: c[1], name: c[2], index: i });
 					if (c[0].toUpperCase().indexOf('VP8') !== -1) { vp8InVideoList=true; }
 					if (c[0].toUpperCase().indexOf('H264') !== -1) { h264InVideoList=true; }
-				 }
-			 }
-		 });
-		 const videoIndex = medias.video[0].index;
-		 if (!vp8InVideoList) {
-			 console.error('Add VP8 codec to sdp');
-			 lastIndex++;
-			 // console.error(sdpLines[videoIndex] );
-			 sdpLines[videoIndex] = sdpLines[videoIndex].concat(` ${lastIndex} `);
-			 // console.error(sdpLines[videoIndex] );
-			 sdpresult = sdpLines.join('\r\n');
-			 sdpresult += `a=rtpmap:${lastIndex} VP8/90000 \r\n`+
-											 `a=rtcp-fb:${lastIndex} ccm fir \r\n`+
-											 `a=rtcp-fb:${lastIndex} nack \r\n`+
-											 `a=rtcp-fb:${lastIndex} nack pli \r\n`+
-											 `a=rtcp-fb:${lastIndex} goog-remb \r\n`+
-											 `a=rtcp-fb:${lastIndex} transport-cc \r\n`;
-		 }
-		 if (!h264InVideoList) {
-			 console.error('Add h264 codec to sdp');
-			 lastIndex++;
-			 // console.error(sdpLines[videoIndex] );
-			 sdpLines[videoIndex] = sdpLines[videoIndex].concat(` ${lastIndex} `);
-			 // console.error(sdpLines[videoIndex] );
-			 sdpresult = sdpLines.join('\r\n');
-			 sdpresult += `a=rtpmap:${lastIndex} H264/90000 \r\n`+
-											 `a=rtcp-fb:${lastIndex} ccm fir \r\n`+
-											 `a=rtcp-fb:${lastIndex} nack \r\n`+
-											 `a=rtcp-fb:${lastIndex} nack pli \r\n`+
-											 `a=rtcp-fb:${lastIndex} goog-remb \r\n`+
-											 `a=rtcp-fb:${lastIndex} transport-cc \r\n`+
-											 `a=rtcp-fb:${lastIndex} `+
-											 'level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f \r\n';
-		 }
-		 Log.d('PeerConnection~AddCodecToSdp', sdpresult);
-		 console.error(sdpresult);
-		 return sdpresult;
-	 }
+				}
+			}
+		});
+		const videoIndex = medias.video[0].index;
+		if (!vp8InVideoList) {
+			console.error('Add VP8 codec to sdp');
+			lastIndex++;
+			// console.error(sdpLines[videoIndex] );
+			sdpLines[videoIndex] = sdpLines[videoIndex].concat(` ${lastIndex} `);
+			// console.error(sdpLines[videoIndex] );
+			sdpresult = sdpLines.join('\r\n');
+			sdpresult += `a=rtpmap:${lastIndex} VP8/90000 \r\n`+
+											`a=rtcp-fb:${lastIndex} ccm fir \r\n`+
+											`a=rtcp-fb:${lastIndex} nack \r\n`+
+											`a=rtcp-fb:${lastIndex} nack pli \r\n`+
+											`a=rtcp-fb:${lastIndex} goog-remb \r\n`+
+											`a=rtcp-fb:${lastIndex} transport-cc \r\n`;
+		}
+		if (!h264InVideoList) {
+			console.error('Add h264 codec to sdp');
+			lastIndex++;
+			// console.error(sdpLines[videoIndex] );
+			sdpLines[videoIndex] = sdpLines[videoIndex].concat(` ${lastIndex} `);
+			// console.error(sdpLines[videoIndex] );
+			sdpresult = sdpLines.join('\r\n');
+			sdpresult += `a=rtpmap:${lastIndex} H264/90000 \r\n`+
+											`a=rtcp-fb:${lastIndex} ccm fir \r\n`+
+											`a=rtcp-fb:${lastIndex} nack \r\n`+
+											`a=rtcp-fb:${lastIndex} nack pli \r\n`+
+											`a=rtcp-fb:${lastIndex} goog-remb \r\n`+
+											`a=rtcp-fb:${lastIndex} transport-cc \r\n`+
+											`a=rtcp-fb:${lastIndex} `+
+											'level-asymmetry-allowed=1;packetization-mode=1;'+
+											'profile-level-id=42e01f \r\n';
+		}
+		Log.d('PeerConnection~AddCodecToSdp', sdpresult);
+		console.error(sdpresult);
+		return sdpresult;
+	}
 
 /**
 	 * Send SDP offer to the remote via DataSync
@@ -449,7 +450,7 @@ export default class PeerConnection {
 		return this.pc.createOffer()
 			.then(description => this._setPreferredCodecs(description))
 			.then(description => {
-				console.log('PeerConnection-offer#localSDP', description.sdp)
+				console.log('PeerConnection-offer#localSDP', description.sdp);
 				return this.pc.setLocalDescription(description);
 			})
 			.then(() => Log.d('PeerConnection~_sendOffer#localDescription', this.pc.localDescription))
