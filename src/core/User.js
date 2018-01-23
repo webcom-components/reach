@@ -44,7 +44,7 @@ export default class User {
 		 * Indicates if the user is an anonymous user
 		 * @type {boolean}
 		 */
-		this.anonymous = /^anonymous/.test(this.uid);
+		this.anonymous = /^anonymous/.test(values.provider);
 		// TODO #Feat: Add 'extra' property for unrestricted additional information ?
 	}
 
@@ -79,14 +79,15 @@ export default class User {
 	/**
 	 * Init the current user
 	 * @access protected
-	 * @param {string} uid The user's uid
+	 * @param {json} auth The user's identity (webcom JSON structure)
 	 * @param {string} [name] The user's display name
 	 * @returns {Promise<User, Error>}
 	 */
-	static init (uid, name) {
+	static init (auth, name) {
+		const uid = auth.uid;
 		if(!initializing) {
 			initializing = true;
-			const d = {status: CONNECTED, lastSeen: DataSync.ts()};
+			const d = {status: CONNECTED, lastSeen: DataSync.ts(), provider: auth.provider};
 			if(name) {
 				Object.assign(d, {name});
 			}
@@ -150,7 +151,6 @@ export default class User {
 		// Cancel onDisconnect
 		DataSync.onDisconnect(`_/devices/${user.uid}/${cache.device}/status`).cancel();
 		DataSync.onDisconnect(`users/${user.uid}`).cancel();
-
 		if(user.anonymous) {
 			return DataSync.remove(`_/devices/${user.uid}`)
 				.then(() => DataSync.get(`_/invites/${user.uid}`))

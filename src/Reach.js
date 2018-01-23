@@ -146,7 +146,7 @@ export default class Reach {
 		}
 		return p
 			.then(() => cache.base.authWithPassword({email, password, rememberMe}))
-			.then(auth => User.init(auth.uid, name))
+			.then(auth => User.init(auth, name))
 			.then(u => {
 				cache.user = u;
 				return u;
@@ -164,7 +164,7 @@ export default class Reach {
 			if(Webcom.INTERNAL.PersistentStorage.get('session')){
 				cache.base.resume((error, auth) => {
 					if(auth && !this.current) {
-						User.init(auth.uid).then(u => {
+						User.init(auth).then(u => {
 							cache.user = u;
 							resolve(u);
 						}, reject);
@@ -189,7 +189,7 @@ export default class Reach {
 		}
 		return p
 			.then(() => cache.base.authAnonymously())
-			.then(auth => User.init(auth.uid, name))
+			.then(auth => User.init(auth, name))
 			.then(u => {
 				cache.user = u;
 				return u;
