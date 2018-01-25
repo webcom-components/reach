@@ -36,5 +36,10 @@ export default class Participant {
 		 * @type {number}
 		 */
 		this._joined = values._joined;
+		/**
+		 * Participant's userAgent
+		 * @type {string}
+		 */
+		this.userAgent = values.userAgent;
 	}
 }

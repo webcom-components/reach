@@ -103,6 +103,7 @@ export default class User {
 						},
 						userAgent: navigator.userAgent
 					};
+					cache.userAgent = deviceMetadata.userAgent;
 					if(deviceId) {
 						return DataSync.update(`_/devices/${uid}/${deviceId}`, deviceMetadata);
 					}

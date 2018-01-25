@@ -12,6 +12,7 @@ import {REJECTED, CANCELED} from './util/constants';
 const _joinRoom = (room, role) => {
 	const participant = {
 		status: CONNECTED,
+		userAgent: cache.userAgent,
 		_joined: DataSync.ts()
 	};
 	if(role) {
@@ -53,6 +54,11 @@ export default class Room {
 		 * @type {string}
 		 */
 		this.name = values.name;
+		/**
+		 * The local stream of the room
+		 * @type {Local}
+		 */
+		this.localStream = {};
 		/**
 		 * The room owner uid
 		 * @type {string}
@@ -245,6 +251,32 @@ export default class Room {
 	share(type, localStreamContainer, constraints) {
 		Log.i('Room~share', {type, localStreamContainer, constraints});
 		return Local.share(this.uid, type, localStreamContainer, constraints);
+	}
+
+	/**
+	 * get a local stream in video tag
+	 * @param {string} type The stream type, see {@link StreamTypes} for possible values
+	 * @param {Element} [localStreamContainer] The element the stream is attached to. Can be null if already specified in {@link Config}.
+	 * @param {MediaStreamConstraints} [constraints] The stream constraints. If not defined, the constraints defined in {@link Config} will be used.
+	 * @returns {Promise<Local, Error>}
+	 */
+	getLocalVideo(type, localStreamContainer, constraints) {
+		Log.i('Room~getLocalVideo', {type, localStreamContainer, constraints});
+		return Local.getLocalVideo(this.uid, type, localStreamContainer, constraints)
+		.then( localStream => {
+			this.localStream = localStream;
+			return localStream;
+		});
+	}
+
+	/**
+	 * publish a local stream
+	 * @param {MediaStream} sharedStream The local stream to publish.
+	 * @returns {Local}
+	 */
+	publish() {
+		Log.i('Room~publish Local');
+		return Local.publish(this.localStream);
 	}
 
 	/**
