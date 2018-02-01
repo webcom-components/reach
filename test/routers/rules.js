@@ -15,8 +15,8 @@ router.param('token', (req, res, next, token) => {
 	next();
 });
 
-var proxyUrl = "http://proxy:8080";
-var proxiedRequest = request.defaults({'proxy': proxyUrl});
+const proxyUrl = 'http://proxy:8080';
+const proxiedRequest = request.defaults({'proxy': proxyUrl});
 
 router.all('/set/:namespace/:token', (req, res) => {
 	console.log('SET', req.ns, `${host}/base/${req.ns}/.settings/rules.json?auth=${req.token}`);
