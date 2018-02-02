@@ -10,7 +10,7 @@ import * as Log from './util/Log';
 import {REJECTED, CANCELED} from './util/constants';
 
 const _joinRoom = (room, role) => {
-	if (this.status !== CLOSED) {
+	if (room.status !== CLOSED) {
 		const participant = {
 			status: CONNECTED,
 			_joined: DataSync.ts()
