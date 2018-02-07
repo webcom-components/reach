@@ -390,22 +390,25 @@ export default class Local {
 			.then(() => DataSync.push(`_/rooms/${roomId}/streams`, streamMetaData))
 			.then(streamRef => {
 				sharedStream.uid = streamRef.name();
-				if (sharedStream.isVideoLoaded) {
-					const streamSize = {
-						height: sharedStream.node.videoHeight,
-						width: sharedStream.node.videoWidth,
-					};
-					streamRef.update(streamSize);
-				} else {
-					sharedStream.node.onloadeddata = function() {
-						const streamSize = {
-							height: sharedStream.node.videoHeight,
-							width: sharedStream.node.videoWidth,
-						};
-						streamRef.update(streamSize);
-					};
-				}
-				window.addEventListener('resize', (() => {
+				if (/video/i.test(sharedStream.type)) {
+                                    if (sharedStream.isVideoLoaded) {
+                                            const streamSize = {
+                                                    height: sharedStream.node.videoHeight,
+                                                    width: sharedStream.node.videoWidth,
+                                            };
+                                            streamRef.update(streamSize);
+                                    } else {
+                                            sharedStream.node.onloadeddata = function() {
+                                                    const streamSize = {
+                                                            height: sharedStream.node.videoHeight,
+                                                            width: sharedStream.node.videoWidth,
+                                                    };
+                                                    streamRef.update(streamSize);
+                                            };
+                                    }
+                                };
+				if (/video/i.test(sharedStream.type)) {
+                                    window.addEventListener('resize', (() => {
 					if (sharedStream.node != null) {
 						const streamSize = {
 							height: sharedStream.node.videoHeight,
@@ -413,7 +416,8 @@ export default class Local {
 						};
 						streamRef.update(streamSize);
 					}
-				}));
+                                    }));
+                                };
 				// Save sharedStream
 				cache.streams.shared[sharedStream.uid] = sharedStream;
 				// Remove shared stream on Disconnect
