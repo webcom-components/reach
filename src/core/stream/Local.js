@@ -124,8 +124,11 @@ export default class Local {
 	updateConstraints(constraints) {
 		Log.d('Local~updateConstraints', constraints);
 		this.constraints = constraints;
+		console.log('on va faire un updateConstraints');
+		console.log(constraints);
 		return navigator.mediaDevices.getUserMedia(this.constraints)
 			.then(media => {
+				console.log('on a récupéré le nouveau média');
 				['audio', 'video'].forEach(kind => {
 					const constraintsValue = this.constraints[kind];
 					if(constraintsValue) {
@@ -311,6 +314,7 @@ export default class Local {
      */
 	_switchDevice(kind, deviceId) {
 		Log.d('Local~_switchDevice', kind, deviceId);
+		console.log('switchDevice');
 		if(this.media.getTracks().some(track => track.kind === kind)) {
 			let next = Promise.resolve(deviceId);
 			const currentModeIdx = _facingModes.indexOf(this._inputs[kind]);
@@ -321,8 +325,12 @@ export default class Local {
 				// Loop deviceIds
 				next = Media.devices()
 					.then(d => {
+						console.log('Media.devices');
+						console.log(d);
 						// devices IDs
 						const devices = d[`${kind}input`].map(mediaDevice => mediaDevice.deviceId);
+						console.log('devices');
+						console.log(devices);
 						// Sort to ensure same order
 						devices.sort();
 						// New device
@@ -334,6 +342,8 @@ export default class Local {
 							let idx = this._inputs[kind] ? devices.findIndex(v => v === this._inputs[kind], this) : 0;
 							nextDevice = devices[++idx % devices.length];
 						}
+						console.log('nextDevice');
+						console.log(nextDevice);
 						return nextDevice;
 					});
 			} else {
@@ -342,7 +352,10 @@ export default class Local {
 
 			return next
 				.then(device => {
+					console.log('on arrive dans le return');
+					console.log(device);
 					if(this._inputs[kind] !== device) {
+						console.log('différent');
 						// Update video streams
 						this._inputs[kind] = device;
 						// Stop tracks
@@ -467,15 +480,11 @@ export default class Local {
 				type
 			},
 			sharedStream = new Local(Object.assign({roomId, constraints, container}, streamMetaData));
-		console.error('getLocalVideo');
 		sharedStream.streamMetaData = streamMetaData;
 		Log.d('Local~share', {sharedStream});
-		console.dir(sharedStream);
 		return navigator.mediaDevices.getUserMedia(sharedStream.constraints)
 			.then(media => {
 				sharedStream.media = media;
-				console.error('getUserMedia');
-				console.dir(sharedStream);
 				return sharedStream;
 			});
 	}

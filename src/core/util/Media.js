@@ -120,10 +120,10 @@ export default class Media {
 				if (Reach.browser.browser === 'safari') {
 					_node.setAttribute('playsinline',true);
 					_node.setAttribute('muted',true);
-					_node.setAttribute('type','video/Webm;codec=VP8');
+					// _node.setAttribute('type','video/Webm;codec=VP8');
 					//_node.type = 'video/Webm';
 				} else {
-					_node.setAttribute('type','video/mp4');
+					//_node.setAttribute('type','video/mp4');
 				}
 				_node.style.borderRadius = '1px';
 			}
@@ -135,6 +135,35 @@ export default class Media {
 				}
 			}
 			_node.srcObject = mediaStream;
+			_node.addEventListener('play', (event) => {
+				Log.d(`video.onplay = ${event.type}`);
+				_node.srcObject.onaddtrack = (track) => {
+					Log.d(`[Room] listener: video.onaddtrack = ${track.label}`); // eslint-disable-line
+				};
+				_node.srcObject.onremovetrack = (track) => {
+					Log.d(`[Room] listener: video.onremovetrack = ${track.label}`); // eslint-disable-line
+				};
+				_node.srcObject.oninactive = () => {
+					Log.d(`[Room] listener: video.oninactive`); // eslint-disable-line
+				};
+				_node.srcObject.onplaying = (event) => {
+          console.debug(`[Room] listener: video.onplaying = ${event.type}`); // eslint-disable-line
+				};
+				_node.srcObject.onstalled = (event) => {
+          console.debug(`[Room] listener: video.onstalled = ${event.type}`); // eslint-disable-line
+				};
+				_node.srcObject.onsuspend = (event) => {
+					console.debug(`[Room] listener: video.onsuspend = ${event.type}`); // eslint-disable-line
+					console.debug(event); // eslint-disable-line
+				};
+			});
+			_node.onsuspend = (event) => {
+				console.debug(`[Room] listener: video.onsuspend = ${event}`); // eslint-disable-line
+				console.debug(event); // eslint-disable-line
+			};
+			_node.addEventListener('loadeddata', () => Log.d('on a chargé les données'));
+			_node.addEventListener('error', (error) => Log.d(`on a une erreur ${error}`));
+			// _node.setAttribute('controls',true);
 			// disabled doesn't seem to be needed
 			// _node.disabled = false;
 			_node.volume = volume;

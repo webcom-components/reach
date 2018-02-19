@@ -2,7 +2,7 @@
   "name": "webcom-reach",
   "description": "Create apps using WebRTC with Webcom",
   "main": "dist/reach.js",
-  "version": "2.10.0-beta.4",
+  "version": "2.10.0-beta.6",
   "schema": {
     "version": "draft-00",
     "url": "https://webcom-components.github.io/reach-schema/#draft-00",
