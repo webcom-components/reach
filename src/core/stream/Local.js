@@ -124,11 +124,8 @@ export default class Local {
 	updateConstraints(constraints) {
 		Log.d('Local~updateConstraints', constraints);
 		this.constraints = constraints;
-		console.log('on va faire un updateConstraints');
-		console.log(constraints);
 		return navigator.mediaDevices.getUserMedia(this.constraints)
 			.then(media => {
-				console.log('on a récupéré le nouveau média');
 				['audio', 'video'].forEach(kind => {
 					const constraintsValue = this.constraints[kind];
 					if(constraintsValue) {
@@ -172,6 +169,12 @@ export default class Local {
 								.filter(device => device.label.length && device.label === checkDevices[kind]);
 							if(deviceIds.length === 1 && !this._inputs[kind]) {
 								this._inputs[kind] = deviceIds[0].deviceId;
+							}
+							if (deviceIds.length === 0
+								&& devices[`${kind}input`][0].label === ''
+								&& !this._inputs[kind]) {
+								// from a webview, the label is not delivered
+								this._inputs[kind] = devices[`${kind}input`][0].deviceId;
 							}
 						}
 					});
@@ -314,7 +317,6 @@ export default class Local {
      */
 	_switchDevice(kind, deviceId) {
 		Log.d('Local~_switchDevice', kind, deviceId);
-		console.log('switchDevice');
 		if(this.media.getTracks().some(track => track.kind === kind)) {
 			let next = Promise.resolve(deviceId);
 			const currentModeIdx = _facingModes.indexOf(this._inputs[kind]);
@@ -325,12 +327,8 @@ export default class Local {
 				// Loop deviceIds
 				next = Media.devices()
 					.then(d => {
-						console.log('Media.devices');
-						console.log(d);
 						// devices IDs
 						const devices = d[`${kind}input`].map(mediaDevice => mediaDevice.deviceId);
-						console.log('devices');
-						console.log(devices);
 						// Sort to ensure same order
 						devices.sort();
 						// New device
@@ -342,8 +340,6 @@ export default class Local {
 							let idx = this._inputs[kind] ? devices.findIndex(v => v === this._inputs[kind], this) : 0;
 							nextDevice = devices[++idx % devices.length];
 						}
-						console.log('nextDevice');
-						console.log(nextDevice);
 						return nextDevice;
 					});
 			} else {
@@ -352,10 +348,7 @@ export default class Local {
 
 			return next
 				.then(device => {
-					console.log('on arrive dans le return');
-					console.log(device);
 					if(this._inputs[kind] !== device) {
-						console.log('différent');
 						// Update video streams
 						this._inputs[kind] = device;
 						// Stop tracks
