@@ -307,8 +307,14 @@ export default class Room {
 		Object.keys(this._callbacks).forEach(event => {
 			DataSync.off(Events.room.toPath(event)(this), event);
 		});
-		// Unpublish all local streams
-		this.localStreams().then(localStreams => localStreams.forEach(localStream => localStream.close()));
+		// Unpublish all published local streams
+		this.localStreams().then(localStreams => {
+			localStreams.forEach(localStream => localStream.close());
+		});
+		// Unpublish local stream even if not published
+		if (this.localStream) {
+			this.localStream.close();
+		}
 		// Unsubscribe all remote streams
 		this.remoteStreams().then(remoteStreams => remoteStreams.forEach(remoteStream => remoteStream.unSubscribe()));
 		// Update status

@@ -96,7 +96,11 @@ export const get = path => once(path, 'value');
  * @return {Promise<Object[], Error>}
  */
 export const list = (path, Type, ...params) => {
-	return get(path).then(snapData => {
+	console.log('on va faire le list');
+	return get(path)
+	.then(snapData => {
+		console.log('on a réussi à faire le once');
+		console.log(snapData);
 		if(snapData) {
 			const values = [];
 			snapData.forEach(snapChild => {
@@ -104,6 +108,10 @@ export const list = (path, Type, ...params) => {
 			});
 			return values;
 		}
+	})
+	.catch(error => {
+		console.log(`erreur de ${error}`);
+		return [];
 	});
 };
 

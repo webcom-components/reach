@@ -430,17 +430,30 @@ export default class PeerConnection {
 			.then((remoteDevice) => {
 				const sdpOffer = this.pc.localDescription.sdp;
 				let newSdp = sdpOffer;
+				const local = /Chrome\/([0-9]+)/.exec(navigator.userAgent);
+				const remote = /Chrome\/([0-9]+)/.exec(remoteDevice.userAgent);
+
 				if (navigator.userAgent.indexOf('Chrome')!== -1 &&
 					navigator.userAgent.indexOf('Android') !== -1 &&
-					remoteDevice.userAgent.indexOf('Safari')!== -1) {
+					remoteDevice.userAgent.indexOf('Safari')!== -1 &&
+					local[1] <= 64) {
 					// newSdp =	this._addVP8Codec(sdpOffer);
-					newSdp =	newSdp.replace('42001f','42e01f');
+					if (local[1] <= 60) {
+						newSdp = newSdp.replace(/;profile-level-id=([a-z0-9]+)/,'');
+					} else {
+						newSdp =	newSdp.replace('42001f','42e01f');
+					}
 				}
 				if (navigator.userAgent.indexOf('Safari')!== -1 &&
 					remoteDevice.userAgent.indexOf('Chrome')!== -1 &&
-					remoteDevice.userAgent.indexOf('Android')!== -1) {
+					remoteDevice.userAgent.indexOf('Android')!== -1 &&
+					remote[1] <= 64) {
 					// newSdp =	this._addVP8Codec(sdpOffer);
-					newSdp =	newSdp.replace('42e01f','42001f');
+					if (remote[1] <= 60) {
+						newSdp = newSdp.replace(/;profile-level-id=([a-z0-9]+)/,'');
+					} else {
+						newSdp =	newSdp.replace('42e01f','42001f');
+					}
 				}
 				Log.d('PeerConnection~_sendSdpToRemote#SDP sent to remote', newSdp);
 				const descriptionChanged = {
