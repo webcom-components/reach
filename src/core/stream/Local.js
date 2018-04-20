@@ -463,6 +463,7 @@ export default class Local {
 	 * @returns {Promise<Local, Error>}
 	 */
 	static getLocalVideo(roomId, type, container, constraints) {
+		console.log('Local~share on entre ici');
 		if(!cache.user) {
 			return Promise.reject(new Error('Only an authenticated user can share a stream.'));
 		}
@@ -475,6 +476,7 @@ export default class Local {
 			sharedStream = new Local(Object.assign({roomId, constraints, container}, streamMetaData));
 		sharedStream.streamMetaData = streamMetaData;
 		Log.d('Local~share', {sharedStream});
+		console.log('Local~share', {sharedStream});
 		return navigator.mediaDevices.getUserMedia(sharedStream.constraints)
 			.then(media => {
 				sharedStream.media = media;

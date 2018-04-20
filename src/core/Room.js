@@ -262,6 +262,7 @@ export default class Room {
 	 */
 	getLocalVideo(type, localStreamContainer, constraints) {
 		Log.i('Room~getLocalVideo', {type, localStreamContainer, constraints});
+		console.log('Room~getLocalVideo');
 		return Local.getLocalVideo(this.uid, type, localStreamContainer, constraints)
 		.then( localStream => {
 			this.localStream = localStream;

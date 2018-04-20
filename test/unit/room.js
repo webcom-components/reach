@@ -88,9 +88,33 @@ describe('Rooms /', () => {
 			ref.logout().then(done, done);
 		});
 
-		it('Should not be able to list rooms', done => {
-			ref.rooms()
+		it('Should not be able to list users', done => {
+			ref.users()
 				.then(() => {
+					console.log('on a réussi à faire la liste');
+					done.fail('Should not have been able to list users');
+				})
+				.catch(e => {
+					console.log('on n\'a pas réussi à faire la liste');
+					expect(e).toBePermissionDenied();
+					done(e);
+				});
+		});
+	});
+
+	describe('Unauthenticated Users / ', () => {
+
+		beforeAll(done => {
+			// Ensure we are not authenticated
+			ref.logout().then(done, done);
+		});
+
+		it('Should not be able to list rooms', done => {
+			console.log('on va essayer davoir la liste des rooms');
+			ref.rooms()
+				.then(rooms => {
+					console.log(`Listed ${rooms.length} room(s)`);
+					console.log('on passe ici !!!!');
 					done.fail('Should not have been able to list rooms');
 				})
 				.catch(e => {
