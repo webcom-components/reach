@@ -128,6 +128,7 @@ export default class Room {
 				return [];
 			})
 			.then(streams => streams.filter(stream => {
+				console.log(('on passe par ici et ça marche'));
 				return localStreams === (stream.device === cache.device && stream.from === cache.user.uid);
 			}))
 			.then(streams => streams.map(cache.streams[`get${localStreams ? 'Shared' : 'Remote'}`].bind(cache.streams)))
@@ -150,6 +151,7 @@ export default class Room {
 	 * @return {Promise<Remote[], Error>}
 	 */
 	remoteStreams() {
+		console.log('on veut récupérer les remotes');
 		return this._streams(false)
 			.catch(Log.r('Room~remoteStreams'));
 	}
@@ -309,15 +311,17 @@ export default class Room {
 			DataSync.off(Events.room.toPath(event)(this), event);
 		});
 		// Unpublish all published local streams
-		this.localStreams().then(localStreams => {
-			localStreams.forEach(localStream => localStream.close());
-		});
+		this.localStreams().then(localStreams => localStreams.forEach(localStream => localStream.close()));
 		// Unpublish local stream even if not published
 		if (this.localStream) {
-			this.localStream.close();
+			console.log('on va cloer le local');
+			// this.localStream.close();
+			console.log('ouf cest fait');
 		}
 		// Unsubscribe all remote streams
+		console.log('on va désouscrire les remoteStreams');
 		this.remoteStreams().then(remoteStreams => remoteStreams.forEach(remoteStream => remoteStream.unSubscribe()));
+		console.log('on a désouscrit les remoteStreams');
 		// Update status
 		return DataSync.set(`_/rooms/${this.uid}/participants/${cache.user.uid}/status`, WAS_CONNECTED)
 			.catch(Log.r('Room~leave'));
@@ -330,11 +334,16 @@ export default class Room {
 	close() {
 		Log.i('Room~close', this);
 		return this.leave()
-			.then(() => DataSync.update(`rooms/${this.uid}`, {
-				status: CLOSED,
-				_closed: DataSync.ts()
-			}))
-			.then(() => DataSync.remove(`_/rooms/${this.uid}`))
+			.then(() => {
+				return DataSync.update(`rooms/${this.uid}`, {
+					status: CLOSED,
+					_closed: DataSync.ts()
+				});
+			})
+			.then(() => {
+				return DataSync.remove(`_/rooms/${this.uid}`);
+					// .catch(error => console.error(`le remove de _ rooms ne passe pas ${error}`));
+			})
 			.catch(Log.r('Room~close'));
 	}
 
@@ -368,7 +377,9 @@ export default class Room {
 		return DataSync.push('rooms', roomFullMetaData)
 			// Create private room infos
 			.then(roomRef => {
+				console.log('on a créé la room dans webcom');
 				room = new Room(Object.assign({uid: roomRef.name()}, roomFullMetaData));
+				console.log('on a créé la room dans le reach');
 				return DataSync.update(`_/rooms/${room.uid}/meta`, roomMetaData);
 			})
 			// Join the room

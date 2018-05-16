@@ -20,7 +20,6 @@ const update = (invite, status, reason = null, _ended = null) => {
 		reason,
 		_ended
 	};
-
 	if(invite.status !== ONGOING) {
 		return Promise.reject(new Error('This invitation has already been answered'));
 	}
