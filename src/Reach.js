@@ -231,6 +231,9 @@ export default class Reach {
 	 * @return {Promise<User[], Error>}
 	 */
 	users(include) {
+		if(!this.current) {
+			return Promise.reject(new Error('Only an authenticated user can list Users.'));
+		}
 		return DataSync.list('users', User)
 			.then(users => {
 				return !include && users && this.current ? users.filter(user => user.uid !== this.current.uid) : users;
@@ -243,6 +246,9 @@ export default class Reach {
 	 * @return {Promise<Room[], Error>}
 	 */
 	rooms() {
+		if(!this.current) {
+			return Promise.reject(new Error('Only an authenticated user can list Rooms.'));
+		}
 		return DataSync.list('rooms', Room)
 			.catch(Log.r('Reach~rooms'));
 	}

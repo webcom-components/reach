@@ -10,23 +10,26 @@ import * as Log from './util/Log';
 import {REJECTED, CANCELED} from './util/constants';
 
 const _joinRoom = (room, role) => {
-	const participant = {
-		status: CONNECTED,
-		userAgent: cache.userAgent,
-		_joined: DataSync.ts()
-	};
-	if(role) {
-		participant.role = role;
+	if (room.status !== CLOSED) {
+		const participant = {
+			status: CONNECTED,
+      userAgent: cache.userAgent,
+			_joined: DataSync.ts()
+		};
+		if(role) {
+			participant.role = role;
+		}
+		Log.w('Room#join', [participant, `_/rooms/${room.uid}/participants/${cache.user.uid}`]);
+		return DataSync
+			.update(`_/rooms/${room.uid}/participants/${cache.user.uid}`, participant)
+			.then(() => {
+				DataSync
+                                    .onDisconnect(`_/rooms/${room.uid}/participants/${cache.user.uid}/status`)
+                                    .set(WAS_CONNECTED);
+				return room;
+			});
 	}
-	Log.w('Room#join', [participant, `_/rooms/${room.uid}/participants/${cache.user.uid}`]);
-	return DataSync
-		.update(`_/rooms/${room.uid}/participants/${cache.user.uid}`, participant)
-		.then(() => {
-			DataSync
-				.onDisconnect(`_/rooms/${room.uid}/participants/${cache.user.uid}/status`)
-				.set(WAS_CONNECTED);
-			return room;
-		});
+	return Promise.reject(new Error('can\'t join a close room'));
 };
 
 /**
@@ -333,6 +336,7 @@ export default class Room {
 	 */
 	close() {
 		Log.i('Room~close', this);
+		this.status = CLOSED;
 		return this.leave()
 			.then(() => {
 				return DataSync.update(`rooms/${this.uid}`, {
