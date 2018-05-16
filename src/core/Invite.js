@@ -31,7 +31,7 @@ const update = (invite, status, reason = null, _ended = null) => {
 			});
 			return Room.get(invite.room);
 		})
-		.then(room => ({room, invite}))
+		.then(() => ({invite}))
 		.catch(Log.r('Invite_update'));
 };
 
