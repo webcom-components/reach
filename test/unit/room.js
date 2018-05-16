@@ -1,19 +1,19 @@
 // put in comment some tests becaue of authentication webcom changes
 
-//import {OPENED, CONNECTED, MODERATOR, NONE, ONGOING} from '../../src/core/util/constants';
-//import {OPENED} from '../../src/core/util/constants';
+// import {OPENED, CONNECTED, MODERATOR, NONE, ONGOING} from '../../src/core/util/constants';
+import {OPENED, CONNECTED} from '../../src/core/util/constants';
 import Reach from '../../src/Reach';
 import Room from '../../src/core/Room';
-//import Invite from '../../src/core/Invite';
-//import Participant from '../../src/core/Participant';
+// import Invite from '../../src/core/Invite';
+import Participant from '../../src/core/Participant';
 import * as log from '../util/logger';
 //import * as config from '../util/config';
 //import * as namespace from '../util/namespace';
-//import Message from '../../src/core/Message';
+import Message from '../../src/core/Message';
 
 describe('Rooms /', () => {
 	let ref, user;
-	/*const getRooms = (u, own = true) => {
+	const getRooms = (u, own = true) => {
 		return ref.rooms()
 			.then(rooms => rooms.filter(
 				room => {
@@ -24,11 +24,11 @@ describe('Rooms /', () => {
 	};
 	const getRoom = (u, own) => {
 		return getRooms(u, own).then(rooms => rooms.pop());
-	};*/
-	/*const joinRoom = (u, own) => {
+	};
+	const joinRoom = (u, own) => {
 		return getRoom(u, own).then(room => room.join());
 	};
-	const invite = (from, to, room, role, text) => { // eslint-disable-line max-params
+	/* const invite = (from, to, room, role, text) => { // eslint-disable-line max-params
 		return ref.users()
 			.then(users => {
 				const _userTo = users.filter(u => u.uid === to.uid)[0];
@@ -74,7 +74,7 @@ describe('Rooms /', () => {
 					reject(e);
 				});
 			}));
-	};*/
+	}; */
 
 	beforeAll(done => {
 		ref = new Reach(global.env.base);
@@ -88,33 +88,9 @@ describe('Rooms /', () => {
 			ref.logout().then(done, done);
 		});
 
-		it('Should not be able to list users', done => {
-			ref.users()
-				.then(() => {
-					console.log('on a réussi à faire la liste');
-					done.fail('Should not have been able to list users');
-				})
-				.catch(e => {
-					console.log('on n\'a pas réussi à faire la liste');
-					expect(e).toBePermissionDenied();
-					done(e);
-				});
-		});
-	});
-
-	describe('Unauthenticated Users / ', () => {
-
-		beforeAll(done => {
-			// Ensure we are not authenticated
-			ref.logout().then(done, done);
-		});
-
 		it('Should not be able to list rooms', done => {
-			console.log('on va essayer davoir la liste des rooms');
 			ref.rooms()
-				.then(rooms => {
-					console.log(`Listed ${rooms.length} room(s)`);
-					console.log('on passe ici !!!!');
+				.then(() => {
 					done.fail('Should not have been able to list rooms');
 				})
 				.catch(e => {
@@ -164,7 +140,7 @@ describe('Rooms /', () => {
 				});
 		});
 
-		/* it('Should be able to join his own room', done => {
+		it('Should be able to join his own room', done => {
 			joinRoom([user])
 				.then(() => {
 					done();
@@ -209,7 +185,7 @@ describe('Rooms /', () => {
 					expect(e).not.toBePermissionDenied();
 					done(e);
 				});
-		}); */
+		});
 
 		/* it('Should not be able to join a room when uninvited', done => {
 			getRooms([global.env.createdUsers[1]])
