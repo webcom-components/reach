@@ -170,6 +170,12 @@ export default class Local {
 							if(deviceIds.length === 1 && !this._inputs[kind]) {
 								this._inputs[kind] = deviceIds[0].deviceId;
 							}
+							if (deviceIds.length === 0
+								&& devices[`${kind}input`][0].label === ''
+								&& !this._inputs[kind]) {
+								// from a webview, the label is not delivered
+								this._inputs[kind] = devices[`${kind}input`][0].deviceId;
+							}
 						}
 					});
 				});
@@ -418,6 +424,105 @@ export default class Local {
 						}
 					}));
 				}
+				// Save sharedStream
+				cache.streams.shared[sharedStream.uid] = sharedStream;
+				// Remove shared stream on Disconnect
+				DataSync.onDisconnect(`_/rooms/${roomId}/streams/${sharedStream.uid}`).remove();
+				// Remove shared stream on Disconnect
+				DataSync.onDisconnect(`_/rooms/${roomId}/subscribers/${sharedStream.uid}`).remove();
+				// Start listening to subscribers
+				const
+					path = `_/rooms/${sharedStream.roomId}/subscribers/${sharedStream.uid}`,
+					value = snapData => Object.assign({device: snapData.name()}, snapData.val() || {});
+				DataSync.on(path, 'child_added',
+					snapData => {
+						const subscriber = value(snapData);
+						Log.d('Local~subscribed', subscriber);
+						cache.peerConnections.offer(sharedStream, subscriber)
+							.then(pc => sharedStream.peerConnections.push(pc));
+					},
+					Log.e.bind(Log)
+				);
+				DataSync.on(path, 'child_removed',
+					snapData => {
+						const subscriber = value(snapData);
+						Log.d('Local~un-subscribed', subscriber);
+						const closedPC = cache.peerConnections.close(sharedStream.uid, subscriber.device);
+						sharedStream.peerConnections = sharedStream.peerConnections.filter(pc => pc !== closedPC);
+					},
+					Log.e.bind(Log)
+				);
+				Log.d('Local~shared', {sharedStream});
+				return sharedStream;
+			});
+	}
+
+	/**
+	 * Get a local stream
+	 * @access protected
+	 * @param {string} roomId The room Id
+	 * @param {string} type The stream type, see {@link StreamTypes} for possible values
+	 * @param {?Element} container The element the stream is attached to.
+	 * @param {?MediaStreamConstraints} [constraints] The stream constraints. If not defined the constraints defined in ReachConfig will be used.
+	 * @returns {Promise<Local, Error>}
+	 */
+	static getLocalVideo(roomId, type, container, constraints) {
+		console.log('Local~share on entre ici');
+		if(!cache.user) {
+			return Promise.reject(new Error('Only an authenticated user can share a stream.'));
+		}
+		const streamMetaData = {
+				from: cache.user.uid,
+				device: cache.device,
+				userAgent: cache.userAgent,
+				type
+			},
+			sharedStream = new Local(Object.assign({roomId, constraints, container}, streamMetaData));
+		sharedStream.streamMetaData = streamMetaData;
+		Log.d('Local~share', {sharedStream});
+		console.log('Local~share', {sharedStream});
+		return navigator.mediaDevices.getUserMedia(sharedStream.constraints)
+			.then(media => {
+				sharedStream.media = media;
+				return sharedStream;
+			});
+	}
+
+	/**
+	 * Publish a local stream
+	 * @access protected
+	 * @returns {Local}
+	 */
+	static publish(sharedStream) {
+		Log.d('Local~publish');
+		const roomId = sharedStream.roomId;
+		return DataSync.push(`_/rooms/${roomId}/streams`, sharedStream.streamMetaData)
+			.then(streamRef => {
+				sharedStream.uid = streamRef.name();
+				if (sharedStream.isVideoLoaded) {
+					const streamSize = {
+						height: sharedStream.node.videoHeight,
+						width: sharedStream.node.videoWidth,
+					};
+					streamRef.update(streamSize);
+				} else {
+					sharedStream.node.onloadeddata = function() {
+						const streamSize = {
+							height: sharedStream.node.videoHeight,
+							width: sharedStream.node.videoWidth,
+						};
+						streamRef.update(streamSize);
+					};
+				}
+				window.addEventListener('resize', (() => {
+					if (sharedStream.node != null) {
+						const streamSize = {
+							height: sharedStream.node.videoHeight,
+							width: sharedStream.node.videoWidth,
+						};
+						streamRef.update(streamSize);
+					}
+				}));
 				// Save sharedStream
 				cache.streams.shared[sharedStream.uid] = sharedStream;
 				// Remove shared stream on Disconnect

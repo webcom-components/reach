@@ -13,6 +13,7 @@ const _joinRoom = (room, role) => {
 	if (room.status !== CLOSED) {
 		const participant = {
 			status: CONNECTED,
+      userAgent: cache.userAgent,
 			_joined: DataSync.ts()
 		};
 		if(role) {
@@ -56,6 +57,11 @@ export default class Room {
 		 * @type {string}
 		 */
 		this.name = values.name;
+		/**
+		 * The local stream of the room
+		 * @type {Local}
+		 */
+		this.localStream = {};
 		/**
 		 * The room owner uid
 		 * @type {string}
@@ -125,6 +131,7 @@ export default class Room {
 				return [];
 			})
 			.then(streams => streams.filter(stream => {
+				console.log(('on passe par ici et ça marche'));
 				return localStreams === (stream.device === cache.device && stream.from === cache.user.uid);
 			}))
 			.then(streams => streams.map(cache.streams[`get${localStreams ? 'Shared' : 'Remote'}`].bind(cache.streams)))
@@ -147,6 +154,7 @@ export default class Room {
 	 * @return {Promise<Remote[], Error>}
 	 */
 	remoteStreams() {
+		console.log('on veut récupérer les remotes');
 		return this._streams(false)
 			.catch(Log.r('Room~remoteStreams'));
 	}
@@ -251,6 +259,33 @@ export default class Room {
 	}
 
 	/**
+	 * get a local stream in video tag
+	 * @param {string} type The stream type, see {@link StreamTypes} for possible values
+	 * @param {Element} [localStreamContainer] The element the stream is attached to. Can be null if already specified in {@link Config}.
+	 * @param {MediaStreamConstraints} [constraints] The stream constraints. If not defined, the constraints defined in {@link Config} will be used.
+	 * @returns {Promise<Local, Error>}
+	 */
+	getLocalVideo(type, localStreamContainer, constraints) {
+		Log.i('Room~getLocalVideo', {type, localStreamContainer, constraints});
+		console.log('Room~getLocalVideo');
+		return Local.getLocalVideo(this.uid, type, localStreamContainer, constraints)
+		.then( localStream => {
+			this.localStream = localStream;
+			return localStream;
+		});
+	}
+
+	/**
+	 * publish a local stream
+	 * @param {MediaStream} sharedStream The local stream to publish.
+	 * @returns {Local}
+	 */
+	publish() {
+		Log.i('Room~publish Local');
+		return Local.publish(this.localStream);
+	}
+
+	/**
 	 * Join the room. Sets the connected status of the current participant to CONNECTED.
 	 * @return {Promise}
 	 */
@@ -278,10 +313,18 @@ export default class Room {
 		Object.keys(this._callbacks).forEach(event => {
 			DataSync.off(Events.room.toPath(event)(this), event);
 		});
-		// Unpublish all local streams
+		// Unpublish all published local streams
 		this.localStreams().then(localStreams => localStreams.forEach(localStream => localStream.close()));
+		// Unpublish local stream even if not published
+		if (this.localStream) {
+			console.log('on va cloer le local');
+			// this.localStream.close();
+			console.log('ouf cest fait');
+		}
 		// Unsubscribe all remote streams
+		console.log('on va désouscrire les remoteStreams');
 		this.remoteStreams().then(remoteStreams => remoteStreams.forEach(remoteStream => remoteStream.unSubscribe()));
+		console.log('on a désouscrit les remoteStreams');
 		// Update status
 		return DataSync.set(`_/rooms/${this.uid}/participants/${cache.user.uid}/status`, WAS_CONNECTED)
 			.catch(Log.r('Room~leave'));
@@ -295,11 +338,16 @@ export default class Room {
 		Log.i('Room~close', this);
 		this.status = CLOSED;
 		return this.leave()
-			.then(() => DataSync.update(`rooms/${this.uid}`, {
-				status: CLOSED,
-				_closed: DataSync.ts()
-			}))
-			.then(() => DataSync.remove(`_/rooms/${this.uid}`))
+			.then(() => {
+				return DataSync.update(`rooms/${this.uid}`, {
+					status: CLOSED,
+					_closed: DataSync.ts()
+				});
+			})
+			.then(() => {
+				return DataSync.remove(`_/rooms/${this.uid}`);
+					// .catch(error => console.error(`le remove de _ rooms ne passe pas ${error}`));
+			})
 			.catch(Log.r('Room~close'));
 	}
 
@@ -333,7 +381,9 @@ export default class Room {
 		return DataSync.push('rooms', roomFullMetaData)
 			// Create private room infos
 			.then(roomRef => {
+				console.log('on a créé la room dans webcom');
 				room = new Room(Object.assign({uid: roomRef.name()}, roomFullMetaData));
+				console.log('on a créé la room dans le reach');
 				return DataSync.update(`_/rooms/${room.uid}/meta`, roomMetaData);
 			})
 			// Join the room

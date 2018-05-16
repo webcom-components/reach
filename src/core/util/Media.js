@@ -120,6 +120,10 @@ export default class Media {
 				if (Reach.browser.browser === 'safari') {
 					_node.setAttribute('playsinline',true);
 					_node.setAttribute('muted',true);
+					// _node.setAttribute('type','video/Webm;codec=VP8');
+					//_node.type = 'video/Webm';
+				} else {
+					//_node.setAttribute('type','video/mp4');
 				}
 				_node.style.borderRadius = '1px';
 			}
@@ -131,6 +135,63 @@ export default class Media {
 				}
 			}
 			_node.srcObject = mediaStream;
+			_node.addEventListener('play', (event) => {
+				Log.d(`video.onplay = ${event.type}`);
+				_node.srcObject.onaddtrack = (track) => {
+					Log.d(`[Local] listener: video.onaddtrack = ${track.label}`); // eslint-disable-line
+				};
+				_node.srcObject.onremovetrack = (track) => {
+					Log.d(`[Local] listener: video.onremovetrack = ${track.label}`); // eslint-disable-line
+				};
+				_node.srcObject.oninactive = () => {
+					Log.d(`[Local] listener: video.oninactive`); // eslint-disable-line
+				};
+				_node.srcObject.onplaying = (event) => {
+          console.debug(`[Local] listener: video.onplaying = ${event.type}`); // eslint-disable-line
+				};
+				_node.srcObject.onstalled = (event) => {
+          console.debug(`[Local] listener: video.onstalled = ${event.type}`); // eslint-disable-line
+				};
+				_node.srcObject.onsuspend = (event) => {
+					console.debug(`[Local] listener: video.onsuspend = ${event.type}`); // eslint-disable-line
+					console.debug(event); // eslint-disable-line
+					console.debug('on passe là');
+				};
+			});
+			_node.onsuspend = (event) => {
+				console.debug(`[Local] listener: video.onsuspend = ${event}`); // eslint-disable-line
+				console.debug(event); // eslint-disable-line
+				/* console.debug('on est ici');
+				const tagmuted = _node.muted;
+				_node.setAttribute('muted',true);
+				let autoPlayAllowed = true;
+				const promise = _node.play();
+				if (promise instanceof Promise) {
+					promise.then(function(status) {
+						console.dir(promise);
+					});
+					promise.catch(function(error) {
+						console.error(error.message);
+						if (error.name === 'NotAllowedError') {
+							autoPlayAllowed = false;
+						} else {
+							// Don't throw the error so that we get to the then
+							// or throw it but set the autoPlayAllowed to true in here
+						}
+					}).then(function() {
+						if (autoPlayAllowed) {
+							console.log('autoplay allowed')
+						} else {
+							console.log('autoplay NOT allowed')
+						}
+					});
+				} else {
+					console.log('autoplay unknown')
+				} */
+			};
+			_node.addEventListener('loadeddata', () => Log.d('on a chargé les données'));
+			_node.addEventListener('error', (error) => Log.d(`on a une erreur ${error}`));
+			// _node.setAttribute('controls',true);
 			// disabled doesn't seem to be needed
 			// _node.disabled = false;
 			_node.volume = volume;

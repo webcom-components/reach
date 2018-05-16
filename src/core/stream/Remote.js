@@ -39,6 +39,11 @@ export default class Remote {
 		 */
 		this.device = values.device;
 		/**
+		 * the user agent of the publisher of the stream
+		 * @type {string}
+		 */
+		this.userAgent = values.userAgent;
+		/**
 		 * @type {string}
 		 */
 		this.height = values.height;

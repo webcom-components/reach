@@ -96,7 +96,8 @@ export const get = path => once(path, 'value');
  * @return {Promise<Object[], Error>}
  */
 export const list = (path, Type, ...params) => {
-	return get(path).then(snapData => {
+	return get(path)
+	.then(snapData => {
 		if(snapData) {
 			const values = [];
 			snapData.forEach(snapChild => {

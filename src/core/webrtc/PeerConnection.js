@@ -3,6 +3,7 @@
 import cache from '../util/cache';
 import * as Log from '../util/Log';
 import Media from '../util/Media';
+import Device from '../Device';
 import * as DataSync from '../util/DataSync';
 import {OPENED, CLOSING, CLOSED} from '../util/constants';
 import 'core-js/fn/array/find';
@@ -64,10 +65,10 @@ export default class PeerConnection {
 	 * @access protected
 	 * @param {string} stackId The WebRTC stack ID
 	 * @param {string} streamId The Stream UID
-	 * @param {string} remoteDevice The remote device's UID
+	 * @param {Remote|{to: string||from: string, device:string}} remote The remote information
 	 * @param {boolean} publish Publish or Subscribe ?
 	 */
-	constructor(stackId, streamId, remoteDevice, publish) {
+	constructor(stackId, streamId, remote, publish) {
 		/**
 		 * The stack identifier. Used to identify exchanges between 2 devices
 		 * @type {string}
@@ -79,10 +80,15 @@ export default class PeerConnection {
 		 */
 		this.streamId = streamId;
 		/**
-		 * The remote device Id
+		 * The remote device
 		 * @type {string}
 		 */
-		this.remoteDevice = remoteDevice;
+		this.remote = remote;
+		/**
+		 * publish : a created peer connection or a remote one
+		 * @type {boolean}
+		 */
+		this.publish = publish;
 		/**
 		 * Path for local signalization
 		 * @access private
@@ -94,7 +100,7 @@ export default class PeerConnection {
 		 * @access private
 		 * @type {string}
 		 */
-		this._remotePath = `_/webrtc/${this.stackId}/${this.streamId}/${this.remoteDevice}`;
+		this._remotePath = `_/webrtc/${this.stackId}/${this.streamId}/${this.remote.device}`;
 		/**
 		 * Indicates if the PeerConnection has been established. (Useful for renegotiation).
 		 * @type {boolean}
@@ -260,11 +266,11 @@ export default class PeerConnection {
 		// Listen to SDP offer
 		DataSync.on(`${this._remotePath}/sdp`, 'value', snap => {
 			const sdpOffer = snap.val();
-			Log.d('Offer', sdpOffer);
+			// Log.d('Offer', sdpOffer);
 			if(sdpOffer != null) {
-				Log.d('PeerConnection~offered', sdpOffer);
+				// Log.d('PeerConnection~offered', sdpOffer.sdp);
 				this.pc.setRemoteDescription(sdpOffer)
-					.then(() => Log.d('PeerConnection~remoteDescription', this.pc.remoteDescription))
+					.then(() => Log.d('PeerConnection~answer#remoteDescription', this.pc.remoteDescription.sdp))
 					.then(() => {
 						if (/^offer$/.test(this.pc.remoteDescription.type)) {
 							return this.pc.createAnswer();
@@ -273,12 +279,13 @@ export default class PeerConnection {
 					})
 					.then(description => this._setPreferredCodecs(description))
 					.then(description => this.pc.setLocalDescription(description))
+//					.then(() => console.log('PeerConnection~answer#localSDP', this.pc.localDescription.sdp))
 					.then(() => {
-						Log.d('PeerConnection~localDescription', this.pc.localDescription);
+						Log.d('PeerConnection~answer#localSDP', this.pc.localDescription.sdp);
 						this._remoteICECandidates(true);
 					})
-					.then(() => DataSync.update(`${this._localPath}/sdp`, _toJSON(this.pc.localDescription)))
-					.catch(Log.r('PeerConnection~localDescription'));
+					.then(() => this._sendSdpToRemote())
+					.catch(Log.r('PeerConnection~answser#error'));
 			}
 		});
 
@@ -317,17 +324,145 @@ export default class PeerConnection {
 			DataSync.on(`${this._remotePath}/sdp`, 'value', snap => {
 				const sdpAnswer = snap.val();
 				if(sdpAnswer != null) {
-					Log.d('PeerConnection~offer#answered', sdpAnswer);
+					// Log.d('PeerConnection~offer#answered', sdpAnswer.sdp);
 					this.pc.setRemoteDescription(sdpAnswer)
 						.then(() => {
-							Log.d('PeerConnection~offer#remoteDescription', this.pc.remoteDescription);
+							Log.d('PeerConnection~offer#remoteDescription', this.pc.remoteDescription.sdp);
 							this._remoteICECandidates(true);
 						})
-						.catch(Log.e.bind(Log, 'PeerConnection~remoteDescription'));
+						.catch(Log.e.bind(Log, 'PeerConnection~offer#remoteDescription'));
 				}
 			});
 			this._alterStream(stream, 'add');
 		});
+	}
+
+	/**
+	 * Edits the SDP to set the preferred audio/video codec
+	 * @access private
+	 * @param {string} sdp The sdp to be modified
+	 * @returns {string}}
+	*/
+	/*_addVP8Codec(sdp) {
+		let sdpresult = sdp;
+		// Log.d('PeerConnection~_addVP8Codec');
+		if (sdpresult === null) { return null; }
+		const sdpLines = sdpresult.split(/\r?\n/);
+		const medias = {audio: [], video: []};
+		let current = null;
+		let vp8InVideoList = false;
+		let h264InVideoList = false;
+		let lastIndex = 0;
+		let firstIndex = 0;
+		// Parse SDP
+		sdpLines.forEach((sdpLine, i) => {
+			if(/^m=video/.test(sdpLine)) {
+				const d = /^m=(\w+)\s[0-9\/]+\s[A-Za-z0-9\/]+\s([0-9\s]+)/.exec(sdpLine);
+				current = { fmt: d[2].split(/\s/), index: i, codecs: [] };
+				medias[d[1]].push(current);
+				lastIndex = current.fmt[current.fmt.length - 1];
+				firstIndex = current.fmt[0];
+			} else if(current && /^a=rtpmap:/.test(sdpLine)) {
+				const c = /^a=rtpmap:(\d+)\s([a-zA-Z0-9\-\/]+)/.exec(sdpLine);
+				if(c) {
+					current.codecs.push({ id: c[1], name: c[2], index: i });
+					if (c[0].toUpperCase().indexOf('VP8') !== -1) { vp8InVideoList=true; }
+					if (c[0].toUpperCase().indexOf('H264') !== -1) { h264InVideoList=true; }
+				}
+			}
+		});
+		const videoIndex = medias.video[0].index;
+		if (!vp8InVideoList) {
+			// lastIndex++;
+			lastIndex = firstIndex - 1;
+			let essai = sdpLines[videoIndex];
+			for (let media in medias.video[0].fmt) {
+				essai = essai.replace(' '+medias.video[0].fmt[media],'');
+			}
+			essai = essai.concat(' '+lastIndex);
+			for (let media in medias.video[0].fmt) {
+				essai = essai.concat(' '+medias.video[0].fmt[media]);
+			}
+			sdpLines[videoIndex] = essai;
+			sdpresult = sdpLines.join('\r\n');
+			sdpresult += `a=rtpmap:${lastIndex} VP8/90000 \r\n`+
+											`a=rtcp-fb:${lastIndex} ccm fir \r\n`+
+											`a=rtcp-fb:${lastIndex} nack \r\n`+
+											`a=rtcp-fb:${lastIndex} nack pli \r\n`+
+											`a=rtcp-fb:${lastIndex} goog-remb \r\n`+
+											`a=rtcp-fb:${lastIndex} transport-cc \r\n`;
+		}
+		if (!h264InVideoList) {
+			// lastIndex++;
+			lastIndex = firstIndex - 1;
+			let essai = sdpLines[videoIndex];
+			for (let media in medias.video[0].fmt) {
+				essai = essai.replace(' '+medias.video[0].fmt[media],'');
+			}
+			essai = essai.concat(' '+lastIndex);
+			for (let media in medias.video[0].fmt) {
+				essai = essai.concat(' '+medias.video[0].fmt[media]);
+			}
+			sdpLines[videoIndex] = essai;
+			sdpresult = sdpLines.join('\r\n');
+			sdpresult += `a=rtpmap:${lastIndex} H264/90000 \r\n`+
+											`a=rtcp-fb:${lastIndex} ccm fir \r\n`+
+											`a=rtcp-fb:${lastIndex} nack \r\n`+
+											`a=rtcp-fb:${lastIndex} nack pli \r\n`+
+											`a=rtcp-fb:${lastIndex} goog-remb \r\n`+
+											`a=rtcp-fb:${lastIndex} transport-cc \r\n`+
+											`a=rtcp-fb:${lastIndex} `+
+											'level-asymmetry-allowed=1;packetization-mode=1;'+
+											'profile-level-id=42e01f \r\n';
+		}
+		Log.d('PeerConnection~_addVP8Codec', sdpresult);
+		return sdpresult;
+	}*/
+
+	/**
+	 * Send SDP offer to the remote via DataSync
+	 * @private
+	 */
+	_sendSdpToRemote() {
+		// Log.d('PeerConnection~_sendSdpToRemote#localSDP', this.pc.localDescription.sdp);
+		const remoteUserId = this.remote.to ? this.remote.to : this.remote.from;
+		Device.get(remoteUserId, this.remote.device)
+			.then((remoteDevice) => {
+				const sdpOffer = this.pc.localDescription.sdp;
+				let newSdp = sdpOffer;
+				const local = /Chrome\/([0-9]+)/.exec(navigator.userAgent);
+				const remote = /Chrome\/([0-9]+)/.exec(remoteDevice.userAgent);
+
+				if (navigator.userAgent.indexOf('Chrome')!== -1 &&
+					navigator.userAgent.indexOf('Android') !== -1 &&
+					remoteDevice.userAgent.indexOf('Safari')!== -1 &&
+					local[1] <= 64) {
+					// newSdp =	this._addVP8Codec(sdpOffer);
+					if (local[1] <= 60) {
+						newSdp = newSdp.replace(/;profile-level-id=([a-z0-9]+)/,'');
+					} else {
+						newSdp =	newSdp.replace('42001f','42e01f');
+					}
+				}
+				if (navigator.userAgent.indexOf('Safari')!== -1 &&
+					remoteDevice.userAgent.indexOf('Chrome')!== -1 &&
+					remoteDevice.userAgent.indexOf('Android')!== -1 &&
+					remote[1] <= 64) {
+					// newSdp =	this._addVP8Codec(sdpOffer);
+					if (remote[1] <= 60) {
+						newSdp = newSdp.replace(/;profile-level-id=([a-z0-9]+)/,'');
+					} else {
+						newSdp =	newSdp.replace('42e01f','42001f');
+					}
+				}
+				Log.d('PeerConnection~_sendSdpToRemote#SDP sent to remote', newSdp);
+				const descriptionChanged = {
+					sdp: newSdp,
+					type: this.pc.localDescription.type
+				};
+				DataSync.update(`${this._localPath}/sdp`, _toJSON(descriptionChanged));
+
+			});
 	}
 
 	/**
@@ -340,8 +475,8 @@ export default class PeerConnection {
 		return this.pc.createOffer()
 			.then(description => this._setPreferredCodecs(description))
 			.then(description => this.pc.setLocalDescription(description))
-			.then(() => Log.d('PeerConnection~renegotiate#localDescription', this.pc.localDescription))
-			.then(() => DataSync.update(`${this._localPath}/sdp`, _toJSON(this.pc.localDescription)));
+			.then(() => Log.d('PeerConnection~_sendOffer#localDescription', this.pc.localDescription.sdp))
+			.then(() => this._sendSdpToRemote());
 	}
 
 	/**
