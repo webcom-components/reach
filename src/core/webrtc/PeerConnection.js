@@ -204,7 +204,7 @@ export default class PeerConnection {
 	_attachStream () {
 		if(this.remoteStream && this.isConnected) {
 			this.node = Media.attachStream(this.remoteStream, this.container, this.node);
-			this.node.muted = false;
+			// this.node.muted = false;
 		}
 	}
 
@@ -268,7 +268,7 @@ export default class PeerConnection {
 			const sdpOffer = snap.val();
 			// Log.d('Offer', sdpOffer);
 			if(sdpOffer != null) {
-				// Log.d('PeerConnection~offered', sdpOffer.sdp);
+				Log.d(`PeerConnection~offered ${sdpOffer.sdp}`);
 				this.pc.setRemoteDescription(sdpOffer)
 					.then(() => Log.d('PeerConnection~answer#remoteDescription', this.pc.remoteDescription.sdp))
 					.then(() => {
@@ -324,7 +324,7 @@ export default class PeerConnection {
 			DataSync.on(`${this._remotePath}/sdp`, 'value', snap => {
 				const sdpAnswer = snap.val();
 				if(sdpAnswer != null) {
-					// Log.d('PeerConnection~offer#answered', sdpAnswer.sdp);
+					Log.d(`PeerConnection~offer#answered ${sdpAnswer.sdp}`);
 					this.pc.setRemoteDescription(sdpAnswer)
 						.then(() => {
 							Log.d('PeerConnection~offer#remoteDescription', this.pc.remoteDescription.sdp);
@@ -455,7 +455,7 @@ export default class PeerConnection {
 						newSdp =	newSdp.replace('42e01f','42001f');
 					}
 				}
-				Log.d('PeerConnection~_sendSdpToRemote#SDP sent to remote', newSdp);
+				Log.d(`PeerConnection~_sendSdpToRemote#SDP sent to remote ${newSdp}`);
 				const descriptionChanged = {
 					sdp: newSdp,
 					type: this.pc.localDescription.type

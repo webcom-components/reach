@@ -13,7 +13,7 @@ const _joinRoom = (room, role) => {
 	if (room.status !== CLOSED) {
 		const participant = {
 			status: CONNECTED,
-      userAgent: cache.userAgent,
+			userAgent: cache.userAgent,
 			_joined: DataSync.ts()
 		};
 		if(role) {
