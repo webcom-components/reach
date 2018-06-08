@@ -87,6 +87,7 @@ export default class Remote {
 	 * @returns {Promise}
 	 */
 	subscribe(remoteStreamContainer) {
+		console.log('on va souscire au remote');
 		if(!cache.user) {
 			return Promise.reject(new Error('Only an authenticated user can subscribe to a Room\'s stream.'));
 		}
@@ -94,12 +95,13 @@ export default class Remote {
 		this.container = remoteStreamContainer || cache.config.remoteStreamContainer;
 		Log.d('Remote~subscribe', this.container);
 		return cache.peerConnections.answer(this, this.container)
-			.then(pc => {this.peerConnection = pc;})
+			.then(pc => {this.peerConnection = pc; console.log('on va updater subscribers');})
 			.then(() => DataSync.update(`_/rooms/${this.roomId}/subscribers/${this.uid}/${cache.device}`, {
 				to: cache.user.uid,
 				_created: DataSync.ts()
 			}))
 			.then(() => {
+				console.log('on a fait lupdate de subscribers');
 				DataSync.onDisconnect(`_/rooms/${this.roomId}/subscribers/${this.uid}/${cache.device}`).remove();
 				let subscribed = false;
 				DataSync.on(`_/rooms/${this.roomId}/streams/${this.uid}`, 'value', snapData => {
