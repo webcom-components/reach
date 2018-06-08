@@ -277,7 +277,6 @@ export default class Room {
 
 	/**
 	 * publish a local stream
-	 * @param {MediaStream} sharedStream The local stream to publish.
 	 * @returns {Local}
 	 */
 	publish() {

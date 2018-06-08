@@ -65,7 +65,7 @@ export default class PeerConnection {
 	 * @access protected
 	 * @param {string} stackId The WebRTC stack ID
 	 * @param {string} streamId The Stream UID
-	 * @param {Remote|{to: string||from: string, device:string}} remote The remote information
+	 * @param {Remote|{to: string|from: string, device:string}} remote The remote information
 	 * @param {boolean} publish Publish or Subscribe ?
 	 */
 	constructor(stackId, streamId, remote, publish) {
