@@ -225,12 +225,11 @@ export default class Reach {
 
 	/**
 	 * Get the list of registered users
-	 * @experimental Since 'search' and 'paging' features are not yet implemented in DataSync, this call can lead to a lot data being exchanged over the WebSocket.
-	 * Avoid it if your users base is pretty large.
+	 * @ignore If your users base is pretty large, this method is impossible.
 	 * @param {boolean} [include=false] Include current user in user's list
 	 * @return {Promise<User[], Error>}
 	 */
-	users(include) {
+	/* users(include) {
 		if(!this.current) {
 			return Promise.reject(new Error('Only an authenticated user can list Users.'));
 		}
@@ -239,19 +238,20 @@ export default class Reach {
 				return !include && users && this.current ? users.filter(user => user.uid !== this.current.uid) : users;
 			})
 			.catch(Log.r('Reach~users'));
-	}
+	}*/
 
 	/**
 	 * Get the list of rooms
+	 * @ignore If your users base is pretty large, this method is impossible.
 	 * @return {Promise<Room[], Error>}
 	 */
-	rooms() {
+	/* rooms() {
 		if(!this.current) {
 			return Promise.reject(new Error('Only an authenticated user can list Rooms.'));
 		}
 		return DataSync.list('rooms', Room)
 			.catch(Log.r('Reach~rooms'));
-	}
+	}*/
 
 	/**
 	 * Get the list of invites

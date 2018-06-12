@@ -198,7 +198,7 @@ export default class User {
 	 * @returns {Promise<User, Error>}
 	 */
 	static get(uid) {
-		// due to the problem of big list, some uid (uid of participant)
+		// due to the problem of long list, some uid (uid of participant)
 		// can have a : instead of /
 		const newUid = uid.replace(/':'/g,'/');
 		return DataSync.get(`users/${newUid}`)

@@ -1,6 +1,7 @@
 {
   "source": "./src",
   "destination": "./esdoc",
+  "plugins": [{"name": "esdoc-standard-plugin"}],
   "title": "Reach",
   "access": ["public"],
   "index": "./manual/index.md",
