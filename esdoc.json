@@ -3,6 +3,7 @@
   "destination": "./esdoc",
   "includes": ["\\.js$"],
   "excludes": ["\\.config\\.js$"],
+  "index": "./manual/index.md",
   "plugins": [
     {
       "name": "esdoc-standard-plugin",
@@ -10,7 +11,7 @@
         "accessor": {"access": ["public"]},
         "brand": {
           "title": "Reach",
-          "repository": "https://github.com/webcom-components/reach",
+          "repository": "https://github.com/webcom-components/reach"
         },
         "manual": {
           "design": ["./manual/design/index.md"],
