@@ -250,7 +250,6 @@ export default class PeerConnection {
 	 */
 	answer(htmlElement) {
 		Log.i('PeerConnection~answer', {htmlElement, peerConnection: this});
-		console.log('on entre dans le answer');
 		this.container = htmlElement;
 		if(Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'ontrack')) {
 			this.pc.ontrack = e => {
@@ -280,7 +279,6 @@ export default class PeerConnection {
 					})
 					.then(description => this._setPreferredCodecs(description))
 					.then(description => this.pc.setLocalDescription(description))
-//					.then(() => console.log('PeerConnection~answer#localSDP', this.pc.localDescription.sdp))
 					.then(() => {
 						Log.d('PeerConnection~answer#localSDP', this.pc.localDescription.sdp);
 						this._remoteICECandidates(true);
@@ -427,7 +425,6 @@ export default class PeerConnection {
 	_sendSdpToRemote() {
 		// Log.d('PeerConnection~_sendSdpToRemote#localSDP', this.pc.localDescription.sdp);
 		const remoteUserId = this.remote.to ? this.remote.to : this.remote.from;
-		console.log(`remoteuserid vaut ${remoteUserId}`);
 		Device.get(remoteUserId, this.remote.device)
 			.then((remoteDevice) => {
 				const sdpOffer = this.pc.localDescription.sdp;
@@ -555,9 +552,7 @@ export default class PeerConnection {
 			// Stop listening to SDP messages
 			DataSync.off(`${this._remotePath}/sdp`, 'value');
 			// Remove data
-			DataSync.remove(this._localPath)
-				.then(() => console.log(`on supprime le webrtc ${this._localPath}`))
-				.catch((err) => console.error(`pas possible de supprimer webrtc ${err}`));
+			DataSync.remove(this._localPath);
 			// Close PeerConnection
 			if (this.pc && this.pc.signalingState !== 'closed') {
 				this.pc.onsignalingstatechange = () => {

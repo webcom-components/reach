@@ -10,13 +10,7 @@ import * as Log from './util/Log';
 import {REJECTED, CANCELED} from './util/constants';
 
 const _joinRoom = (room, role) => {
-	console.log('_joinRoom cache.user.uid vaut');
-	console.log(cache.user.uid);
-	const userId = cache.user.uid.split('/');
-	const shortUserId = userId[2];
-	console.log(`short user id vaut ${shortUserId}`);
 	const uid = cache.user.uid.split('/').join(':');
-	console.log(`uid vaut ${uid}`);
 
 	if (room.status !== CLOSED) {
 		const participant = {
@@ -27,7 +21,7 @@ const _joinRoom = (room, role) => {
 		if(role) {
 			participant.role = role;
 		}
-		Log.w('Room#join', [participant, `_/rooms/${room.uid}/participants/${cache.user.uid}`]);
+		Log.w('Room#join', [participant, `_/rooms/${room.uid}/participants/${uid}`]);
 		return DataSync
 		// .update(`_/rooms/${room.uid}/participants/${cache.user.uid}`, participant)
 		.update(`_/rooms/${room.uid}/participants/${uid}`, participant)
@@ -141,7 +135,6 @@ export default class Room {
 				return [];
 			})
 			.then(streams => streams.filter(stream => {
-				console.log(('on passe par ici et ça marche'));
 				return localStreams === (stream.device === cache.device && stream.from === cache.user.uid);
 			}))
 			.then(streams => streams.map(cache.streams[`get${localStreams ? 'Shared' : 'Remote'}`].bind(cache.streams)))
@@ -164,7 +157,6 @@ export default class Room {
 	 * @return {Promise<Remote[], Error>}
 	 */
 	remoteStreams() {
-		console.log('on veut récupérer les remotes');
 		return this._streams(false)
 			.catch(Log.r('Room~remoteStreams'));
 	}
@@ -231,33 +223,7 @@ export default class Room {
 				// if(/^MESSAGE_/i.test(event) || !snapData) {
 					Log.i(`Room~on(${event})`, snapData ? new obj(snapData) : null);
 					callback(snapData ? new obj(snapData) : null);
-				} else if (/^TOTO/i.test(event)) {
-					// else if (/^PARTICIPANT_/i.test(event)) {
-					/* console.log('on passe dans le on ici');
-					console.error(snapData.name()); */
-					const id1 = snapData.name();
-					// const participant = snapData.val();
-					/* let participant = '';
-					snapData.forEach((childSnapshot) => {
-						id2 = childSnapshot.name();
-						childSnapshot.val().forEach((child) => {
-							participant = child.val();
-						});
-					}); */
-					/* console.error('on va afficher id1 et participant');
-					console.error(id1);
-					console.error(participant[id1]); */
-					// Object.assign({uid: key, roomId: this.uid}, values[key])
-					const id2 = Object.keys(snapData.val())[0];
-					// console.error(id2);
-					// const
-					const idParticipant = Object.keys(snapData.val()[id2])[0];
-					// console.error(idParticipant);
-					const participantData = Object.assign({uid: `${id1}/${id2}/${idParticipant}`},
-						snapData.val()[id2][idParticipant]);
-					console.log(participantData);
-					callback(participantData);
-				}	else if(cache.user) {
+				} else if(cache.user) {
 					const streamData = Object.assign({uid: snapData.name(), roomId: this.uid}, snapData.val());
 					if(streamData.from !== cache.user.uid || streamData.device !== cache.device) {
 						const remoteStream = cache.streams.getRemote(streamData);
@@ -304,7 +270,6 @@ export default class Room {
 	 */
 	getLocalVideo(type, localStreamContainer, constraints) {
 		Log.i('Room~getLocalVideo', {type, localStreamContainer, constraints});
-		console.log('Room~getLocalVideo');
 		return Local.getLocalVideo(this.uid, type, localStreamContainer, constraints)
 		.then( localStream => {
 			this.localStream = localStream;
@@ -338,7 +303,6 @@ export default class Room {
 	 * @return {Promise}
 	 */
 	leave() {
-		console.log('ROOM->leave');
 		if(!cache.user) {
 			return Promise.reject(new Error('Only an authenticated user can leave a Room.'));
 		}
@@ -353,16 +317,8 @@ export default class Room {
 		});
 		// Unpublish all published local streams
 		this.localStreams().then(localStreams => localStreams.forEach(localStream => localStream.close()));
-		// Unpublish local stream even if not published
-		if (this.localStream) {
-			console.log('on va cloer le local');
-			// this.localStream.close();
-			console.log('ouf cest fait');
-		}
 		// Unsubscribe all remote streams
-		console.log('on va désouscrire les remoteStreams');
 		this.remoteStreams().then(remoteStreams => remoteStreams.forEach(remoteStream => remoteStream.unSubscribe()));
-		console.log('on a désouscrit les remoteStreams');
 		// Update status
 		return DataSync.set(`_/rooms/${this.uid}/participants/${uid}/status`, WAS_CONNECTED)
 		// return DataSync.set(`_/rooms/${this.uid}/participants/${shortUserId}/status`, WAS_CONNECTED)
@@ -375,7 +331,6 @@ export default class Room {
 	 */
 	close() {
 		Log.i('Room~close', this);
-		console.log('Room~close');
 		this.status = CLOSED;
 		return this.leave()
 			.then(() => {
@@ -385,10 +340,7 @@ export default class Room {
 				});
 			})
 			.then(() => {
-				console.log('on va supprimer la room');
-				console.log(this.uid);
 				return DataSync.remove(`_/rooms/${this.uid}`);
-					// .catch(error => console.error(`le remove de _ rooms ne passe pas ${error}`));
 			})
 			.catch(Log.r('Room~close'));
 	}
@@ -444,14 +396,6 @@ export default class Room {
 		return DataSync.get(`rooms/${uid}`)
 			.then(snapData => {
 				if(snapData.val()) {
-					console.log('uid vaut');
-					console.log(uid);
-					console.log('snapData vaut');
-					console.log(snapData.val());
-					console.log(snapData.name());
-					// snapData.name() = uid;
-					console.log('A pres modif snapData name vaut');
-					console.log(snapData.name());
 					return new Room(snapData, uid);
 				}
 			});

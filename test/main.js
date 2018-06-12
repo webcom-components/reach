@@ -69,23 +69,6 @@ const getToken = () => {
 	});
 };
 
-	// axios.defaults.baseURL = `${config.protocol}://${config.domain}`;
-	// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-	/*axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
-	console.log('on va faire le post');
-	axios.post(
-		`${config.protocol}://${config.domain}/auth/v2/accounts/password/signin`,
-		auth)
-		.then( function (response) {
-			console.log('la requete est bonne');
-			console.log(response);
-		})
-		.catch(function (error) {
-			console.log('la requete ne amrche pas');
-    	console.log(error);
-  	});
-} */
-
 const customMatchers = {
 	toBePermissionDenied: ()  => ({
 		compare: actual => {

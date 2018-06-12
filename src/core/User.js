@@ -134,8 +134,6 @@ export default class User {
 				// Get user
 				.then(() => User.get(uid))
 				.then(user => {
-					console.log(`user vaut ${user}`);
-					console.log(user);
 					initializing = false;
 					return user;
 				})

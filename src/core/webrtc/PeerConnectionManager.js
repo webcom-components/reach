@@ -16,14 +16,7 @@ const getStackId = (deviceId1, deviceId2) => {
 	const hash = `${hashCode(shortstackId)}`;
 	const length = hash.length;
 	const id1 = hash.substring(length-3,length);
-	console.log('hash');
-	console.log(hash);
-	console.log('id1');
-	console.log(id1);
-
 	const id2 = hash.substring(length-6,length-3);
-	console.log('id2');
-	console.log(id2);
 
 	return `${id1}/${id2}/${shortstackId}`;
 };
@@ -67,9 +60,6 @@ export default class PeerConnectionManager {
 
 		const userId = cache.user.uid.split('/');
 		const shortUserId = userId[2];
-		console.log(`short user id vaut ${shortUserId}`);
-		console.log(`remote vaut ${remote}`);
-		console.log(remote);
 		let shortRemoteTo = undefined;
 		let shortRemoteFrom = undefined;
 		if (remote.to) {
@@ -86,14 +76,8 @@ export default class PeerConnectionManager {
 		// users[remote.from || remote.to] = true;
 		users[shortRemoteFrom || shortRemoteTo] = true;
 
-		console.log('stackId vaut :');
-		console.log(stackId);
-		console.log('users vaut :');
-		console.log(users);
-
 		return DataSync.update(`_/webrtc/${stackId}`, users)
 			.then(() => {
-				console.log('on a fait cet update là');
 				return new PeerConnection(stackId, stream.uid, remote, publish);
 			})
 			.then(pc => {
@@ -123,7 +107,6 @@ export default class PeerConnectionManager {
 	 * @return {*|Promise.<PeerConnection>}
 	 */
 	answer(remoteStream, htmlElement) {
-		console.log('on va faire un answer');
 		Log.d('PeerConnectionManager~answer', {remoteStream, htmlElement});
 		return this.getPeerConnection(remoteStream, remoteStream, false)
 			.then(pc => pc.answer(htmlElement));
