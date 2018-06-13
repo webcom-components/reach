@@ -8,6 +8,5 @@ esdoc
 dist/rules.json
 .account.*
 .greenspector
-CHANGELOG.md
 **/.DS_Store
 bundleAnalysis.*
