@@ -13,14 +13,17 @@
         },
         "manual": {
           "index": "./manual/index.md",
+          "globalIndex": false,
           "files": [
-            "./manual/design/index.md",
-            "./manual/installation/index.md",
-            "./manual/usage/index.md",
-            "./manual/tutorial/index.md",
+            "./manual/design.md",
+            "./manual/installation.md",
+            "./manual/usage.md",
+            "./manual/tutorial.md",
             "./manual/configuration/index.md",
-            "./manual/faq/index.md",
-            "./manual/changelog/index.md"
+            "./manual/example.md",
+            "./manual/faq.md",
+            "./CONTRIBUTING.md",
+            "./manual/changelog.md"
           ]
         }
       }
