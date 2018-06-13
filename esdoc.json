@@ -2,10 +2,28 @@
   "source": "./src",
   "destination": "./esdoc",
   "includes": ["\\.js$"],
-  "index": "./manual/index.md",
   "plugins": [
     {
-      "name": "esdoc-standard-plugin"
+      "name": "esdoc-standard-plugin",
+      "option": {
+        "accessor": {"access": ["public"]},
+        "brand": {
+          "title": "Reach",
+          "repository": "https://github.com/webcom-components/reach"
+        },
+        "manual": {
+          "index": "./manual/index.md",
+          "files": [
+            "./manual/design/index.md",
+            "./manual/installation/index.md",
+            "./manual/usage/index.md",
+            "./manual/tutorial/index.md",
+            "./manual/configuration/index.md",
+            "./manual/faq/index.md",
+            "./manual/changelog/index.md"
+          ]
+        }
+      }
     }
   ]
 }
