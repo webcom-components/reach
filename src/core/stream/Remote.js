@@ -131,7 +131,13 @@ export default class Remote {
 					}
 				});
 			})
-			.catch(Log.r('Remote~subscribe'));
+			// .catch(Log.r('Remote~subscribe'));
+			.catch((e) => {
+				console.error(`PeerConnection~subscribe#error ${e}`);
+				return Promise.reject(
+					new Error('Failed to subscribe to the remote stream')
+				);
+			});
 	}
 
 	/**
