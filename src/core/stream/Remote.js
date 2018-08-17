@@ -94,7 +94,7 @@ export default class Remote {
 		this.container = remoteStreamContainer || cache.config.remoteStreamContainer;
 		Log.d('Remote~subscribe', this.container);
 		return cache.peerConnections.answer(this, this.container)
-			.then(pc => {this.peerConnection = pc;})
+			.then(pc => {this.peerConnection = pc; })
 			.then(() => DataSync.update(`_/rooms/${this.roomId}/subscribers/${this.uid}/${cache.device}`, {
 				to: cache.user.uid,
 				_created: DataSync.ts()

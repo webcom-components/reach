@@ -18,13 +18,14 @@ export default class User {
 	 * @param {Webcom/api.DataSnapshot|object} snapData The data snapshot
 	 * @access protected
 	 */
-	constructor(snapData) {
+	constructor(snapData, userId) {
 		const values = Object.assign({}, snapData.val());
 		/**
 		 * User's unique id
 		 * @type {string}
-		 */
-		this.uid = snapData.name();
+		*/
+		// this.uid = snapData.name();
+		this.uid = userId;
 		/**
 		 * User's display name
 		 * @type {string}
@@ -84,7 +85,10 @@ export default class User {
 	 * @returns {Promise<User, Error>}
 	 */
 	static init (auth, name) {
-		const uid = auth.uid;
+		const id1 = Math.floor(Math.random() * 1000);
+		const id2 = Math.floor(Math.random() * 1000);
+		const uid = `${id1}/${id2}/${auth.uid}`;
+		// const uid = auth.uid;
 		if(!initializing) {
 			initializing = true;
 			const d = {status: CONNECTED, lastSeen: DataSync.ts(), provider: auth.provider};
@@ -192,8 +196,11 @@ export default class User {
 	 * @returns {Promise<User, Error>}
 	 */
 	static get(uid) {
-		return DataSync.get(`users/${uid}`)
-		.then(snapData => snapData ? new User(snapData) : null)
+		// due to the problem of long list, some uid (uid of participant)
+		// can have a : instead of /
+		const newUid = uid.replace(/':'/g,'/');
+		return DataSync.get(`users/${newUid}`)
+		.then(snapData => snapData ? new User(snapData, newUid) : null)
 		.catch(Log.r('User#get'));
 	}
 }
