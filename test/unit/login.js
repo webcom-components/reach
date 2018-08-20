@@ -5,8 +5,8 @@ import Reach from '../../src/Reach';
 // import * as rules from '../util/rules';
 import * as log from '../util/logger';
 import * as namespace from '../util/namespace';
-import {CONNECTED, NOT_CONNECTED} from '../../src/core/util/constants';
-import Device from '../../src/core/Device';
+import {NOT_CONNECTED} from '../../src/core/util/constants';
+// import Device from '../../src/core/Device';
 // import Webcom from 'webcom/webcom';
 
 /*const uidRegExp = /^[a-z0-9\-:]+$/;
@@ -125,7 +125,7 @@ describe('Register & Login /', () => {
 			});
 		});*/
 
-		it('Should be CONNECTED after logout if at least one device is connected', done => {
+		/* it('Should be CONNECTED after logout if at least one device is connected', done => {
 			login(global.env.createdUsers[0], 'Homer')
 			.then(user => {
 				return user.devices();
@@ -148,7 +148,7 @@ describe('Register & Login /', () => {
 				log.e(e);
 				done(e);
 			});
-		});
+		}); */
 	});
 
 	/* describe('Anonymous Users /', () => {

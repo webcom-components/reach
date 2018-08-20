@@ -10,6 +10,8 @@ import * as Log from './util/Log';
 import {REJECTED, CANCELED} from './util/constants';
 
 const _joinRoom = (room, role) => {
+	const uid = cache.user.uid.split('/').join(':');
+
 	if (room.status !== CLOSED) {
 		const participant = {
 			status: CONNECTED,
@@ -19,13 +21,14 @@ const _joinRoom = (room, role) => {
 		if(role) {
 			participant.role = role;
 		}
-		Log.w('Room#join', [participant, `_/rooms/${room.uid}/participants/${cache.user.uid}`]);
+		Log.w('Room#join', [participant, `_/rooms/${room.uid}/participants/${uid}`]);
 		return DataSync
-			.update(`_/rooms/${room.uid}/participants/${cache.user.uid}`, participant)
+		// .update(`_/rooms/${room.uid}/participants/${cache.user.uid}`, participant)
+		.update(`_/rooms/${room.uid}/participants/${uid}`, participant)
 			.then(() => {
-				DataSync
-                                    .onDisconnect(`_/rooms/${room.uid}/participants/${cache.user.uid}/status`)
-                                    .set(WAS_CONNECTED);
+				/* DataSync
+                                    .onDisconnect(`_/rooms/${room.uid}/participants/${shortUserId}/status`)
+                                    .set(WAS_CONNECTED);*/
 				return room;
 			});
 	}
@@ -42,10 +45,11 @@ export default class Room {
 	 * @param {Webcom/api.DataSnapshot|Object} snapData The data snapshot
 	 * @access protected
 	 */
-	constructor(snapData) {
+	constructor(snapData, roomUid) {
 		let values = snapData;
 		if(snapData && snapData.val && typeof snapData.val === 'function'){
-			values = Object.assign({}, snapData.val(), {uid: snapData.name()});
+			// values = Object.assign({}, snapData.val(), {uid: snapData.name()});
+			values = Object.assign({}, snapData.val(), {uid: roomUid});
 		}
 		/**
 		 * The room unique id
@@ -131,7 +135,6 @@ export default class Room {
 				return [];
 			})
 			.then(streams => streams.filter(stream => {
-				console.log(('on passe par ici et ça marche'));
 				return localStreams === (stream.device === cache.device && stream.from === cache.user.uid);
 			}))
 			.then(streams => streams.map(cache.streams[`get${localStreams ? 'Shared' : 'Remote'}`].bind(cache.streams)))
@@ -154,7 +157,6 @@ export default class Room {
 	 * @return {Promise<Remote[], Error>}
 	 */
 	remoteStreams() {
-		console.log('on veut récupérer les remotes');
 		return this._streams(false)
 			.catch(Log.r('Room~remoteStreams'));
 	}
@@ -218,6 +220,7 @@ export default class Room {
 		if(path && obj) {
 			const typedCallback = snapData => {
 				if(!/^STREAM_/i.test(event) || !snapData) {
+				// if(/^MESSAGE_/i.test(event) || !snapData) {
 					Log.i(`Room~on(${event})`, snapData ? new obj(snapData) : null);
 					callback(snapData ? new obj(snapData) : null);
 				} else if(cache.user) {
@@ -267,7 +270,6 @@ export default class Room {
 	 */
 	getLocalVideo(type, localStreamContainer, constraints) {
 		Log.i('Room~getLocalVideo', {type, localStreamContainer, constraints});
-		console.log('Room~getLocalVideo');
 		return Local.getLocalVideo(this.uid, type, localStreamContainer, constraints)
 		.then( localStream => {
 			this.localStream = localStream;
@@ -306,7 +308,8 @@ export default class Room {
 		}
 		Log.i('Room~leave', this);
 		// Cancel onDisconnect
-		DataSync.onDisconnect(`_/rooms/${this.uid}/participants/${cache.user.uid}/status`).cancel();
+		const uid = cache.user.uid.split('/').join(':');
+		DataSync.onDisconnect(`_/rooms/${this.uid}/participants/${uid}/status`).cancel();
 
 		// Disconnect user's callbacks
 		Object.keys(this._callbacks).forEach(event => {
@@ -314,18 +317,11 @@ export default class Room {
 		});
 		// Unpublish all published local streams
 		this.localStreams().then(localStreams => localStreams.forEach(localStream => localStream.close()));
-		// Unpublish local stream even if not published
-		if (this.localStream) {
-			console.log('on va cloer le local');
-			// this.localStream.close();
-			console.log('ouf cest fait');
-		}
 		// Unsubscribe all remote streams
-		console.log('on va désouscrire les remoteStreams');
 		this.remoteStreams().then(remoteStreams => remoteStreams.forEach(remoteStream => remoteStream.unSubscribe()));
-		console.log('on a désouscrit les remoteStreams');
 		// Update status
-		return DataSync.set(`_/rooms/${this.uid}/participants/${cache.user.uid}/status`, WAS_CONNECTED)
+		return DataSync.set(`_/rooms/${this.uid}/participants/${uid}/status`, WAS_CONNECTED)
+		// return DataSync.set(`_/rooms/${this.uid}/participants/${shortUserId}/status`, WAS_CONNECTED)
 			.catch(Log.r('Room~leave'));
 	}
 
@@ -345,7 +341,6 @@ export default class Room {
 			})
 			.then(() => {
 				return DataSync.remove(`_/rooms/${this.uid}`);
-					// .catch(error => console.error(`le remove de _ rooms ne passe pas ${error}`));
 			})
 			.catch(Log.r('Room~close'));
 	}
@@ -377,12 +372,13 @@ export default class Room {
 
 		let room = null;
 		// Create public room infos
-		return DataSync.push('rooms', roomFullMetaData)
+		// return DataSync.push('rooms', roomFullMetaData)
+		const id1 = Math.floor(Math.random() * 1000);
+		const id2 = Math.floor(Math.random() * 1000);
+		return DataSync.push(`rooms/${id1}/${id2}`, roomFullMetaData)
 			// Create private room infos
 			.then(roomRef => {
-				console.log('on a créé la room dans webcom');
-				room = new Room(Object.assign({uid: roomRef.name()}, roomFullMetaData));
-				console.log('on a créé la room dans le reach');
+				room = new Room(Object.assign({uid: `${id1}/${id2}/${roomRef.name()}`}, roomFullMetaData));
 				return DataSync.update(`_/rooms/${room.uid}/meta`, roomMetaData);
 			})
 			// Join the room
@@ -400,7 +396,7 @@ export default class Room {
 		return DataSync.get(`rooms/${uid}`)
 			.then(snapData => {
 				if(snapData.val()) {
-					return new Room(snapData);
+					return new Room(snapData, uid);
 				}
 			});
 	}

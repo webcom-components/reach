@@ -281,7 +281,6 @@ export default class PeerConnection {
 					})
 					.then(description => this._setPreferredCodecs(description))
 					.then(description => this.pc.setLocalDescription(description))
-//					.then(() => console.log('PeerConnection~answer#localSDP', this.pc.localDescription.sdp))
 					.then(() => {
 						Log.d('PeerConnection~answer#localSDP', this.pc.localDescription.sdp);
 						this._remoteICECandidates(true);
