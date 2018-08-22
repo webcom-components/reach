@@ -88,6 +88,7 @@ export default class User {
 		const id1 = Math.floor(Math.random() * 1000);
 		const id2 = Math.floor(Math.random() * 1000);
 		const uid = `${id1}/${id2}/${auth.uid}`;
+		const userUid = `${id1}:${id2}:${auth.uid}`;
 		// const uid = auth.uid;
 		if(!initializing) {
 			initializing = true;
@@ -132,7 +133,8 @@ export default class User {
 					});
 				})
 				// Get user
-				.then(() => User.get(uid))
+				// .then(() => User.get(uid))
+				.then(() => User.get(userUid))
 				.then(user => {
 					initializing = false;
 					return user;
@@ -143,7 +145,9 @@ export default class User {
 					return Promise.reject(e);
 				});
 		}
-		return User.get(uid);
+		// return User.get(uid);
+		console.log(`on va retourner un user avec un id : ${userUid}`);
+		return User.get(userUid);
 	}
 
 	/**
@@ -198,9 +202,11 @@ export default class User {
 	static get(uid) {
 		// due to the problem of long list, some uid (uid of participant)
 		// can have a : instead of /
+		console.log(`on fait le get uid avec : ${uid}`);
 		const newUid = uid.replace(/':'/g,'/');
 		return DataSync.get(`users/${newUid}`)
-		.then(snapData => snapData ? new User(snapData, newUid) : null)
+		// .then(snapData => snapData ? new User(snapData, newUid) : null)
+		.then(snapData => snapData ? new User(snapData, uid) : null)
 		.catch(Log.r('User#get'));
 	}
 }
