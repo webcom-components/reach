@@ -155,11 +155,11 @@ export default class PeerConnection {
 				case ICE_CONNECTION_STATE_DISCONNECTED:
 				case ICE_CONNECTION_STATE_FAILED:
 					// Log.e('PeerConnection~stateDisconnected', 'Disconnect PeerConnection');
-					console.error('PeerConnection~stateDisconnected Disconnect PeerConnection');
+					console.log('PeerConnection~stateDisconnected Disconnect PeerConnection');
 					break;
 				case ICE_CONNECTION_STATE_CLOSED:
 					// Log.d('PeerConnection~stateclosed', 'Close PeerConnection');
-					console.error('PeerConnection~stateclosed Close PeerConnection');
+					console.log('PeerConnection~stateclosed Close PeerConnection');
 					this.close();
 					break;
 			}
@@ -206,7 +206,7 @@ export default class PeerConnection {
 	_attachStream () {
 		if(this.remoteStream && this.isConnected) {
 			this.node = Media.attachStream(this.remoteStream, this.container, this.node);
-			// this.node.muted = false;
+			this.node.muted = false;
 		}
 	}
 
@@ -290,8 +290,6 @@ export default class PeerConnection {
 					.catch((e) => {
 						console.error(`PeerConnection~answser#error ${e}`);
 						// this.close();
-						console.error(this.remote);
-						console.error(this.streamId);
 						cache.peerConnections.close(this.streamId, this.remote.device);
 					});
 			}
@@ -547,14 +545,10 @@ export default class PeerConnection {
 	 * @access protected
 	 */
 	close() {
-		console.error('on va closer la peerco');
-		console.error(this._status);
 		if(this._status === OPENED) {
-			console.error('on était opened');
 			this._status = CLOSING;
 			// Stop display
 			if (this.node) {
-				console.error('this . node');
 				this.node.stop && this.node.stop();
 				this.node.srcObject = null;
 				this.container.removeChild(this.node);
@@ -568,13 +562,11 @@ export default class PeerConnection {
 			DataSync.remove(this._localPath);
 			// Close PeerConnection
 			if (this.pc && this.pc.signalingState !== 'closed') {
-				console.error('différent de closed');
 				this.pc.onsignalingstatechange = () => {
 					if(this.pc.signalingState !== 'closed') {
 						this._status = CLOSED;
 					}
 				};
-				console.error('enfin on close');
 				this.pc.close();
 			} else {
 				this._status = CLOSED;

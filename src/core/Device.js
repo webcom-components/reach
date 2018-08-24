@@ -53,7 +53,10 @@ export default class Device {
 	 * @returns {Promise<Device, Error>}
 	 */
 	static get(userUid, deviceUid) {
-		return DataSync.get(`_/devices/${userUid}/${deviceUid}`)
+		// due to the problem of long list, some uid (uid of participant)
+		// can have a : instead of /
+		const newUid = userUid.replace(/:/g,'/');
+		return DataSync.get(`_/devices/${newUid}/${deviceUid}`)
 		.then(snapData => snapData ? new Device(snapData) : null)
 		.catch(Log.r('Device#get'));
 	}

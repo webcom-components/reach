@@ -146,7 +146,6 @@ export default class User {
 				});
 		}
 		// return User.get(uid);
-		console.log(`on va retourner un user avec un id : ${userUid}`);
 		return User.get(userUid);
 	}
 
@@ -158,35 +157,39 @@ export default class User {
 	 */
 	static disconnect(user) {
 		// Cancel onDisconnect
-		DataSync.onDisconnect(`_/devices/${user.uid}/${cache.device}/status`).cancel();
-		DataSync.onDisconnect(`users/${user.uid}`).cancel();
+		// due to the problem of long list, uids have a : instead of /
+		const userUid = user.uid.replace(/:/g,'/');
+		// DataSync.onDisconnect(`_/devices/${user.uid}/${cache.device}/status`).cancel();
+		// DataSync.onDisconnect(`users/${user.uid}`).cancel();
+		DataSync.onDisconnect(`_/devices/${userUid}/${cache.device}/status`).cancel();
+		DataSync.onDisconnect(`users/${userUid}`).cancel();
 		if(user.anonymous) {
-			return DataSync.remove(`_/devices/${user.uid}`)
-				.then(() => DataSync.get(`_/invites/${user.uid}`))
+			return DataSync.remove(`_/devices/${userUid}`)
+				.then(() => DataSync.get(`_/invites/${userUid}`))
 				.then(invites => {
 					const inviteIds = [];
 					invites.forEach(invite => {
 						inviteIds.push(invite.name());
 					});
-					return Promise.all(inviteIds.map(inviteId => DataSync.remove(`_/invites/${user.uid}/${inviteId}`)));
+					return Promise.all(inviteIds.map(inviteId => DataSync.remove(`_/invites/${userUid}/${inviteId}`)));
 				})
 				// TODO refactor data model for invites so we can delete _/invites/${user.uid}
 				// .then(() => DataSync.remove(`_/invites/${user.uid}`))
-				.then(() => DataSync.remove(`users/${user.uid}`))
+				.then(() => DataSync.remove(`users/${userUid}`))
 				.then(() => {
-					Webcom.INTERNAL.PersistentStorage.remove(user.uid);
+					Webcom.INTERNAL.PersistentStorage.remove(userUid);
 				})
 				.catch(Log.r('User#anonymous_disconnect'));
 		}
-		return DataSync.set(`_/devices/${user.uid}/${cache.device}/status`, NOT_CONNECTED)
-			.then(() => DataSync.get(`_/devices/${user.uid}`))
+		return DataSync.set(`_/devices/${userUid}/${cache.device}/status`, NOT_CONNECTED)
+			.then(() => DataSync.get(`_/devices/${userUid}`))
 			.then(devices => {
 				// Only change user's status if no other device connected
 				const hasConnectedDevices = devices.forEach(device => {
 					return (new RegExp(`^${CONNECTED}$`)).test(device.val().status);
 				});
 				if(!hasConnectedDevices) {
-					return DataSync.update(`users/${user.uid}`, {status: NOT_CONNECTED});
+					return DataSync.update(`users/${userUid}`, {status: NOT_CONNECTED});
 				}
 				return true;
 			})
@@ -200,11 +203,9 @@ export default class User {
 	 * @returns {Promise<User, Error>}
 	 */
 	static get(uid) {
-		// due to the problem of long list, some uid (uid of participant)
-		// can have a : instead of /
-		console.log(`on fait le get uid avec : ${uid}`);
-		const newUid = uid.replace(/':'/g,'/');
-		return DataSync.get(`users/${newUid}`)
+		// due to the problem of long list, uids have a : instead of /
+		const userUid = uid.replace(/:/g,'/');
+		return DataSync.get(`users/${userUid}`)
 		// .then(snapData => snapData ? new User(snapData, newUid) : null)
 		.then(snapData => snapData ? new User(snapData, uid) : null)
 		.catch(Log.r('User#get'));
