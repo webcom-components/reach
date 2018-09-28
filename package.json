@@ -42,11 +42,11 @@
   "author": "Webcom <webcom.ops@orange.com>",
   "license": "MIT",
   "peerDependencies": {
-    "webcom": "^1.2.3"
+    "webcom": "^2.6.1"
   },
   "dependencies": {
     "request": "^2.83.0",
-    "webcom": "^1.2.3"
+    "webcom": "^2.6.1"
   },
   "devDependencies": {
     "axios": "^0.17.1",
