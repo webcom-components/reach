@@ -74,12 +74,12 @@ const sauceLabsBrowsers = {
 	//	version: 'latest',
 	//	flags
 	// }),
-	sl_chrome_51_win10: sauceLabsBrowser({
-		browserName: 'chrome',
-		platform: 'Windows 10',
-		version: '51',
-		flags
-	}),
+	// sl_chrome_51_win10: sauceLabsBrowser({
+	//	browserName: 'chrome',
+	//	platform: 'Windows 10',
+	//	version: '51',
+	//	flags
+	// }),
 	sl_chrome_latest_osx: sauceLabsBrowser({
 		browserName: 'chrome',
 		platform: 'OS X 10.11',
