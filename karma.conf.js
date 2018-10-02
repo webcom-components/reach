@@ -63,11 +63,11 @@ const sauceLabsBrowser = d => {
 	return d;
 };
 const sauceLabsBrowsers = {
-	// sl_edge: sauceLabsBrowser({
-	// 	browserName: 'MicrosoftEdge',
-	// 	platform: 'Windows 10',
-	// 	version: '13'
-	// }),
+	sl_edge: sauceLabsBrowser({
+		browserName: 'MicrosoftEdge',
+		platform: 'Windows 10',
+		version: '11.103'
+	}),
 	// sl_chrome_latest_win10: sauceLabsBrowser({
 	//	browserName: 'chrome',
 	//	platform: 'Windows 10',
@@ -83,7 +83,7 @@ const sauceLabsBrowsers = {
 	sl_chrome_latest_osx: sauceLabsBrowser({
 		browserName: 'chrome',
 		platform: 'OS X 10.11',
-		version: '67',
+		version: 'latest',
 		flags
 	}),
 	sl_chrome_latest_1_win7: sauceLabsBrowser({
