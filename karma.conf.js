@@ -66,7 +66,7 @@ const sauceLabsBrowsers = {
 	sl_edge: sauceLabsBrowser({
 		browserName: 'MicrosoftEdge',
 		platform: 'Windows 10',
-		version: '11.103'
+		version: '11'
 	}),
 	// sl_chrome_latest_win10: sauceLabsBrowser({
 	//	browserName: 'chrome',
