@@ -92,3 +92,7 @@ Thumbs.db
 
 # Bundle analysis
 bundleAnalysis.*
+
+# Docs
+esdoc
+
