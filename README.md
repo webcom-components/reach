@@ -2,20 +2,15 @@ Reach is a JavaScript framework relying on [Flexible DataSync](https://io.datasy
 
 Reach acts as a signaling framework for all your WebRTC needs.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 [![Build Status](https://travis-ci.org/webcom-components/reach.svg?branch=master)](https://travis-ci.org/webcom-components/reach)
 [![Code Climate](https://codeclimate.com/github/webcom-components/reach/badges/gpa.svg)](https://codeclimate.com/github/webcom-components/reach)
 [![Test Coverage](https://codeclimate.com/github/webcom-components/reach/badges/coverage.svg)](https://codeclimate.com/github/webcom-components/reach/coverage)
-[![ESDoc](https://doc.esdoc.org/github.com/webcom-components/reach/badge.svg)](https://doc.esdoc.org/github.com/webcom-components/reach)
-[![npm version](https://img.shields.io/npm/v/webcom-reach.svg)](https://www.npmjs.com/package/webcom-reach)
-[![bower version](https://img.shields.io/bower/v/webcom-reach.svg)](https://github.com/webcom-components/reach)
 [![Dependency Status](https://david-dm.org/webcom-components/reach.svg)](https://david-dm.org/webcom-components/reach)
 [![devDependency Status](https://david-dm.org/webcom-components/reach/dev-status.svg)](https://david-dm.org/webcom-components/reach#info=devDependencies)
-[![semantic-release](https://img.shields.io/badge/%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-[![Stories in Ready](https://img.shields.io/waffle/label/webcom-components/reach/ready.svg)](http://waffle.io/webcom-components/reach)
-[![Stories in Progress](https://img.shields.io/waffle/label/webcom-components/reach/in%20progress.svg)](http://waffle.io/webcom-components/reach)
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/webcomOps.svg)](https://saucelabs.com/u/webcomOps)
+[![ESDoc](https://doc.esdoc.org/github.com/webcom-components/reach/badge.svg)](https://doc.esdoc.org/github.com/webcom-components/reach)
 
 
 ## Discover Flexible DataSync

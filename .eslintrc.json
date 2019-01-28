@@ -1,0 +1,14 @@
+{
+  "parser": "babel-eslint",
+  "extends": "airbnb",
+  "env": {
+    "jasmine": true,
+    "browser": true,
+    "es6": true
+  },
+  "rules": {
+    "comma-dangle": ["error", "only-multiline"],
+    "no-underscore-dangle": "off",
+    "class-methods-use-this": "off"
+  }
+}

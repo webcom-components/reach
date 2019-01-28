@@ -12,15 +12,15 @@ const levels = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
  * @param {string} level The level to test
  * @returns {boolean}
  */
-const isEnabled = level => {
-	return levels.indexOf(level.toUpperCase()) >= levels.indexOf(cache.logLevel.toUpperCase());
-};
+const isEnabled = level => (
+  levels.indexOf(level.toUpperCase()) >= levels.indexOf(cache.logLevel.toUpperCase())
+);
 /**
  * Global Console. (to avoid drop_console...)
  * @access private
  * @type {Console}
  */
-const gConsole = global['console'];
+const gConsole = global.console;
 /**
  * Shorthand for console call
  * @access private
@@ -28,9 +28,11 @@ const gConsole = global['console'];
  * @param {string} level The log level
  * @param {*} messages the log content
  */
-const logger = (method, level, ...messages) => {
-	isEnabled(level) ? gConsole[method.toLowerCase()].bind(gConsole)(...messages) : () => {};
-};
+const logger = (method, level, ...messages) => (
+  isEnabled(level)
+    ? gConsole[method.toLowerCase()].bind(gConsole)(...messages)
+    : () => {}
+);
 /**
  * Use a group to log
  * @access private
@@ -39,17 +41,26 @@ const logger = (method, level, ...messages) => {
  * @param {*} items the log content
  */
 const group = (level, message, ...items) => {
-	if (items.length > 0) {
-		logger.bind(undefined, gConsole.group ? 'group' : level, level)(typeof message === 'string' ? message : '');
-		let values = (typeof message !== 'string' ? [message] : []).concat(items);
-		if (items.length === 1 && items[0] instanceof Array && typeof items[0].length !== undefined) {
-			values = items[0];
-		}
-		values.forEach(item => logger.bind(undefined, level, level)(item));
-		gConsole.groupEnd && gConsole.groupEnd();
-	} else {
-		logger.bind(undefined, level, level, message);
-	}
+  if (items.length > 0) {
+    logger.bind(
+      undefined,
+      gConsole.group ? 'group' : level,
+      level
+    )(typeof message === 'string' ? message : '');
+
+    let values = (typeof message !== 'string' ? [message] : []).concat(items);
+    if (items.length === 1
+      && items[0] instanceof Array
+      && typeof items[0].length !== 'undefined') {
+      values = items[0]; // eslint-disable-line prefer-destructuring
+    }
+    values.forEach(item => logger.bind(undefined, level, level)(item));
+    if (gConsole.groupEnd) {
+      gConsole.groupEnd();
+    }
+  } else {
+    logger.bind(undefined, level, level, message);
+  }
 };
 
 /**
@@ -82,7 +93,7 @@ export const e = gConsole.error.bind(gConsole);
  * @param {string} message
  * @returns {function}
  */
-export const r = message => reason => {
-	d(message, reason);
-	return Promise.reject(reason || message);
+export const r = message => (reason) => {
+  d(message, reason);
+  return Promise.reject(reason || message);
 };

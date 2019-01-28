@@ -7,15 +7,15 @@ import cache from './cache';
  * @return {string}
  */
 export const eventType = (event) => {
-	let evt;
-	if((/_ADDED$/i).test(event) || /_PUBLISHED$/.test(event)) {
-		evt = 'added';
-	} else if(/_CHANGED$/.test(event) || /_REFRESHED$/.test(event)) {
-		evt = 'changed';
-	} else if(/_REMOVED$/.test(event) || /_UNPUBLISHED$/.test(event)) {
-		evt = 'removed';
-	}
-	return evt ? `child_${evt}` : event;
+  let evt;
+  if ((/_ADDED$/i).test(event) || /_PUBLISHED$/.test(event)) {
+    evt = 'added';
+  } else if (/_CHANGED$/.test(event) || /_REFRESHED$/.test(event)) {
+    evt = 'changed';
+  } else if (/_REMOVED$/.test(event) || /_UNPUBLISHED$/.test(event)) {
+    evt = 'removed';
+  }
+  return evt ? `child_${evt}` : event;
 };
 
 /**
@@ -26,7 +26,7 @@ export const eventType = (event) => {
  * @ignore
  */
 const _write = (method, path, data) => new Promise((resolve, reject) => {
-	cache.base.child(path)[method](data, error => error ? reject(error) : resolve());
+  cache.base.child(path)[method](data, error => (error ? reject(error) : resolve()));
 });
 
 /**
@@ -46,7 +46,8 @@ export const set = _write.bind(undefined, 'set');
  * @return {Promise<Webcom, Error>}
  */
 export const push = (path, data) => new Promise((resolve, reject) => {
-	const pushRef = cache.base.child(path).push(data, error => error ? reject(error) : resolve(pushRef));
+  const pushRef = cache.base.child(path).push(data,
+    error => (error ? reject(error) : resolve(pushRef)));
 });
 
 /**
@@ -64,8 +65,8 @@ export const update = _write.bind(undefined, 'update');
  * @param {string} path The path to remove
  * @return {Promise<*, Error>}
  */
-export const remove = (path) => new Promise((resolve, reject) => {
-	cache.base.child(path).remove(error => error ? reject(error) : resolve());
+export const remove = path => new Promise((resolve, reject) => {
+  cache.base.child(path).remove(error => (error ? reject(error) : resolve()));
 });
 
 /**
@@ -76,7 +77,7 @@ export const remove = (path) => new Promise((resolve, reject) => {
  * @returns {Promise<Webcom/api.DataSnapshot, Error>}
  */
 export const once = (path, event) => new Promise((resolve, reject) => {
-	cache.base.child(path).once(eventType(event), resolve, reject);
+  cache.base.child(path).once(eventType(event), resolve, reject);
 });
 
 /**
@@ -95,18 +96,17 @@ export const get = path => once(path, 'value');
  * @param params Additional constructor parameters
  * @return {Promise<Object[], Error>}
  */
-export const list = (path, Type, ...params) => {
-	return get(path)
-	.then(snapData => {
-		if(snapData) {
-			const values = [];
-			snapData.forEach(snapChild => {
-				values.push(new Type(snapChild, ...params));
-			});
-			return values;
-		}
-	});
-};
+export const list = (path, Type, ...params) => get(path)
+  .then((snapData) => {
+    if (snapData) {
+      const values = [];
+      snapData.forEach((snapChild) => {
+        values.push(new Type(snapChild, ...params));
+      });
+      return values;
+    }
+    return [];
+  });
 
 /**
  * {@link Webcom#on} shortcut
@@ -117,7 +117,7 @@ export const list = (path, Type, ...params) => {
  * @param {Webcom/api.Query~cancelCallback|function} [cancelCallback] The callback
  */
 export const on = (path, event, queryCallback, cancelCallback) => {
-	cache.base.child(path).on(eventType(event), queryCallback, cancelCallback);
+  cache.base.child(path).on(eventType(event), queryCallback, cancelCallback);
 };
 
 /**
@@ -128,7 +128,7 @@ export const on = (path, event, queryCallback, cancelCallback) => {
  * @param {function} [callback] The callback
  */
 export const off = (path, event, callback) => {
-	cache.base.child(path).off(eventType(event), callback);
+  cache.base.child(path).off(eventType(event), callback);
 };
 
 /**

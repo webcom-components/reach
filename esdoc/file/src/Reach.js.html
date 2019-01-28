@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/Reach.js | Reach</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Webcom-reach"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Reach"><meta property="twitter:description" content="Webcom-reach"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  <a href="./manual/index.html" data-ice="manualHeaderLink">Manual</a>
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/webcom-components/reach"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Reach.js~Reach.html">Reach</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core">core</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Config.js~Config.html">Config</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Invite.js~Invite.html">Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Message.js~Message.html">Message</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Participant.js~Participant.html">Participant</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Room.js~Room.html">Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/User.js~User.html">User</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-stream">core/stream</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Local.js~Local.html">Local</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Remote.js~Remote.html">Remote</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-util">core/util</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/util/Media.js~Media.html">Media</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-webrtc">core/webrtc</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/webrtc/PeerConnection.js~PeerConnection.html">PeerConnection</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-GetStats">GetStats</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#definitions">definitions</a><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Browser">Browser</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/audio">Codec/audio</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/video">Codec/video</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Invite">Events/Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Reach">Events/Reach</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Room">Events/Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Stream">Events/Stream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-ICEServer">ICEServer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-StreamTypes">StreamTypes</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-datasync">external/datasync</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/Webcom.html">Webcom</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/api.Query.html#~cancelCallback">Webcom/api.Query~cancelCallback</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-dom">external/dom</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-webrtc">external/webrtc</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="http://w3c.github.io/mediacapture-main/#idl-def-MediaDeviceInfo">MediaDeviceInfo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#stream-api">MediaStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaStreamConstraints">MediaStreamConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaTrackConstraints">MediaTrackConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#interface-definition">RTCPeerConnection</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcrtpsender-interface">RTCRtpSender</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcsessiondescription-class">RTCSessionDescription</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/Reach.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import Webcom from &apos;webcom/webcom&apos;;
+import browser from &apos;./definitions/Browser&apos;;
+import StreamTypes from &apos;./definitions/StreamTypes&apos;;
+import * as Events from &apos;./definitions/Events&apos;;
+import { audio, video } from &apos;./definitions/Codec&apos;;
+import User from &apos;./core/User&apos;;
+import Room from &apos;./core/Room&apos;;
+import Invite from &apos;./core/Invite&apos;;
+import * as DataSync from &apos;./core/util/DataSync&apos;;
+import cache from &apos;./core/util/cache&apos;;
+import * as Log from &apos;./core/util/Log&apos;;
+import Media from &apos;./core/util/Media&apos;;
+
+/**
+ * Entry point for Reach SDK
+ * @public
+ */
+export default class Reach {
+  /**
+   * Create Reach&apos;s data structure where the url points to (might not be the root of your namespace)
+   * @public
+   * @param {string|Webcom} url The url of your namespace or an existing Webcom reference.
+   * @param {Config} [cfg] Reach configuration. You can pass constraints here
+   * @example &lt;caption&gt;Init with the default configuration&lt;/caption&gt;
+   * var myReach = new Reach(&apos;https://io.datasync.orange.com/base/&lt;my_namespace&gt;&apos;);
+   * @example &lt;caption&gt;Init and set constraints for SD video and logLevel to &apos;info&apos;&lt;/caption&gt;
+   * var myReach = new Reach(&apos;https://io.datasync.orange.com/base/&lt;my_namespace&gt;&apos;, {
+   *  constraints: Reach.media.constraints(&apos;SD&apos;),
+   *  logLevel: &apos;INFO&apos;
+   * });
+   */
+  constructor(url, cfg = null) {
+    // Set shared reference
+    cache.base = url;
+    // Set shared configuration
+    cache.config = cfg;
+    /**
+     * List of declared callbacks
+     * @type {{}}
+     * @private
+     */
+    this._callbacks = {};
+  }
+
+  /**
+   * Get versions of SDK and DataModel.
+   * The Schema version can be used to determine compatibility with the Android &amp; iOS SDK.
+   * @return {{sdk: string, schema: string}}
+   */
+  static get version() {
+    return { sdk: SDK_VERSION, schema: SCHEMA_VERSION }; // eslint-disable-line no-undef
+  }
+
+  /**
+   * The supported stream types
+   * @returns {StreamTypes}
+   */
+  static get types() {
+    return StreamTypes;
+  }
+
+  /**
+   * The supported events
+   * @return {{room: Events/Room, reach: Events/Reach, stream: Events/Stream}}
+   */
+  static get events() {
+    return {
+      room: Events.room, reach: Events.reach, stream: Events.stream, invite: Events.invite
+    };
+  }
+
+  /**
+   * The browser&apos;s details
+   * @return {Browser}
+   */
+  static get browser() {
+    return browser;
+  }
+
+  /**
+   * Media utility functions
+   * @return {Media}
+   */
+  static get media() {
+    return Media;
+  }
+
+  /**
+   * The codec presets to use when setting {@link Config#preferredAudioCodec}
+   * or {@link Config#preferredVideoCodec}
+   * @return {{audio: Codec/audio, video: Codec/video}}
+   */
+  static get codecs() {
+    return { audio, video };
+  }
+
+  /**
+   * DataSync reference
+   * @type {Webcom}
+   */
+  get base() {
+    return cache.base;
+  }
+
+  /**
+   * The configuration
+   * @type {Config}
+   */
+  get config() {
+    return cache.config;
+  }
+
+  /**
+   * The connected User
+   * @type {User}
+   */
+  get current() {
+    return cache.user;
+  }
+
+  /**
+   * Register &amp; Sign-in as a new user
+   * @param {string} email The email of the user
+   * @param {string} password The password of the user
+   * @param {string} [name] The display name of the user (defaults to email)
+   * @param {boolean} [rememberMe=false] keep user connected ?
+   * @returns {Promise&lt;User&gt;}
+   */
+  register(email, password, name, rememberMe) {
+    return cache.base.createUser(email, password)
+      .then((auth) =&gt; {
+        if (auth) {
+          return this.login(email, password, name || email, rememberMe);
+        }
+        return null;
+      })
+      .catch(Log.r(&apos;Reach~register&apos;));
+  }
+
+  /**
+   * Sign-in an existing user
+   * @param {string} email The email of the user
+   * @param {string} password The password of the user
+   * @param {string} [name] The name of the user. Defaults to the value in base.
+   * @param {boolean} [rememberMe=false] keep user connected ?
+   * @returns {Promise&lt;User&gt;}
+   */
+  login(email, password, name, rememberMe = false) {
+    // Force logout to bypass Webcom bug
+    let p = Promise.resolve();
+    if (this.current &amp;&amp; this.current.email !== email) {
+      p = this.logout();
+    }
+    return p
+      .then(() =&gt; cache.base.authWithPassword({ email, password, rememberMe }))
+      .then(auth =&gt; User.init(auth, name))
+      .then((u) =&gt; {
+        cache.user = u;
+        return u;
+      })
+      .catch(Log.r(&apos;Reach~login&apos;));
+  }
+
+  /**
+   * Resume previous session
+   * @returns {Promise&lt;User&gt;}
+   */
+  resume() {
+    return new Promise((resolve, reject) =&gt; {
+      // Resume session
+      if (Webcom.INTERNAL.PersistentStorage.get(&apos;session&apos;)) {
+        cache.base.resume((error, auth) =&gt; {
+          if (auth &amp;&amp; !this.current) {
+            User.init(auth).then((u) =&gt; {
+              cache.user = u;
+              resolve(u);
+            }, reject);
+          }
+        });
+      } else {
+        reject(new Error(&apos;No session to resume&apos;));
+      }
+    });
+  }
+
+  /**
+   * Sign-in an anonymous user
+   * @param {string} name The display name of the user
+   * @returns {Promise&lt;User&gt;}
+   */
+  anonymous(name) {
+    // Force logout to bypass Webcom bug
+    let p = Promise.resolve();
+    if (this.current &amp;&amp; (!this.current.anonymous || this.current.name !== name)) {
+      p = this.logout();
+    }
+    return p
+      .then(() =&gt; cache.base.authAnonymously())
+      .then(auth =&gt; User.init(auth, name))
+      .then((u) =&gt; {
+        cache.user = u;
+        return u;
+      })
+      .catch(Log.r(&apos;Reach~anonymous&apos;));
+  }
+
+  /**
+   * Logout current user
+   * @returns {Promise}
+   */
+  logout() {
+    return new Promise((resolve, reject) =&gt; {
+      let p = Promise.resolve();
+      if (this.current != null) {
+        p = User.disconnect(this.current);
+      }
+      p
+        .then(() =&gt; {
+          Object.keys(this._callbacks).forEach(
+            event =&gt; DataSync.off(Events.reach.toPath(event)(cache.user), event)
+          );
+          cache.base.logout(() =&gt; {
+            cache.user = null;
+            resolve();
+          });
+        })
+        .catch((e) =&gt; {
+          Log.e(e);
+          reject(e);
+        });
+    });
+  }
+
+  /**
+   * Get the list of registered users
+   * @ignore If your users base is pretty large, this method is impossible.
+   * @param {boolean} [include=false] Include current user in user&apos;s list
+   * @return {Promise&lt;User[], Error&gt;}
+   */
+  users(include) {
+    if (!this.current) {
+      return Promise.reject(new Error(&apos;Only an authenticated user can list Users.&apos;));
+    }
+    return DataSync.list(&apos;users&apos;, User)
+      .then(users =&gt; (!include &amp;&amp; users &amp;&amp; this.current
+        ? users.filter(user =&gt; user.uid !== this.current.uid)
+        : users))
+      .catch(Log.r(&apos;Reach~users&apos;));
+  }
+
+  /**
+   * Get the list of rooms
+   * @ignore If your users base is pretty large, this method is impossible.
+   * @return {Promise&lt;Room[], Error&gt;}
+   */
+
+  rooms() {
+    if (!this.current) {
+      return Promise.reject(new Error(&apos;Only an authenticated user can list Rooms.&apos;));
+    }
+    return DataSync.list(&apos;rooms&apos;, Room)
+      .catch(Log.r(&apos;Reach~rooms&apos;));
+  }
+
+  /**
+   * Get the list of invites
+   * @return {Promise&lt;Invite[], Error&gt;}
+   */
+  invites() {
+    if (!this.current) {
+      return Promise.reject(new Error(&apos;Cannot list invites without a User being logged in.&apos;));
+    }
+    return DataSync.list(`_/invites/${this.current.uid}`, Invite)
+      .catch(Log.r(&apos;Reach~invites&apos;));
+  }
+
+  /**
+   * Register a callback for a specific event
+   * @param {string} event The event name ({@link Events/Reach}). Can be:
+   * - USER_ADDED
+   * - USER_CHANGED
+   * - USER_REMOVED
+   * - ROOM_ADDED
+   * - ROOM_CHANGED
+   * - ROOM_REMOVED
+   * - INVITE_ADDED
+   * - INVITE_CHANGED
+   * @param {function} callback The callback for the event,
+   * the arguments depends on the type of event:
+   * - USER_*: callback({@link User} u)
+   * - ROOM_*: callback({@link Room} r)
+   * - INVITE_*: callback({@link Invite} i)
+   * @param {Webcom/api.Query~cancelCallback} [cancelCallback] The error callback for the event,
+   * takes an Error as only argument
+   */
+  on(event, callback, cancelCallback) {
+    const path = Events.reach.toPath(event)(cache.user);
+    if (path) {
+      const Cls = Events.reach.toClass(event);
+      const cb = (snapData) =&gt; {
+        const d = Cls ? new Cls(snapData) : null;
+        Log.i(`Reach~on(${event})`, d);
+        callback(d);
+      };
+      DataSync.on(path, event, cb, cancelCallback);
+      if (!this._callbacks[event]) {
+        this._callbacks[event] = [];
+      }
+      this._callbacks[event].push(cb);
+    }
+  }
+
+  /**
+   * Create a new room
+   * @param {string} [name] The room name
+   * @param {object} [extra] Extra informations
+   * @param {boolean} [publicRoom=false] Indicates public room
+   * @returns {Promise&lt;Room&gt;}
+   */
+  createRoom(name, extra, publicRoom = false) {
+    if (!this.current) {
+      return Promise.reject(new Error(&apos;Cannot create a Room without a User being logged in.&apos;));
+    }
+    return Room.create(name, extra, publicRoom);
+  }
+
+  /**
+   * Get a list of all opened {@link PeerConnection}s
+   * @return {*}
+   */
+  get peerConnections() {
+    return cache.peerConnections.stacks;
+  }
+
+  /**
+   * Get a {@link Room} from its `uid`
+   * @param {string} uid The room&apos;s UID
+   * @returns {Promise.&lt;Room&gt;}
+   */
+  getRoom(uid) {
+    return Room.get(uid);
+  }
+
+  /**
+   * Get a {@link User} from its `uid`
+   * @param {string} uid The user&apos;s UID
+   * @returns {Promise.&lt;User&gt;}
+   */
+  getUser(uid) {
+    return User.get(uid);
+  }
+}
+
+module.exports = Reach;
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

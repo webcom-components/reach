@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">src/core/util/DataSync.js | Reach</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Webcom-reach"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Reach"><meta property="twitter:description" content="Webcom-reach"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  <a href="./manual/index.html" data-ice="manualHeaderLink">Manual</a>
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/webcom-components/reach"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Reach.js~Reach.html">Reach</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core">core</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Config.js~Config.html">Config</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Invite.js~Invite.html">Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Message.js~Message.html">Message</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Participant.js~Participant.html">Participant</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Room.js~Room.html">Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/User.js~User.html">User</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-stream">core/stream</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Local.js~Local.html">Local</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Remote.js~Remote.html">Remote</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-util">core/util</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/util/Media.js~Media.html">Media</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-webrtc">core/webrtc</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/webrtc/PeerConnection.js~PeerConnection.html">PeerConnection</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-GetStats">GetStats</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#definitions">definitions</a><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Browser">Browser</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/audio">Codec/audio</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/video">Codec/video</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Invite">Events/Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Reach">Events/Reach</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Room">Events/Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Stream">Events/Stream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-ICEServer">ICEServer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-StreamTypes">StreamTypes</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-datasync">external/datasync</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/Webcom.html">Webcom</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/api.Query.html#~cancelCallback">Webcom/api.Query~cancelCallback</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-dom">external/dom</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-webrtc">external/webrtc</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="http://w3c.github.io/mediacapture-main/#idl-def-MediaDeviceInfo">MediaDeviceInfo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#stream-api">MediaStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaStreamConstraints">MediaStreamConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaTrackConstraints">MediaTrackConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#interface-definition">RTCPeerConnection</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcrtpsender-interface">RTCRtpSender</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcsessiondescription-class">RTCSessionDescription</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/core/util/DataSync.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import cache from &apos;./cache&apos;;
+
+/**
+ * Get the event string for Webcom from Reach events
+ * @access protected
+ * @param {string} event A Reach event
+ * @return {string}
+ */
+export const eventType = (event) =&gt; {
+  let evt;
+  if ((/_ADDED$/i).test(event) || /_PUBLISHED$/.test(event)) {
+    evt = &apos;added&apos;;
+  } else if (/_CHANGED$/.test(event) || /_REFRESHED$/.test(event)) {
+    evt = &apos;changed&apos;;
+  } else if (/_REMOVED$/.test(event) || /_UNPUBLISHED$/.test(event)) {
+    evt = &apos;removed&apos;;
+  }
+  return evt ? `child_${evt}` : event;
+};
+
+/**
+ * Write method
+ * @param {string} method Write method (set,update)
+ * @param {string} path The path to set
+ * @param {object} data The data to set
+ * @ignore
+ */
+const _write = (method, path, data) =&gt; new Promise((resolve, reject) =&gt; {
+  cache.base.child(path)[method](data, error =&gt; (error ? reject(error) : resolve()));
+});
+
+/**
+ * {@link Webcom#set} as a {@link Promise}
+ * @access protected
+ * @param {string} path The path to set
+ * @param {object} data The data to set
+ * @return {Promise&lt;*, Error&gt;}
+ */
+export const set = _write.bind(undefined, &apos;set&apos;);
+
+/**
+ * {@link Webcom#push} as a {@link Promise}
+ * @access protected
+ * @param {string} path The path to push
+ * @param {object} data The data to push
+ * @return {Promise&lt;Webcom, Error&gt;}
+ */
+export const push = (path, data) =&gt; new Promise((resolve, reject) =&gt; {
+  const pushRef = cache.base.child(path).push(data,
+    error =&gt; (error ? reject(error) : resolve(pushRef)));
+});
+
+/**
+ * {@link Webcom#update} as a {@link Promise}
+ * @access protected
+ * @param {string} path The path to update
+ * @param {object} data The data to update
+ * @return {Promise&lt;*, Error&gt;}
+ */
+export const update = _write.bind(undefined, &apos;update&apos;);
+
+/**
+ * {@link Webcom#remove} as a {@link Promise}
+ * @access protected
+ * @param {string} path The path to remove
+ * @return {Promise&lt;*, Error&gt;}
+ */
+export const remove = path =&gt; new Promise((resolve, reject) =&gt; {
+  cache.base.child(path).remove(error =&gt; (error ? reject(error) : resolve()));
+});
+
+/**
+ * {@link Webcom#once} shortcut as a {@link Promise}
+ * @access protected
+ * @param {string} path The path
+ * @param {string} event The event
+ * @returns {Promise&lt;Webcom/api.DataSnapshot, Error&gt;}
+ */
+export const once = (path, event) =&gt; new Promise((resolve, reject) =&gt; {
+  cache.base.child(path).once(eventType(event), resolve, reject);
+});
+
+/**
+ * {@link Webcom#once}(&apos;value&apos;) as a {@link Promise}
+ * @access protected
+ * @param {string} path The path to get
+ * @return {Promise&lt;Webcom/api.DataSnapshot, Error&gt;}
+ */
+export const get = path =&gt; once(path, &apos;value&apos;);
+
+/**
+ * List values as a {@link Promise}
+ * @access protected
+ * @param {string} path The path to get
+ * @param {function} Type The type of the object to list
+ * @param params Additional constructor parameters
+ * @return {Promise&lt;Object[], Error&gt;}
+ */
+export const list = (path, Type, ...params) =&gt; get(path)
+  .then((snapData) =&gt; {
+    if (snapData) {
+      const values = [];
+      snapData.forEach((snapChild) =&gt; {
+        values.push(new Type(snapChild, ...params));
+      });
+      return values;
+    }
+    return [];
+  });
+
+/**
+ * {@link Webcom#on} shortcut
+ * @access protected
+ * @param {string} path The path
+ * @param {string} event The event
+ * @param {Webcom/api.Query~queryCallback|function} queryCallback The callback
+ * @param {Webcom/api.Query~cancelCallback|function} [cancelCallback] The callback
+ */
+export const on = (path, event, queryCallback, cancelCallback) =&gt; {
+  cache.base.child(path).on(eventType(event), queryCallback, cancelCallback);
+};
+
+/**
+ * {@link Webcom#off} shortcut
+ * @access protected
+ * @param {string} path The path
+ * @param {string} event The event
+ * @param {function} [callback] The callback
+ */
+export const off = (path, event, callback) =&gt; {
+  cache.base.child(path).off(eventType(event), callback);
+};
+
+/**
+ * {@link Webcom#onDisconnect} shortcut
+ * @access protected
+ * @param {string} path The path
+ * @return {Webcom/api.OnDisconnect}
+ */
+export const onDisconnect = path =&gt; cache.base.child(path).onDisconnect();
+
+/**
+ * Timestamp value
+ * @access protected
+ * @type {function}
+ */
+// export const ts = () =&gt; Webcom.ServerValue.TIMESTAMP;
+export const ts = () =&gt; Date.now();
+// HACK #DataSync: Rollback when TIMESTAMP works again (server-side bug with security rules)
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

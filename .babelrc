@@ -1,31 +1,12 @@
 {
   "presets": [
-    "es2015"
-  ],
-  "comments": false,
-  "compact": true,
-  "plugins": [
-    "transform-inline-environment-variables",
-    "transform-member-expression-literals",
-    "transform-merge-sibling-variables",
-    "transform-property-literals",
-    "transform-remove-debugger",
-    "transform-runtime"
-  ],
-  "env": {
-    "test": {
-      "plugins": [
-        [
-          "istanbul",
-          {
-            "exclude": [
-              "./bower_components/**",
-              "./node_modules/**",
-              "test/**"
-            ]
-          }
-        ]
-      ]
-    }
-  }
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": "entry",
+        "targets": "> 0.25%, not dead",
+        "modules": "cjs"
+      }
+    ]
+  ]
 }

@@ -4,7 +4,7 @@ import Invite from '../core/Invite';
 import Participant from '../core/Participant';
 import Message from '../core/Message';
 import Remote from '../core/stream/Remote';
-import {ACCEPTED, REJECTED, CANCELED} from '../core/util/constants';
+import { ACCEPTED, CANCELED, REJECTED } from '../core/util/constants';
 
 /**
  * The events supported by {@link Reach#on}
@@ -22,8 +22,10 @@ import {ACCEPTED, REJECTED, CANCELED} from '../core/util/constants';
 /**
  * The events supported by {@link Room#on}
  * @typedef {Object} Events/Room
- * @property {string} PARTICIPANT_ADDED Fired when a new participant is added to the room. Does not mean he's connected but that he's invited to
- * @property {string} PARTICIPANT_CHANGED Fired when a participant changes is status (enter/leaves the room)
+ * @property {string} PARTICIPANT_ADDED Fired when a new participant is added to the room.
+ * Does not mean he's connected but that he's invited to
+ * @property {string} PARTICIPANT_CHANGED Fired when a participant
+ * changes is status (enter/leaves the room)
  * @property {string} PARTICIPANT_REMOVED Fired when a user leaves definitely or is banned
  * @property {string} MESSAGE_ADDED Fired when a new instant message is sent to the room
  * @property {string} MESSAGE_CHANGED Fired when an instant message is edited
@@ -53,17 +55,17 @@ import {ACCEPTED, REJECTED, CANCELED} from '../core/util/constants';
  * @type {{}}
  */
 const paths = {
-	'USER': () => 'users',
-	'ROOM': () => 'rooms',
-	'INVITE': user => {
-		if(!user) {
-			throw new Error('You must be authenticated to list the invites');
-		}
-		return `_/invites/${user.uid}`;
-	},
-	'PARTICIPANT': room => `_/rooms/${room.uid}/participants`,
-	'MESSAGE': room => `_/rooms/${room.uid}/messages`,
-	'STREAM': room => `_/rooms/${room.uid}/streams`
+  USER: () => 'users',
+  ROOM: () => 'rooms',
+  INVITE: (user) => {
+    if (!user) {
+      throw new Error('You must be authenticated to list the invites');
+    }
+    return `_/invites/${user.uid}`;
+  },
+  PARTICIPANT: room => `_/rooms/${room.uid}/participants`,
+  MESSAGE: room => `_/rooms/${room.uid}/messages`,
+  STREAM: room => `_/rooms/${room.uid}/streams`
 };
 
 /**
@@ -72,12 +74,12 @@ const paths = {
  * @type {{}}
  */
 const classes = {
-	'USER': User,
-	'ROOM': Room,
-	'INVITE': Invite,
-	'PARTICIPANT': Participant,
-	'MESSAGE': Message,
-	'STREAM': Remote
+  USER: User,
+  ROOM: Room,
+  INVITE: Invite,
+  PARTICIPANT: Participant,
+  MESSAGE: Message,
+  STREAM: Remote
 };
 
 /**
@@ -86,43 +88,52 @@ const classes = {
  * @ignore
  */
 class _Events {
-	constructor(keys) {
-		keys.forEach(key => {this[key] = key;});
-	}
-	supports(event) {
-		if(!event || typeof event !== 'string' || this[event] !== event.toUpperCase()) {
-			throw new Error(`Unsupported event. Use one of the following: ${JSON.stringify(Object.keys(this))}`);
-		}
-		return true;
-	}
-	toPath(event) {
-		if(this.supports(event)) {
-			return paths[event.toUpperCase().replace(/_.*$/, '')] || (() => null);
-		}
-	}
-	toClass(event) {
-		if(this.supports(event)) {
-			return classes[event.toUpperCase().replace(/_.*$/, '')];
-		}
-	}
+  constructor(keys) {
+    keys.forEach((key) => {
+      this[key] = key;
+    });
+  }
+
+  supports(event) {
+    if (!event || typeof event !== 'string' || this[event] !== event.toUpperCase()) {
+      throw (
+        new Error(`Unsupported event. Use one of the following: ${JSON.stringify(Object.keys(this))}`)
+      );
+    }
+    return true;
+  }
+
+  toPath(event) {
+    if (this.supports(event)) {
+      return paths[event.toUpperCase().replace(/_.*$/, '')] || (() => null);
+    }
+    return null;
+  }
+
+  toClass(event) {
+    if (this.supports(event)) {
+      return classes[event.toUpperCase().replace(/_.*$/, '')];
+    }
+    return null;
+  }
 }
 
 /**
  * @ignore
  */
 export const reach = new _Events([
-	'USER_ADDED', 'USER_CHANGED', 'USER_REMOVED',
-	'ROOM_ADDED', 'ROOM_CHANGED', 'ROOM_REMOVED',
-	'INVITE_ADDED', 'INVITE_CHANGED'
+  'USER_ADDED', 'USER_CHANGED', 'USER_REMOVED',
+  'ROOM_ADDED', 'ROOM_CHANGED', 'ROOM_REMOVED',
+  'INVITE_ADDED', 'INVITE_CHANGED'
 ]);
 
 /**
  * @ignore
  */
 export const room = new _Events([
-	'MESSAGE_ADDED', 'MESSAGE_CHANGED', 'MESSAGE_REMOVED',
-	'PARTICIPANT_ADDED', 'PARTICIPANT_CHANGED', 'PARTICIPANT_REMOVED',
-	'STREAM_PUBLISHED', 'STREAM_UNPUBLISHED'
+  'MESSAGE_ADDED', 'MESSAGE_CHANGED', 'MESSAGE_REMOVED',
+  'PARTICIPANT_ADDED', 'PARTICIPANT_CHANGED', 'PARTICIPANT_REMOVED',
+  'STREAM_PUBLISHED', 'STREAM_UNPUBLISHED'
 ]);
 
 /**

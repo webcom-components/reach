@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">src/core/webrtc/GetStats.js | Reach</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Webcom-reach"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Reach"><meta property="twitter:description" content="Webcom-reach"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  <a href="./manual/index.html" data-ice="manualHeaderLink">Manual</a>
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/webcom-components/reach"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Reach.js~Reach.html">Reach</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core">core</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Config.js~Config.html">Config</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Invite.js~Invite.html">Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Message.js~Message.html">Message</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Participant.js~Participant.html">Participant</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Room.js~Room.html">Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/User.js~User.html">User</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-stream">core/stream</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Local.js~Local.html">Local</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Remote.js~Remote.html">Remote</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-util">core/util</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/util/Media.js~Media.html">Media</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-webrtc">core/webrtc</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/webrtc/PeerConnection.js~PeerConnection.html">PeerConnection</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-GetStats">GetStats</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#definitions">definitions</a><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Browser">Browser</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/audio">Codec/audio</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/video">Codec/video</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Invite">Events/Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Reach">Events/Reach</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Room">Events/Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Stream">Events/Stream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-ICEServer">ICEServer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-StreamTypes">StreamTypes</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-datasync">external/datasync</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/Webcom.html">Webcom</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/api.Query.html#~cancelCallback">Webcom/api.Query~cancelCallback</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-dom">external/dom</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-webrtc">external/webrtc</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="http://w3c.github.io/mediacapture-main/#idl-def-MediaDeviceInfo">MediaDeviceInfo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#stream-api">MediaStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaStreamConstraints">MediaStreamConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaTrackConstraints">MediaTrackConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#interface-definition">RTCPeerConnection</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcrtpsender-interface">RTCRtpSender</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcsessiondescription-class">RTCSessionDescription</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/core/webrtc/GetStats.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import * as Log from &apos;../util/Log&apos;;
+
+// Last time updated: 2018-12-20 6:58:08 AM UTC
+
+// _______________
+// getStats v1.0.9
+
+// Open-Sourced: https://github.com/muaz-khan/getStats
+
+// --------------------------------------------------
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// --------------------------------------------------
+/* eslint-disable */
+const GetStats = (mediaStreamTrack, callback, interval) =&gt; {
+  const RTCPeerConnection = window.RTCPeerConnection
+    || window.mozRTCPeerConnection
+    || window.webkitRTCPeerConnection;
+
+  if (typeof MediaStreamTrack === &apos;undefined&apos;) {
+    MediaStreamTrack = {}; // eslint-disable-line no-global-assign
+  }
+
+  const systemNetworkType = ((navigator.connection || {}).type || &apos;unknown&apos;)
+    .toString()
+    .toLowerCase();
+
+  const getStatsResult = {
+    encryption: &apos;sha-256&apos;,
+    audio: {
+      send: {
+        tracks: [],
+        codecs: [],
+        availableBandwidth: 0,
+        streams: 0,
+        framerateMean: 0,
+        bitrateMean: 0
+      },
+      recv: {
+        tracks: [],
+        codecs: [],
+        availableBandwidth: 0,
+        streams: 0,
+        framerateMean: 0,
+        bitrateMean: 0
+      },
+      bytesSent: 0,
+      bytesReceived: 0,
+      latency: 0,
+      packetsLost: 0
+    },
+    video: {
+      send: {
+        tracks: [],
+        codecs: [],
+        availableBandwidth: 0,
+        streams: 0,
+        framerateMean: 0,
+        bitrateMean: 0
+      },
+      recv: {
+        tracks: [],
+        codecs: [],
+        availableBandwidth: 0,
+        streams: 0,
+        framerateMean: 0,
+        bitrateMean: 0
+      },
+      bytesSent: 0,
+      bytesReceived: 0,
+      latency: 0,
+      packetsLost: 0
+    },
+    bandwidth: {
+      systemBandwidth: 0,
+      sentPerSecond: 0,
+      encodedPerSecond: 0,
+      helper: {
+        audioBytesSent: 0,
+        videoBytestSent: 0
+      },
+      speed: 0
+    },
+    results: {},
+    connectionType: {
+      systemNetworkType,
+      systemIpAddress: &apos;192.168.1.2&apos;,
+      local: {
+        candidateType: [],
+        transport: [],
+        ipAddress: [],
+        networkType: []
+      },
+      remote: {
+        candidateType: [],
+        transport: [],
+        ipAddress: [],
+        networkType: []
+      }
+    },
+    resolutions: {
+      send: {
+        width: 0,
+        height: 0
+      },
+      recv: {
+        width: 0,
+        height: 0
+      }
+    },
+    internal: {
+      audio: {
+        send: {},
+        recv: {}
+      },
+      video: {
+        send: {},
+        recv: {}
+      },
+      candidates: {}
+    },
+    nomore() {
+      nomore = true;
+    }
+  };
+
+  const getStatsParser = {
+    checkIfOfferer(result) {
+      if (result.type === &apos;googLibjingleSession&apos;) {
+        getStatsResult.isOfferer = result.googInitiator;
+      }
+    }
+  };
+
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  let peer = this;
+
+  if (!(arguments[0] instanceof RTCPeerConnection)) {
+    throw &apos;1st argument is not instance of RTCPeerConnection.&apos;;
+  }
+
+  peer = arguments[0];
+
+  if (arguments[1] instanceof MediaStreamTrack) {
+    mediaStreamTrack = arguments[1]; // redundant on non-safari
+    callback = arguments[2];
+    interval = arguments[3];
+  }
+
+  let nomore = false;
+
+  // a wrapper around getStats which hides the differences (where possible)
+  // following code-snippet is taken from somewhere on the github
+  function getStatsWrapper(cb) {
+    // if !peer or peer.signalingState == &apos;closed&apos; then return;
+
+    peer.getStats(window.mediaStreamTrack || null).then((res) =&gt; {
+      const items = [];
+      res.forEach((r) =&gt; {
+        items.push(r);
+      });
+      cb(items);
+    }).catch(cb);
+
+    /* if (typeof window.InstallTrigger !== &apos;undefined&apos; || isSafari) { // maybe &quot;isEdge?&quot;
+        peer.getStats(window.mediaStreamTrack || null).then(function(res) {
+            var items = [];
+            res.forEach(function(r) {
+                items.push(r);
+            });
+            cb(items);
+        }).catch(cb);
+    } else {
+        peer.getStats(function(res) {
+            var items = [];
+            res.result().forEach(function(res) {
+                var item = {};
+                res.names().forEach(function(name) {
+                    item[name] = res.stat(name);
+                });
+                item.id = res.id;
+                item.type = res.type;
+                item.timestamp = res.timestamp;
+                items.push(item);
+            });
+            cb(items);
+        });
+    } */
+  }
+
+  function getStatsLooper() {
+    getStatsWrapper((results) =&gt; {
+      if (!results || !results.forEach) return;
+      // Log.d(&apos;getStats~getStatsLooper&apos;, results);
+      results.forEach((result) =&gt; {
+        // console.error(&apos;result&apos;, result);
+        Object.keys(getStatsParser).forEach((key) =&gt; {
+          Log.d(key);
+          if (typeof getStatsParser[key] === &apos;function&apos;) {
+            try {
+              getStatsParser[key](result);
+            } catch (e) {
+              // console.error(e.message, e.stack, e);
+              // Log.e(e);
+              Log.d(&apos;getStats~error&apos;, results);
+            }
+          }
+        });
+      });
+
+      try {
+        if (peer.iceConnectionState.search(/failed|closed|disconnected/gi) !== -1) {
+          nomore = true;
+        }
+      } catch (e) {
+        nomore = true;
+      }
+
+      if (nomore === true) {
+        if (getStatsResult.datachannel) {
+          getStatsResult.datachannel.state = &apos;close&apos;;
+        }
+        getStatsResult.ended = true;
+      }
+
+      // allow users to access native results
+      getStatsResult.results = results;
+
+      if (getStatsResult.audio &amp;&amp; getStatsResult.video) {
+        getStatsResult.bandwidth.speed = (
+          getStatsResult.audio.bytesSent - getStatsResult.bandwidth.helper.audioBytesSent
+        ) + (getStatsResult.video.bytesSent - getStatsResult.bandwidth.helper.videoBytesSent);
+        getStatsResult.bandwidth.helper.audioBytesSent = getStatsResult.audio.bytesSent;
+        getStatsResult.bandwidth.helper.videoBytesSent = getStatsResult.video.bytesSent;
+      }
+
+      callback(getStatsResult);
+
+      // second argument checks to see, if target-user is still connected.
+      if (!nomore &amp;&amp; typeof interval !== &apos;undefined&apos; &amp;&amp; interval) {
+        setTimeout(getStatsLooper, interval || 1000);
+      }
+    });
+  }
+
+  getStatsParser.datachannel = function (result) {
+    if (result.type !== &apos;datachannel&apos;) return;
+
+    getStatsResult.datachannel = {
+      state: result.state // open or connecting
+    };
+  };
+
+  getStatsParser.googCertificate = function (result) {
+    if (result.type === &apos;googCertificate&apos;) {
+      getStatsResult.encryption = result.googFingerprintAlgorithm;
+    }
+
+    // Safari-11 or higher
+    if (result.type === &apos;certificate&apos;) {
+      // todo: is it possible to have different encryption methods for senders and receivers?
+      // if yes, then we need to set:
+      //    getStatsResult.encryption.local = value;
+      //    getStatsResult.encryption.remote = value;
+      getStatsResult.encryption = result.fingerprintAlgorithm;
+    }
+  };
+
+  getStatsParser.checkAudioTracks = function (result) {
+    if (result.mediaType !== &apos;audio&apos;) return;
+
+    let sendrecvType = result.id.split(&apos;_&apos;).pop();
+    if (result.isRemote === true) {
+      sendrecvType = &apos;recv&apos;;
+    }
+    if (result.isRemote === false) {
+      sendrecvType = &apos;send&apos;;
+    }
+
+    if (!sendrecvType) return;
+
+    if (getStatsResult.audio[sendrecvType].codecs.indexOf(result.googCodecName || &apos;opus&apos;) === -1) {
+      getStatsResult.audio[sendrecvType].codecs.push(result.googCodecName || &apos;opus&apos;);
+    }
+
+    if (result.bytesSent) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal.audio[sendrecvType].prevBytesSent) {
+        getStatsResult.internal.audio[sendrecvType].prevBytesSent = result.bytesSent;
+      }
+
+      var bytes = result.bytesSent - getStatsResult.internal.audio[sendrecvType].prevBytesSent;
+      getStatsResult.internal.audio[sendrecvType].prevBytesSent = result.bytesSent;
+
+      kilobytes = bytes / 1024;
+      getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+      getStatsResult.audio.bytesSent = kilobytes.toFixed(1);
+    }
+
+    if (result.bytesReceived) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal.audio[sendrecvType].prevBytesReceived) {
+        getStatsResult.internal.audio[sendrecvType].prevBytesReceived = result.bytesReceived;
+      }
+
+      var bytes = result.bytesReceived - getStatsResult.internal.audio[sendrecvType].prevBytesReceived;
+      getStatsResult.internal.audio[sendrecvType].prevBytesReceived = result.bytesReceived;
+
+      kilobytes = bytes / 1024;
+
+      // getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+      getStatsResult.audio.bytesReceived = kilobytes.toFixed(1);
+    }
+
+    if (result.googTrackId &amp;&amp; getStatsResult.audio[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
+      getStatsResult.audio[sendrecvType].tracks.push(result.googTrackId);
+    }
+
+    // calculate latency
+    if (result.googCurrentDelayMs) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal.audio.prevGoogCurrentDelayMs) {
+        getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+      }
+
+      var bytes = result.googCurrentDelayMs - getStatsResult.internal.audio.prevGoogCurrentDelayMs;
+      getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+
+      getStatsResult.audio.latency = bytes.toFixed(1);
+
+      if (getStatsResult.audio.latency &lt; 0) {
+        getStatsResult.audio.latency = 0;
+      }
+    }
+
+    // calculate packetsLost
+    if (result.packetsLost) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal.audio.prevPacketsLost) {
+        getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+      }
+
+      var bytes = result.packetsLost - getStatsResult.internal.audio.prevPacketsLost;
+      getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+
+      getStatsResult.audio.packetsLost = bytes.toFixed(1);
+
+      if (getStatsResult.audio.packetsLost &lt; 0) {
+        getStatsResult.audio.packetsLost = 0;
+      }
+    }
+  };
+
+  getStatsParser.checkVideoTracks = function (result) {
+    if (result.mediaType !== &apos;video&apos;) return;
+
+    let sendrecvType = result.id.split(&apos;_&apos;).pop();
+    if (result.isRemote === true) {
+      sendrecvType = &apos;recv&apos;;
+    }
+    if (result.isRemote === false) {
+      sendrecvType = &apos;send&apos;;
+    }
+
+    if (!sendrecvType) return;
+
+    if (getStatsResult.video[sendrecvType].codecs.indexOf(result.googCodecName || &apos;VP8&apos;) === -1) {
+      getStatsResult.video[sendrecvType].codecs.push(result.googCodecName || &apos;VP8&apos;);
+    }
+
+    if (result.bytesSent) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal.video[sendrecvType].prevBytesSent) {
+        getStatsResult.internal.video[sendrecvType].prevBytesSent = result.bytesSent;
+      }
+
+      var bytes = result.bytesSent - getStatsResult.internal.video[sendrecvType].prevBytesSent;
+      getStatsResult.internal.video[sendrecvType].prevBytesSent = result.bytesSent;
+
+      kilobytes = bytes / 1024;
+
+      getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+      getStatsResult.video.bytesSent = kilobytes.toFixed(1);
+    }
+
+    if (result.bytesReceived) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal.video[sendrecvType].prevBytesReceived) {
+        getStatsResult.internal.video[sendrecvType].prevBytesReceived = result.bytesReceived;
+      }
+
+      var bytes = result.bytesReceived - getStatsResult.internal.video[sendrecvType].prevBytesReceived;
+      getStatsResult.internal.video[sendrecvType].prevBytesReceived = result.bytesReceived;
+
+      kilobytes = bytes / 1024;
+      // getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+      getStatsResult.video.bytesReceived = kilobytes.toFixed(1);
+    }
+
+    if (result.googFrameHeightReceived &amp;&amp; result.googFrameWidthReceived) {
+      getStatsResult.resolutions[sendrecvType].width = result.googFrameWidthReceived;
+      getStatsResult.resolutions[sendrecvType].height = result.googFrameHeightReceived;
+    }
+
+    if (result.googFrameHeightSent &amp;&amp; result.googFrameWidthSent) {
+      getStatsResult.resolutions[sendrecvType].width = result.googFrameWidthSent;
+      getStatsResult.resolutions[sendrecvType].height = result.googFrameHeightSent;
+    }
+
+    if (result.googTrackId &amp;&amp; getStatsResult.video[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
+      getStatsResult.video[sendrecvType].tracks.push(result.googTrackId);
+    }
+
+    if (result.framerateMean) {
+      getStatsResult.bandwidth.framerateMean = result.framerateMean;
+      var kilobytes = 0;
+      if (!getStatsResult.internal.video[sendrecvType].prevFramerateMean) {
+        getStatsResult.internal.video[sendrecvType].prevFramerateMean = result.bitrateMean;
+      }
+
+      var bytes = result.bytesSent - getStatsResult.internal.video[sendrecvType].prevFramerateMean;
+      getStatsResult.internal.video[sendrecvType].prevFramerateMean = result.framerateMean;
+
+      kilobytes = bytes / 1024;
+      getStatsResult.video[sendrecvType].framerateMean = bytes.toFixed(1);
+    }
+
+    if (result.bitrateMean) {
+      getStatsResult.bandwidth.bitrateMean = result.bitrateMean;
+      var kilobytes = 0;
+      if (!getStatsResult.internal.video[sendrecvType].prevBitrateMean) {
+        getStatsResult.internal.video[sendrecvType].prevBitrateMean = result.bitrateMean;
+      }
+
+      var bytes = result.bytesSent - getStatsResult.internal.video[sendrecvType].prevBitrateMean;
+      getStatsResult.internal.video[sendrecvType].prevBitrateMean = result.bitrateMean;
+
+      kilobytes = bytes / 1024;
+      getStatsResult.video[sendrecvType].bitrateMean = bytes.toFixed(1);
+    }
+
+    // calculate latency
+    if (result.googCurrentDelayMs) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal.video.prevGoogCurrentDelayMs) {
+        getStatsResult.internal.video.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+      }
+
+      var bytes = result.googCurrentDelayMs - getStatsResult.internal.video.prevGoogCurrentDelayMs;
+      getStatsResult.internal.video.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+
+      getStatsResult.video.latency = bytes.toFixed(1);
+
+      if (getStatsResult.video.latency &lt; 0) {
+        getStatsResult.video.latency = 0;
+      }
+    }
+
+    // calculate packetsLost
+    if (result.packetsLost) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal.video.prevPacketsLost) {
+        getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+      }
+
+      var bytes = result.packetsLost - getStatsResult.internal.video.prevPacketsLost;
+      getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+
+      getStatsResult.video.packetsLost = bytes.toFixed(1);
+
+      if (getStatsResult.video.packetsLost &lt; 0) {
+        getStatsResult.video.packetsLost = 0;
+      }
+    }
+  };
+
+  getStatsParser.bweforvideo = function (result) {
+    if (result.type !== &apos;VideoBwe&apos;) return;
+
+    getStatsResult.bandwidth.availableSendBandwidth = result.googAvailableSendBandwidth;
+
+    getStatsResult.bandwidth.googActualEncBitrate = result.googActualEncBitrate;
+    getStatsResult.bandwidth.googAvailableSendBandwidth = result.googAvailableSendBandwidth;
+    getStatsResult.bandwidth.googAvailableReceiveBandwidth = result.googAvailableReceiveBandwidth;
+    getStatsResult.bandwidth.googRetransmitBitrate = result.googRetransmitBitrate;
+    getStatsResult.bandwidth.googTargetEncBitrate = result.googTargetEncBitrate;
+    getStatsResult.bandwidth.googBucketDelay = result.googBucketDelay;
+    getStatsResult.bandwidth.googTransmitBitrate = result.googTransmitBitrate;
+  };
+
+  getStatsParser.candidatePair = function (result) {
+    if (result.type !== &apos;googCandidatePair&apos; &amp;&amp; result.type !== &apos;candidate-pair&apos; &amp;&amp; result.type !== &apos;local-candidate&apos; &amp;&amp; result.type !== &apos;remote-candidate&apos;) return;
+
+    // result.googActiveConnection means either STUN or TURN is used.
+
+    if (result.googActiveConnection == &apos;true&apos;) {
+      // id === &apos;Conn-audio-1-0&apos;
+      // localCandidateId, remoteCandidateId
+
+      // bytesSent, bytesReceived
+
+      Object.keys(getStatsResult.internal.candidates).forEach((cid) =&gt; {
+        const candidate = getStatsResult.internal.candidates[cid];
+        if (candidate.ipAddress.indexOf(result.googLocalAddress) !== -1) {
+          getStatsResult.connectionType.local.candidateType = candidate.candidateType;
+          getStatsResult.connectionType.local.ipAddress = candidate.ipAddress;
+          getStatsResult.connectionType.local.networkType = candidate.networkType;
+          getStatsResult.connectionType.local.transport = candidate.transport;
+        }
+        if (candidate.ipAddress.indexOf(result.googRemoteAddress) !== -1) {
+          getStatsResult.connectionType.remote.candidateType = candidate.candidateType;
+          getStatsResult.connectionType.remote.ipAddress = candidate.ipAddress;
+          getStatsResult.connectionType.remote.networkType = candidate.networkType;
+          getStatsResult.connectionType.remote.transport = candidate.transport;
+        }
+      });
+
+      getStatsResult.connectionType.transport = result.googTransportType;
+
+      var localCandidate = getStatsResult.internal.candidates[result.localCandidateId];
+      if (localCandidate) {
+        if (localCandidate.ipAddress) {
+          getStatsResult.connectionType.systemIpAddress = localCandidate.ipAddress;
+        }
+      }
+
+      var remoteCandidate = getStatsResult.internal.candidates[result.remoteCandidateId];
+      if (remoteCandidate) {
+        if (remoteCandidate.ipAddress) {
+          getStatsResult.connectionType.systemIpAddress = remoteCandidate.ipAddress;
+        }
+      }
+    }
+
+    if (result.type === &apos;candidate-pair&apos;) {
+      if (result.selected === true &amp;&amp; result.nominated === true &amp;&amp; result.state === &apos;succeeded&apos;) {
+        // remoteCandidateId, localCandidateId, componentId
+        var localCandidate = getStatsResult.internal.candidates[result.remoteCandidateId];
+        var remoteCandidate = getStatsResult.internal.candidates[result.remoteCandidateId];
+
+        // Firefox used above two pairs for connection
+      }
+    }
+
+    if (result.type === &apos;local-candidate&apos;) {
+      getStatsResult.connectionType.local.candidateType = result.candidateType;
+      getStatsResult.connectionType.local.ipAddress = result.ipAddress;
+      getStatsResult.connectionType.local.networkType = result.networkType;
+      getStatsResult.connectionType.local.transport = result.mozLocalTransport || result.transport;
+    }
+
+    if (result.type === &apos;remote-candidate&apos;) {
+      getStatsResult.connectionType.remote.candidateType = result.candidateType;
+      getStatsResult.connectionType.remote.ipAddress = result.ipAddress;
+      getStatsResult.connectionType.remote.networkType = result.networkType;
+      getStatsResult.connectionType.remote.transport = result.mozRemoteTransport || result.transport;
+    }
+
+    if (isSafari) {
+      // result.remoteCandidateId
+      // todo: below line will always force &quot;send&quot; on Safari; find a solution
+      const sendrecvType = result.localCandidateId ? &apos;send&apos; : &apos;recv&apos;;
+
+      if (!sendrecvType) return;
+
+      if (result.bytesSent) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video[sendrecvType].prevBytesSent) {
+          getStatsResult.internal.video[sendrecvType].prevBytesSent = result.bytesSent;
+        }
+
+        var bytes = result.bytesSent - getStatsResult.internal.video[sendrecvType].prevBytesSent;
+        getStatsResult.internal.video[sendrecvType].prevBytesSent = result.bytesSent;
+
+        kilobytes = bytes / 1024;
+
+        getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.video.bytesSent = kilobytes.toFixed(1);
+      }
+
+      if (result.bytesReceived) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video[sendrecvType].prevBytesReceived) {
+          getStatsResult.internal.video[sendrecvType].prevBytesReceived = result.bytesReceived;
+        }
+
+        var bytes = result.bytesReceived - getStatsResult.internal.video[sendrecvType].prevBytesReceived;
+        getStatsResult.internal.video[sendrecvType].prevBytesReceived = result.bytesReceived;
+
+        kilobytes = bytes / 1024;
+        // getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.video.bytesReceived = kilobytes.toFixed(1);
+      }
+
+      if (result.availableOutgoingBitrate) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video[sendrecvType].prevAvailableOutgoingBitrate) {
+          getStatsResult.internal.video[sendrecvType].prevAvailableOutgoingBitrate = result.availableOutgoingBitrate;
+        }
+
+        var bytes = result.availableOutgoingBitrate - getStatsResult.internal.video[sendrecvType].prevAvailableOutgoingBitrate;
+        getStatsResult.internal.video[sendrecvType].prevAvailableOutgoingBitrate = result.availableOutgoingBitrate;
+
+        kilobytes = bytes / 1024;
+        // getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.video.availableOutgoingBitrate = kilobytes.toFixed(1);
+      }
+
+      if (result.availableIncomingBitrate) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video[sendrecvType].prevAvailableIncomingBitrate) {
+          getStatsResult.internal.video[sendrecvType].prevAvailableIncomingBitrate = result.availableIncomingBitrate;
+        }
+
+        var bytes = result.availableIncomingBitrate - getStatsResult.internal.video[sendrecvType].prevAvailableIncomingBitrate;
+        getStatsResult.internal.video[sendrecvType].prevAvailableIncomingBitrate = result.availableIncomingBitrate;
+
+        kilobytes = bytes / 1024;
+        // getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.video.availableIncomingBitrate = kilobytes.toFixed(1);
+      }
+    }
+  };
+
+  const LOCAL_candidateType = {};
+  const LOCAL_transport = {};
+  const LOCAL_ipAddress = {};
+  const LOCAL_networkType = {};
+
+  getStatsParser.localcandidate = function (result) {
+    if (result.type !== &apos;localcandidate&apos; &amp;&amp; result.type !== &apos;local-candidate&apos;) return;
+    if (!result.id) return;
+
+    if (!LOCAL_candidateType[result.id]) {
+      LOCAL_candidateType[result.id] = [];
+    }
+
+    if (!LOCAL_transport[result.id]) {
+      LOCAL_transport[result.id] = [];
+    }
+
+    if (!LOCAL_ipAddress[result.id]) {
+      LOCAL_ipAddress[result.id] = [];
+    }
+
+    if (!LOCAL_networkType[result.id]) {
+      LOCAL_networkType[result.id] = [];
+    }
+
+    if (result.candidateType &amp;&amp; LOCAL_candidateType[result.id].indexOf(result.candidateType) === -1) {
+      LOCAL_candidateType[result.id].push(result.candidateType);
+    }
+
+    if (result.transport &amp;&amp; LOCAL_transport[result.id].indexOf(result.transport) === -1) {
+      LOCAL_transport[result.id].push(result.transport);
+    }
+
+    if (result.ipAddress &amp;&amp; LOCAL_ipAddress[result.id].indexOf(`${result.ipAddress}:${result.portNumber}`) === -1) {
+      LOCAL_ipAddress[result.id].push(`${result.ipAddress}:${result.portNumber}`);
+    }
+
+    if (result.networkType &amp;&amp; LOCAL_networkType[result.id].indexOf(result.networkType) === -1) {
+      LOCAL_networkType[result.id].push(result.networkType);
+    }
+
+    getStatsResult.internal.candidates[result.id] = {
+      candidateType: LOCAL_candidateType[result.id],
+      ipAddress: LOCAL_ipAddress[result.id],
+      portNumber: result.portNumber,
+      networkType: LOCAL_networkType[result.id],
+      priority: result.priority,
+      transport: LOCAL_transport[result.id],
+      timestamp: result.timestamp,
+      id: result.id,
+      type: result.type
+    };
+
+    getStatsResult.connectionType.local.candidateType = LOCAL_candidateType[result.id];
+    getStatsResult.connectionType.local.ipAddress = LOCAL_ipAddress[result.id];
+    getStatsResult.connectionType.local.networkType = LOCAL_networkType[result.id];
+    getStatsResult.connectionType.local.transport = LOCAL_transport[result.id];
+  };
+
+  const REMOTE_candidateType = {};
+  const REMOTE_transport = {};
+  const REMOTE_ipAddress = {};
+  const REMOTE_networkType = {};
+
+  getStatsParser.remotecandidate = function (result) {
+    if (result.type !== &apos;remotecandidate&apos; &amp;&amp; result.type !== &apos;remote-candidate&apos;) return;
+    if (!result.id) return;
+
+    if (!REMOTE_candidateType[result.id]) {
+      REMOTE_candidateType[result.id] = [];
+    }
+
+    if (!REMOTE_transport[result.id]) {
+      REMOTE_transport[result.id] = [];
+    }
+
+    if (!REMOTE_ipAddress[result.id]) {
+      REMOTE_ipAddress[result.id] = [];
+    }
+
+    if (!REMOTE_networkType[result.id]) {
+      REMOTE_networkType[result.id] = [];
+    }
+
+    if (result.candidateType &amp;&amp; REMOTE_candidateType[result.id].indexOf(result.candidateType) === -1) {
+      REMOTE_candidateType[result.id].push(result.candidateType);
+    }
+
+    if (result.transport &amp;&amp; REMOTE_transport[result.id].indexOf(result.transport) === -1) {
+      REMOTE_transport[result.id].push(result.transport);
+    }
+
+    if (result.ipAddress &amp;&amp; REMOTE_ipAddress[result.id].indexOf(`${result.ipAddress}:${result.portNumber}`) === -1) {
+      REMOTE_ipAddress[result.id].push(`${result.ipAddress}:${result.portNumber}`);
+    }
+
+    if (result.networkType &amp;&amp; REMOTE_networkType[result.id].indexOf(result.networkType) === -1) {
+      REMOTE_networkType[result.id].push(result.networkType);
+    }
+
+    getStatsResult.internal.candidates[result.id] = {
+      candidateType: REMOTE_candidateType[result.id],
+      ipAddress: REMOTE_ipAddress[result.id],
+      portNumber: result.portNumber,
+      networkType: REMOTE_networkType[result.id],
+      priority: result.priority,
+      transport: REMOTE_transport[result.id],
+      timestamp: result.timestamp,
+      id: result.id,
+      type: result.type
+    };
+
+    getStatsResult.connectionType.remote.candidateType = REMOTE_candidateType[result.id];
+    getStatsResult.connectionType.remote.ipAddress = REMOTE_ipAddress[result.id];
+    getStatsResult.connectionType.remote.networkType = REMOTE_networkType[result.id];
+    getStatsResult.connectionType.remote.transport = REMOTE_transport[result.id];
+  };
+
+  getStatsParser.dataSentReceived = function (result) {
+    if (!result.googCodecName || (result.mediaType !== &apos;video&apos; &amp;&amp; result.mediaType !== &apos;audio&apos;)) return;
+
+    if (result.bytesSent) {
+      getStatsResult[result.mediaType].bytesSent = parseInt(result.bytesSent);
+    }
+
+    if (result.bytesReceived) {
+      getStatsResult[result.mediaType].bytesReceived = parseInt(result.bytesReceived);
+    }
+  };
+
+  getStatsParser.inboundrtp = function (result) {
+    if (!isSafari) return;
+    if (result.type !== &apos;inbound-rtp&apos;) return;
+
+    const mediaType = result.mediaType || &apos;audio&apos;;
+    const sendrecvType = result.isRemote ? &apos;recv&apos; : &apos;send&apos;;
+
+    if (!sendrecvType) return;
+
+    if (result.bytesSent) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal[mediaType][sendrecvType].prevBytesSent) {
+        getStatsResult.internal[mediaType][sendrecvType].prevBytesSent = result.bytesSent;
+      }
+
+      var bytes = result.bytesSent - getStatsResult.internal[mediaType][sendrecvType].prevBytesSent;
+      getStatsResult.internal[mediaType][sendrecvType].prevBytesSent = result.bytesSent;
+
+      kilobytes = bytes / 1024;
+
+      getStatsResult[mediaType][sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+      getStatsResult[mediaType].bytesSent = kilobytes.toFixed(1);
+    }
+
+    if (result.bytesReceived) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived) {
+        getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived = result.bytesReceived;
+      }
+
+      var bytes = result.bytesReceived - getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived;
+      getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived = result.bytesReceived;
+
+      kilobytes = bytes / 1024;
+      // getStatsResult[mediaType][sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+      getStatsResult[mediaType].bytesReceived = kilobytes.toFixed(1);
+    }
+  };
+
+  getStatsParser.outboundrtp = function (result) {
+    if (!isSafari) return;
+    if (result.type !== &apos;outbound-rtp&apos;) return;
+
+    const mediaType = result.mediaType || &apos;audio&apos;;
+    const sendrecvType = result.isRemote ? &apos;recv&apos; : &apos;send&apos;;
+
+    if (!sendrecvType) return;
+
+    if (result.bytesSent) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal[mediaType][sendrecvType].prevBytesSent) {
+        getStatsResult.internal[mediaType][sendrecvType].prevBytesSent = result.bytesSent;
+      }
+
+      var bytes = result.bytesSent - getStatsResult.internal[mediaType][sendrecvType].prevBytesSent;
+      getStatsResult.internal[mediaType][sendrecvType].prevBytesSent = result.bytesSent;
+
+      kilobytes = bytes / 1024;
+
+      getStatsResult[mediaType][sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+      getStatsResult[mediaType].bytesSent = kilobytes.toFixed(1);
+    }
+
+    if (result.bytesReceived) {
+      var kilobytes = 0;
+      if (!getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived) {
+        getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived = result.bytesReceived;
+      }
+
+      var bytes = result.bytesReceived - getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived;
+      getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived = result.bytesReceived;
+
+      kilobytes = bytes / 1024;
+      // getStatsResult[mediaType][sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+      getStatsResult[mediaType].bytesReceived = kilobytes.toFixed(1);
+    }
+  };
+
+  getStatsParser.track = function (result) {
+    if (!isSafari) return;
+    if (result.type !== &apos;track&apos;) return;
+
+    const sendrecvType = result.remoteSource === true ? &apos;send&apos; : &apos;recv&apos;;
+
+    if (result.frameWidth &amp;&amp; result.frameHeight) {
+      getStatsResult.resolutions[sendrecvType].width = result.frameWidth;
+      getStatsResult.resolutions[sendrecvType].height = result.frameHeight;
+    }
+
+    // framesSent, framesReceived
+  };
+
+  const SSRC = {
+    audio: {
+      send: [],
+      recv: []
+    },
+    video: {
+      send: [],
+      recv: []
+    }
+  };
+
+  getStatsParser.ssrc = function (result) {
+    if (!result.googCodecName || (result.mediaType !== &apos;video&apos; &amp;&amp; result.mediaType !== &apos;audio&apos;)) return;
+    if (result.type !== &apos;ssrc&apos;) return;
+    const sendrecvType = result.id.split(&apos;_&apos;).pop();
+
+    if (SSRC[result.mediaType][sendrecvType].indexOf(result.ssrc) === -1) {
+      SSRC[result.mediaType][sendrecvType].push(result.ssrc);
+    }
+
+    getStatsResult[result.mediaType][sendrecvType].streams = SSRC[result.mediaType][sendrecvType].length;
+  };
+
+  getStatsLooper();
+};
+
+export default GetStats;
+/* eslint-enable */
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

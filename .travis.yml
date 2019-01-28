@@ -1,25 +1,47 @@
+env:
+  global:
+  - CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
 language: node_js
-before_install:
-  - rm -rf ./node_modules ./package-lock.json
-  - npm cache clean --force
+node_js:
+  - node
 before_script:
-  - npm prune
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script:
-  - npm run schema
-  - npm run test:coverage
+  - bundle exec rspec
 after_script:
-  - npm install -g codeclimate-test-reporter
-  - codeclimate-test-reporter < coverage/lcov.info
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 after_success:
-  - npm run semantic-release
+  - yarn run semantic-release
   - bash ./deploy-esdoc-gh-pages.sh
 branches:
   except:
     # Ignore Git tags created by semantic-release, like "v1.2.3"
     - /^v\d+\.\d+\.\d+$/
-addons:
-  addons:
-    sauce_connect: true
-cache:
-  directories:
-    - node_modules
+
+#language: node_js
+#before_install:
+#  - rm -rf ./node_modules ./package-lock.json
+#  - npm cache clean --force
+#before_script:
+#  - npm prune
+#script:
+#  - npm run schema
+#  - npm run test:coverage
+#after_script:
+#  - npm install -g codeclimate-test-reporter
+#  - codeclimate-test-reporter < coverage/lcov.info
+#after_success:
+#  - npm run semantic-release
+#  - bash ./deploy-esdoc-gh-pages.sh
+#branches:
+#  except:
+#    # Ignore Git tags created by semantic-release, like "v1.2.3"
+#    - /^v\d+\.\d+\.\d+$/
+#addons:
+#  addons:
+#    sauce_connect: true
+#cache:
+#  directories:
+#    - node_modules
