@@ -8,28 +8,30 @@
  */
 
 /**
-* Audio communication service
-* @ignore
-* @type {string}
-*/
+ * Audio communication service
+ * @ignore
+ * @type {string}
+ */
 export const AUDIO = 'audio';
 /**
-* Video communication service
-* @ignore
-* @type {string}
-*/
+ * Video communication service
+ * @ignore
+ * @type {string}
+ */
 export const VIDEO = 'video';
 /**
-* Audio and video communication service
-* @ignore
-* @type {string}
-*/
+ * Audio and video communication service
+ * @ignore
+ * @type {string}
+ */
 export const AUDIO_VIDEO = 'audio-video';
 /**
-* Screen-sharing service
-* @ignore
-* @type {string}
-*/
+ * Screen-sharing service
+ * @ignore
+ * @type {string}
+ */
 export const SCREEN_SHARING = 'screen-sharing';
 
-export default {AUDIO, VIDEO, AUDIO_VIDEO, SCREEN_SHARING};
+export default {
+  AUDIO, VIDEO, AUDIO_VIDEO, SCREEN_SHARING
+};
