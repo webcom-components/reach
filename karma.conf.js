@@ -52,7 +52,8 @@ module.exports = function(config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     singleRun: true,
-    browsers: ['ChromeWebRTC', 'ChromeCanaryWebRTC', 'FirefoxWebRTC', 'FirefoxNightlyWebRTC'],
+    // browsers: ['ChromeWebRTC', 'ChromeCanaryWebRTC', 'FirefoxWebRTC', 'FirefoxNightlyWebRTC'],
+    browsers: ['ChromeWebRTC'],
     customLaunchers: {
       ChromeWebRTC: {
         base: 'Chrome',
