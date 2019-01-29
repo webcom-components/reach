@@ -26,6 +26,6 @@ Reach rely heavily on [Flexible DataSync][Quickstart] to exchange data between p
 [See how it works][VisioSampleRepo] with an example of a visio web app available [here][VisioSampleApp]. You can check the code for this sample in the dedicated Github [repo][VisioSampleRepo]
 
 [Quickstart]: https://datasync.orange.com/doc/tutorial-quickstart.html
-[ReachSDKDoc]: https://doc.esdoc.org/github.com/webcom-components/reach/manual/tutorial.html#getting-started
+[ReachSDKDoc]: https://webcom-components.github.io/reach/manual/tutorial.html
 [VisioSampleRepo]: https://github.com/webcom-components/visio-sample
 [VisioSampleApp]: https://webcom-components.github.io/visio-sample
