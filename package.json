@@ -19,7 +19,7 @@
     "doc": "rimraf esdoc/* && esdoc",
     "prepublish-dist": "yarn build",
     "publish-dist": "echo \"machine github.com login $GH_TOKEN\" >> ~/.netrc && git config user.name \"webcomOps\" && git config user.email \"webcom.ops@orange.com\" && git add dist && git commit --no-verify --message \"chore(publish): publish dist [ci skip]\" dist && git push --no-verify origin HEAD:master",
-    "semantic-release": "semantic-release pre && yarn publish-dist && yarn publish && semantic-release post",
+    "semantic-release": "semantic-release -d",
     "cz": "git-cz"
   },
   "config": {
