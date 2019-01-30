@@ -3,37 +3,67 @@ env:
   - CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
 language: node_js
 node_js:
+  - 8
+  - 9
   - lts/*
-cache: yarn
+cache:
+  yarn: true
+  directories:
+  - node_modules
+branches:
+  except:
+  - /^v\d+\.\d+\.\d+$/
 before_script:
   - cp .env.example .env.test
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 script:
-  - yarn test
+  - yarn test && if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn build; fi
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
   - rm -f .env.test
 after_success:
-  - bash ./deploy-esdoc-gh-pages.sh
-branches:
-  except:
-    # Ignore Git tags created by semantic-release, like "v1.2.3"
-    - /^v\d+\.\d+\.\d+$/
-jobs:
-  include:
-  # Define the release stage that runs semantic-release
-  - stage: release
-    node_js: lts/*
-    # Advanced: optionally overwrite your default `script` step to skip the tests
-    # script: skip
-    deploy:
-      provider: script
-      skip_cleanup: true
-      script:
-        - yarn build
-        - yarn semantic-release
+  - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn deploy-docs"; fi
+  - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn semantic-release"; fi
+#env:
+#  global:
+#  - CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
+#language: node_js
+#node_js:
+#  - 8
+#  - 9
+#  - lts/*
+#cache: yarn
+#before_script:
+#  - cp .env.example .env.test
+#  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+#  - chmod +x ./cc-test-reporter
+#  - ./cc-test-reporter before-build
+#script:
+#  - yarn test
+#after_script:
+#  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+#  - rm -f .env.test
+#after_success:
+#  - bash ./deploy-esdoc-gh-pages.sh
+#branches:
+#  except:
+#    # Ignore Git tags created by semantic-release, like "v1.2.3"
+#    - /^v\d+\.\d+\.\d+$/
+#jobs:
+#  include:
+#  # Define the release stage that runs semantic-release
+#  - stage: release
+#    node_js: lts/*
+#    # Advanced: optionally overwrite your default `script` step to skip the tests
+#    # script: skip
+#    deploy:
+#      provider: script
+#      skip_cleanup: true
+#      script:
+#        - yarn build
+#        - yarn semantic-release
 #language: node_js
 #before_install:
 #  - rm -rf ./node_modules ./package-lock.json
