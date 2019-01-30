@@ -19,27 +19,47 @@
     "build": "cross-env NODE_ENV=production webpack --mode production",
     "lint": "eslint src test",
     "test": "karma start karma.conf.js",
-    "doc": "rimraf esdoc/* && esdoc",
+    "docs": "rimraf esdoc/* && esdoc",
+    "deploy-docs": "node deploy-gh-pages.js",
     "semantic-release": "semantic-release",
-    "cz": "git-cz"
+    "cz": "git-cz",
+    "travis-deploy-once": "travis-deploy-once"
   },
   "release": {
     "plugins": [
-      ["@semantic-release/commit-analyzer",{
-        "preset": "angular",
-        "releaseRules": [
-          {"type": "docs", "scope": "README", "release": "patch"},
-          {"type": "refactor", "release": "patch"}
-        ]
-      }],
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "angular",
+          "releaseRules": [
+            {
+              "type": "docs",
+              "release": "patch"
+            },
+            {
+              "type": "refactor",
+              "release": "patch"
+            }
+          ],
+          "parserOpts": {
+            "noteKeywords": ["PUBLISH"]
+          }
+        }
+      ],
       "@semantic-release/release-notes-generator",
-      ["@semantic-release/npm", {
-        "tarballDir": "."
-      }],
-      ["@semantic-release/github", {
-        "assets": "dist/*.tgz",
-        "successComment": "chore(publish): publish dist [ci skip]"
-      }]
+      [
+        "@semantic-release/npm",
+        {
+          "tarballDir": "."
+        }
+      ],
+      [
+        "@semantic-release/github",
+        {
+          "assets": "dist/*.tgz",
+          "successComment": "chore(publish): publish dist [ci skip]"
+        }
+      ]
     ]
   },
   "config": {
@@ -94,6 +114,8 @@
     "puppeteer": "^1.11.0",
     "rimraf": "^2.6.3",
     "semantic-release": "^15.13.3",
+    "shelljs": "^0.8.3",
+    "travis-deploy-once": "^5.0.11",
     "webpack": "^4.28.3",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.2.1"
