@@ -3,8 +3,6 @@ env:
   - CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
 language: node_js
 node_js:
-  - 8
-  - 9
   - lts/*
 cache:
   yarn: true
