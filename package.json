@@ -21,7 +21,7 @@
     "test": "karma start karma.conf.js",
     "docs": "rimraf esdoc/* && esdoc",
     "deploy-docs": "node deploy-gh-pages.js",
-    "semantic-release": "semantic-release",
+    "semantic-release": "semantic-release -d --debug",
     "cz": "git-cz",
     "travis-deploy-once": "travis-deploy-once"
   },
