@@ -25,43 +25,6 @@
     "cz": "git-cz",
     "travis-deploy-once": "travis-deploy-once"
   },
-  "release": {
-    "plugins": [
-      [
-        "@semantic-release/commit-analyzer",
-        {
-          "preset": "angular",
-          "releaseRules": [
-            {
-              "type": "docs",
-              "release": "patch"
-            },
-            {
-              "type": "refactor",
-              "release": "patch"
-            }
-          ],
-          "parserOpts": {
-            "noteKeywords": ["PUBLISH"]
-          }
-        }
-      ],
-      "@semantic-release/release-notes-generator",
-      [
-        "@semantic-release/npm",
-        {
-          "tarballDir": "."
-        }
-      ],
-      [
-        "@semantic-release/github",
-        {
-          "assets": "dist/*.tgz",
-          "successComment": "chore(publish): publish dist [ci skip]"
-        }
-      ]
-    ]
-  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
