@@ -9,8 +9,6 @@ const samples = path.resolve(__dirname, 'samples');
 const coverage = path.resolve(__dirname, 'coverage');
 const { GH_TOKEN, TRAVIS_REPO_SLUG } = process.env;
 
-// Delete previous version
-rm('-rf', esdoc);
 // Copy dist
 mkdir('-p', path.join(esdoc, 'dist'));
 cp('-r', dist, path.resolve(esdoc));

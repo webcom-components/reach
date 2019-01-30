@@ -20,10 +20,11 @@
     "lint": "eslint src test",
     "test": "karma start karma.conf.js",
     "docs": "rimraf esdoc/* && esdoc",
+    "predeploy-docs": "yarn docs",
     "deploy-docs": "node deploy-gh-pages.js",
+    "presemantic-release": "yarn build",
     "semantic-release": "semantic-release -d --debug",
-    "cz": "git-cz",
-    "travis-deploy-once": "travis-deploy-once"
+    "cz": "git-cz"
   },
   "config": {
     "commitizen": {
@@ -78,7 +79,6 @@
     "rimraf": "^2.6.3",
     "semantic-release": "^15.13.3",
     "shelljs": "^0.8.3",
-    "travis-deploy-once": "^5.0.11",
     "webpack": "^4.28.3",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.2.1"

@@ -1,34 +1,33 @@
-env:
-  global:
-  - CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
 language: node_js
 node_js:
+  - 8
+  - 9
   - lts/*
-  - 10
-# Trigger a push build on master and greenkeeper branches + PRs build on every branches
-# Avoid double build on PRs (See https://github.com/travis-ci/travis-ci/issues/1147)
 branches:
   only:
   - master
-before_script:
-  - cp .env.example .env.test
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
-script:
-  - npm run test
-after_success:
-  - npm run codecov
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-  - rm -f .env.test
 jobs:
   include:
-  - stage: release
-    node_js: lts/*
-    script:
-      - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn build"; fi
-      - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn deploy-docs"; fi
-      - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn semantic-release"; fi
+    - stage: test
+      env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
+      before_script:
+        - cp .env.example .env.test
+        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+        - ./cc-test-reporter before-build
+      script: yarn test
+      after_script:
+        - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+        - rm -rf .env.test
+    - stage: doc
+      if: branch = master
+      node_js: lts/*
+      script: yarn deploy-docs
+    - stage: deploy
+      if: branch = master
+      node_js: lts/*
+      script: yarn semantic-release
+
 #env:
 #  global:
 #  - CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
@@ -56,6 +55,37 @@ jobs:
 #  - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn deploy-docs"; fi
 #  - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn semantic-release"; fi
 
+#env:
+#  global:
+#  - CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
+#language: node_js
+#node_js:
+#  - lts/*
+#  - 10
+## Trigger a push build on master and greenkeeper branches + PRs build on every branches
+## Avoid double build on PRs (See https://github.com/travis-ci/travis-ci/issues/1147)
+#branches:
+#  only:
+#  - master
+#before_script:
+#  - cp .env.example .env.test
+#  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+#  - chmod +x ./cc-test-reporter
+#  - ./cc-test-reporter before-build
+#script:
+#  - npm run test
+#after_success:
+#  - npm run codecov
+#  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+#  - rm -f .env.test
+#jobs:
+#  include:
+#  - stage: release
+#    node_js: lts/*
+#    script:
+#      - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn build"; fi
+#      - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn deploy-docs"; fi
+#      - if [[ $TRAVIS_BRANCH == 'master' ]]; then yarn travis-deploy-once "yarn semantic-release"; fi
 
 #env:
 #  global:
