@@ -6,10 +6,18 @@ node_js:
 branches:
   only:
   - master
+env:
+matrix:
+  include:
+    - node_js: 8
+      env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
+    - node_js: 9
+      env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
+    - node_js: lts/*
+      env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
 jobs:
   include:
     - stage: test
-      env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
       before_script:
         - cp .env.example .env.test
         - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
