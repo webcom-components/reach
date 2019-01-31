@@ -20,7 +20,9 @@ jobs:
       deploy:
         provider: script
         skip_cleanup: true
-        script: npm --version
+        script:
+          - npm --version
+          - yarn --version
 
 
 #env:
