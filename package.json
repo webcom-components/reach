@@ -22,7 +22,6 @@
     "docs": "rimraf esdoc/* && esdoc",
     "predeploy-docs": "yarn docs",
     "deploy-docs": "node deploy-gh-pages.js",
-    "presemantic-release": "yarn build",
     "semantic-release": "semantic-release -d --debug",
     "cz": "git-cz"
   },

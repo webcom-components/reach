@@ -7,7 +7,7 @@ branches:
 jobs:
   include:
     - stage: release
-      script: echo 'test'
+      # script: echo 'test'
 #      script:
 #        - cp .env.example .env.test
 #        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -18,8 +18,8 @@ jobs:
 #        - rm -rf .env.test
       env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
       before_deploy:
-        - npm --version
-        - yarn --version
+        - yarn deploy-docs
+        - yarn build
       deploy:
         provider: script
         skip_cleanup: true
