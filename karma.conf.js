@@ -4,6 +4,15 @@ const env = require('dotenv').config({
   path: path.resolve(__dirname, '.env.test')
 });
 
+const envVars = [
+  'LOG_LEVEL',
+  'WEBCOM_PROTOCOL',
+  'WEBCOM_DOMAIN',
+  'WEBCOM_NAMESPACE',
+  'WEBCOM_EMAIL',
+  'WEBCOM_PASSWORD'
+];
+
 module.exports = function(config) {
   config.set({
     basePath: __dirname,
@@ -15,7 +24,7 @@ module.exports = function(config) {
     preprocessors: {
       './test/index.js': ['webpack', 'env']
     },
-    envPreprocessor: Object.keys(env.parsed),
+    envPreprocessor: envVars,
     webpack: {
       ...webpackConfig,
       output: false,
