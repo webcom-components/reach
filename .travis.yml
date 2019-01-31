@@ -7,7 +7,7 @@ branches:
 jobs:
   include:
     - stage: release
-      script: echo 'test'
+      # script: echo 'test'
 #      script:
 #        - cp .env.example .env.test
 #        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
