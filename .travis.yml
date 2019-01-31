@@ -23,7 +23,7 @@ jobs:
       deploy:
         provider: script
         skip_cleanup: true
-        script: echo 'deploy'
+        script: npm run semantic-release
 
 
 
