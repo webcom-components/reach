@@ -18,8 +18,8 @@ jobs:
 #        - rm -rf .env.test
       env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
       before_deploy:
-        - npm --version
-        - yarn --version
+        - yarn deploy-docs
+        - yarn build
       deploy:
         provider: script
         skip_cleanup: true
