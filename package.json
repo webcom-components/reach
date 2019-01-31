@@ -1,9 +1,12 @@
 {
-  "name": "Reach",
+  "name": "webcom-reach",
   "version": "3.1.0",
   "description": "Webcom-reach",
   "main": "dist/reach.js",
-  "repository": "https://github.com/webcom-components/reach.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webcom-components/reach.git"
+  },
   "author": "Webcom <webcom.ops@orange.com>",
   "license": "MIT",
   "schema": {
@@ -16,29 +19,11 @@
     "build": "cross-env NODE_ENV=production webpack --mode production",
     "lint": "eslint src test",
     "test": "karma start karma.conf.js",
-    "doc": "rimraf esdoc/* && esdoc",
-    "presemantic-release": "yarn build",
-    "semantic-release": "semantic-release -d",
+    "docs": "rimraf esdoc/* && esdoc",
+    "predeploy-docs": "yarn docs",
+    "deploy-docs": "node deploy-gh-pages.js",
+    "semantic-release": "semantic-release",
     "cz": "git-cz"
-  },
-  "release": {
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      [
-        "@semantic-release/npm",
-        {
-          "tarballDir": "."
-        }
-      ],
-      [
-        "@semantic-release/github",
-        {
-          "assets": "dist/*.tgz",
-          "successComment": "chore(publish): publish dist [ci skip]"
-        }
-      ]
-    ]
   },
   "config": {
     "commitizen": {
@@ -92,6 +77,7 @@
     "puppeteer": "^1.11.0",
     "rimraf": "^2.6.3",
     "semantic-release": "^15.13.3",
+    "shelljs": "^0.8.3",
     "webpack": "^4.28.3",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.2.1"
