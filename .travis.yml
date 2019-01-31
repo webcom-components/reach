@@ -6,7 +6,7 @@ branches:
   - master
 jobs:
   include:
-    - stage: test
+    - stage: release
       script:
         - cp .env.example .env.test
         - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -16,13 +16,11 @@ jobs:
         - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
         - rm -rf .env.test
       env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
-    - stage: release
-      if: branch = master
-      node_js: lts/*
-      install: skip
-      script:
-        - yarn deploy-docs
-        - yarn semantic-release
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script:
+          - type yarn
 
 
 #env:
