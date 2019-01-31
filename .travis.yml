@@ -17,13 +17,14 @@ jobs:
 #        - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 #        - rm -rf .env.test
       env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
-      before_deploy: npm install --global yarn
+      before_deploy:
+        - npm --version
+        - yarn --version
       deploy:
         provider: script
         skip_cleanup: true
-        script:
-          - npm --version
-          - yarn --version
+        script: echo 'deploy'
+
 
 
 #env:
