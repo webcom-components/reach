@@ -14,9 +14,6 @@ jobs:
         - yarn test
         - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
       env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
-      before_deploy:
-        - yarn build
-        - yarn deploy-docs
       deploy:
         provider: script
         skip_cleanup: true

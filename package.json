@@ -23,7 +23,8 @@
     "predeploy-docs": "yarn docs",
     "deploy-docs": "node deploy-gh-pages.js",
     "semantic-release": "semantic-release",
-    "cz": "git-cz"
+    "cz": "git-cz",
+    "postversion": "yarn build && yarn deploy-docs"
   },
   "config": {
     "commitizen": {
