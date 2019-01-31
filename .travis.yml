@@ -1,7 +1,5 @@
 language: node_js
 node_js:
-  - 8
-  - 9
   - lts/*
 branches:
   only:
@@ -9,26 +7,30 @@ branches:
 env:
   global:
     - CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
+before_script:
+  - cp .env.example .env.test
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  - rm -rf .env.test
 jobs:
   include:
-    - stage: test
-      before_script:
-        - cp .env.example .env.test
-        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-        - chmod +x ./cc-test-reporter
-        - ./cc-test-reporter before-build
-      script: yarn test
-      after_script:
-        - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-        - rm -rf .env.test
     - stage: doc
       if: branch = master
       node_js: lts/*
       script: yarn deploy-docs
-    - stage: deploy
+    - stage: release
       if: branch = master
       node_js: lts/*
-      script: yarn semantic-release
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script:
+          - yarn deploy-docs
+          - yarn semantic-release
+
 
 #env:
 #  global:
