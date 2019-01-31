@@ -19,10 +19,6 @@ jobs:
   include:
     - stage: test
       script: yarn test
-    - stage: doc
-      if: branch = master
-      node_js: lts/*
-      script: yarn deploy-docs
     - stage: release
       if: branch = master
       node_js: lts/*
@@ -30,6 +26,7 @@ jobs:
         provider: script
         skip_cleanup: true
         script:
+          - yarn deploy-docs
           - yarn semantic-release
 
 
