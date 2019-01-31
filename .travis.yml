@@ -20,7 +20,7 @@ jobs:
       deploy:
         provider: script
         skip_cleanup: true
-        script: echo "deploy"
+        script: npm --version
 
 
 #env:
