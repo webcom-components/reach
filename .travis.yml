@@ -17,6 +17,8 @@ after_script:
   - rm -rf .env.test
 jobs:
   include:
+    - stage: test
+      script: yarn test
     - stage: doc
       if: branch = master
       node_js: lts/*
@@ -28,7 +30,6 @@ jobs:
         provider: script
         skip_cleanup: true
         script:
-          - yarn deploy-docs
           - yarn semantic-release
 
 
