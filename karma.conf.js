@@ -212,7 +212,7 @@ const genSaucelabsBrowser = browser => (
  * Merge to custom browser, local and saucelabs
  * @type {Object}
  */
-const customLaunchers = Object.assign(localBrowser, genSaucelabsBrowser(saucelabsBrower));
+const customLaunchers = Object.assign(localBrowser, saucelabsBrower);
 
 /**
  * Generate karma repoters from cli args
@@ -336,11 +336,6 @@ module.exports = function(config) {
       username: process.env.SAUCE_USERNAME,
       accessKey: process.env.SAUCE_ACCESS_KEY,
       startConnect,
-      connectOptions: {
-        proxy: process.env.PROXY,
-        directDomains: '*.datasync.orange.com',
-        noSslBumpDomains: '*.datasync.orange.com'
-      },
     }
   });
 };
