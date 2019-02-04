@@ -332,15 +332,7 @@ module.exports = function(config) {
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
-      testName: `[Reach][${testName}] Unit Tests`,
-      tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
-      username: process.env.SAUCE_USERNAME,
-      accessKey: process.env.SAUCE_ACCESS_KEY,
-      startConnect: false,
-      connectOptions: {
-        port: 5757,
-        logfile: 'sauce_connect.log'
-      }
+      testName: `[Reach][${testName}] Unit Tests`
     }
   });
   console.log(JSON.stringify(config.saucelabs, null, 2));
