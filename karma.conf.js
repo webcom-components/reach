@@ -1,5 +1,6 @@
 const path = require('path');
 const webpackConfig = require('./webpack.config')();
+const { exec } = require('shelljs');
 require('dotenv').config({
   path: path.resolve(__dirname, '.env.test')
 });
@@ -69,7 +70,7 @@ const saucelabsBrower = {
     platform: 'Windows 10',
     version: 'latest'
   },
-  saucelabsWindows10ChromeBeforeLatest: {
+  /*saucelabsWindows10ChromeBeforeLatest: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
@@ -179,9 +180,13 @@ const saucelabsBrower = {
     browserName: 'safari',
     platform: 'macOS 10.14',
     version: 'latest'
-  }
+  }*/
 };
 
+/**
+ * Merge to custom browser, local and saucelabs
+ * @type {Object}
+ */
 const customLaunchers = Object.assign(localBrowser, saucelabsBrower);
 
 /**
@@ -221,6 +226,21 @@ const genBrowser = config => Object.keys(customLaunchers)
     }
     return /^local/.test(launcher);
   });
+
+/**
+ * Saucelabs test name
+ * @type {string}
+ */
+const testName = (() => {
+  const { TRAVIS, TRAVIS_BRANCH, TRAVIS_PULL_REQUEST } = process.env;
+  if (TRAVIS === 'true') {
+    if (TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') {
+      return `PR #${TRAVIS_PULL_REQUEST}`;
+    }
+    return TRAVIS_BRANCH;
+  }
+  return exec('git rev-parse --abbrev-ref HEAD');
+})();
 
 /**
  * Karma configuration
@@ -275,6 +295,9 @@ module.exports = function(config) {
     autoWatch: config.autoWatch || false,
     singleRun: config.singleRun || false,
     browsers: genBrowser(config),
-    customLaunchers
+    customLaunchers,
+    saucelabs: {
+      testName
+    }
   });
 };
