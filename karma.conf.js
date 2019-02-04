@@ -268,6 +268,16 @@ const testName = (() => {
 })();
 
 /**
+ * define if we need to start saucelabs connect
+ * @returns {boolean}
+ */
+const startConnect = (() => (
+  process.env.SAUCE_USERNAME != null
+  && process.env.SAUCE_ACCESS_KEY != null
+  && process.env.TRAVIS === 'true'
+))();
+
+/**
  * Karma configuration
  * @param config
  */
@@ -322,10 +332,15 @@ module.exports = function(config) {
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
-      testName,
+      testName: `[Reach][${testName}] Unit Tests`,
       username: process.env.SAUCE_USERNAME,
       accessKey: process.env.SAUCE_ACCESS_KEY,
-      startConnect: true
+      startConnect,
+      connectOptions: {
+        proxy: process.env.PROXY,
+        directDomains: '*.datasync.orange.com',
+        noSslBumpDomains: '*.datasync.orange.com'
+      },
     }
   });
 };
