@@ -66,6 +66,7 @@ const saucelabsBrower = {
   // Chrome
   saucelabsWindows10ChromeLatest: {
     base: 'SauceLabs',
+    base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
     version: 'latest'
@@ -297,7 +298,11 @@ module.exports = function(config) {
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
-      testName
+      testName,
+      connectOptions: {
+        directDomains: '*.datasync.orange.com',
+        noSslBumpDomains: '*.datasync.orange.com'
+      }
     }
   });
 };
