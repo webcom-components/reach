@@ -185,10 +185,35 @@ const saucelabsBrower = {
 };
 
 /**
+ * Genarate saucelabs brower global config
+ * @param browser
+ * @returns {{}}
+ */
+const genSaucelabsBrowser = browser => (
+  Object.entries(browser)
+    .reduce((newBrowser, [key, value]) => {
+      const { PROXY, TRAVIS } = process.env;
+      const proxy = PROXY && TRAVIS === 'true'
+        ? {
+          proxyType: 'manual',
+          httpProxy: process.env.PROXY,
+          sslProxy: process.env.PROXY
+        }
+        : {};
+      newBrowser[key] = { // eslint-disable-line no-param-reassign
+        ...value,
+        proxy
+      };
+      return newBrowser;
+    }, {})
+);
+
+
+/**
  * Merge to custom browser, local and saucelabs
  * @type {Object}
  */
-const customLaunchers = Object.assign(localBrowser, saucelabsBrower);
+const customLaunchers = Object.assign(localBrowser, genSaucelabsBrowser(saucelabsBrower));
 
 /**
  * Generate karma repoters from cli args
@@ -298,10 +323,14 @@ module.exports = function(config) {
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
-      tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
+      testName,
       username: process.env.SAUCE_USERNAME,
       accessKey: process.env.SAUCE_ACCESS_KEY,
-      startConnect: false,
+      startConnect: true,
+      connectOptions: {
+        // proxy: 'localhost:4445'
+        directDomains: 'io.datasync.orange.com'
+      }
     }
   });
 };
