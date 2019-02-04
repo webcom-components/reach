@@ -66,7 +66,6 @@ const saucelabsBrower = {
   // Chrome
   saucelabsWindows10ChromeLatest: {
     base: 'SauceLabs',
-    base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
     version: 'latest'
@@ -326,11 +325,7 @@ module.exports = function(config) {
       testName,
       username: process.env.SAUCE_USERNAME,
       accessKey: process.env.SAUCE_ACCESS_KEY,
-      startConnect: true,
-      connectOptions: {
-        // proxy: 'localhost:4445'
-        directDomains: 'io.datasync.orange.com'
-      }
+      startConnect: true
     }
   });
 };
