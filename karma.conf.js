@@ -298,13 +298,10 @@ module.exports = function(config) {
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
-      testName: 'Karma Sauec labs',
-      connectOptions: {
-        verbose: true,
-        verboseDebugging: true,
-        directDomains: '*.datasync.orange.com',
-        noSslBumpDomains: '*.datasync.orange.com'
-      }
+      tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
+      username: process.env.SAUCE_USERNAME,
+      accessKey: process.env.SAUCE_ACCESS_KEY,
+      startConnect: false,
     }
   });
 };
