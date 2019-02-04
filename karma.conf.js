@@ -300,6 +300,8 @@ module.exports = function(config) {
     saucelabs: {
       testName,
       connectOptions: {
+        verbose: true,
+        verboseDebugging: true,
         directDomains: '*.datasync.orange.com',
         noSslBumpDomains: '*.datasync.orange.com'
       }
