@@ -298,7 +298,7 @@ module.exports = function(config) {
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
-      testName,
+      testName: 'Karma Sauec labs',
       connectOptions: {
         verbose: true,
         verboseDebugging: true,
