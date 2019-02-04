@@ -5,9 +5,7 @@ branches:
   only:
   - master
 addons:
-  sauce_connect:
-    direct_domains: "*.datasync.orange.com"
-    no_ssl_bump_domains: "*.datasync.orange.com"
+  sauce_connect: true
 cache:
   yarn: true
   directories:
