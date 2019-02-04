@@ -343,5 +343,5 @@ module.exports = function(config) {
       }
     }
   });
-  console.log(JSON.stringify(config.saucelabs, null 2));
+  console.log(JSON.stringify(config.saucelabs, null, 2));
 };
