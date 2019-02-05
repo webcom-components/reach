@@ -332,7 +332,7 @@ module.exports = function(config) {
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
-      testName: `[Reach][${testName}] Unit Tests`
+      testName: 'Unit Tests'
     }
   });
   console.log(JSON.stringify(config.saucelabs, null, 2));
