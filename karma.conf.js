@@ -70,7 +70,7 @@ const saucelabsBrower = {
     platform: 'Windows 10',
     version: 'latest'
   },
-  /*saucelabsWindows10ChromeBeforeLatest: {
+  saucelabsWindows10ChromeBeforeLatest: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
@@ -180,7 +180,7 @@ const saucelabsBrower = {
     browserName: 'safari',
     platform: 'macOS 10.14',
     version: 'latest'
-  }*/
+  }
 };
 
 /**
@@ -332,8 +332,7 @@ module.exports = function(config) {
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
-      testName: 'Unit Tests'
+      testName: `[Reach][${testName}] Unit Tests`
     }
   });
-  console.log(JSON.stringify(config.saucelabs, null, 2));
 };
