@@ -20,6 +20,7 @@
     "lint": "eslint src test",
     "test": "karma start --auto-watch --no-single-run",
     "test:ci": "karma start --no-auto-watch --single-run --ci",
+    "test:sauce": "karma start --no-auto-watch --single-run --sauce",
     "docs": "rimraf esdoc/* && esdoc",
     "predeploy-docs": "yarn docs",
     "deploy-docs": "node deploy-gh-pages.js",

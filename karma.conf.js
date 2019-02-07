@@ -68,110 +68,84 @@ const saucelabsBrower = {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: 'latest'
+    version: 'latest',
+    flags: chromeFlags
   },
   saucelabsWindows10ChromeBeforeLatest: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: 'latest-1'
+    version: 'latest-1',
+    flags: chromeFlags
   },
   saucelabsWindows7ChromeLatest: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 7',
-    version: 'latest'
+    version: 'latest',
+    flags: chromeFlags
   },
   saucelabsWindows7ChromeBeforeLatest: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 7',
-    version: 'latest-1'
-  },
-  saucelabsLinuxChromeLatest: {
-    base: 'SauceLabs',
-    browserName: 'chrome',
-    platform: 'Linux',
-    version: 'latest'
-  },
-  saucelabsLinuxChromeBeforeLatest: {
-    base: 'SauceLabs',
-    browserName: 'chrome',
-    platform: 'Linux',
-    version: 'latest-1'
+    version: 'latest-1',
+    flags: chromeFlags
   },
   saucelabsMacChromeLatest: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'macOS 10.14',
-    version: 'latest'
+    version: 'latest',
+    flags: chromeFlags
   },
   saucelabsMacChromeBeforeLatest: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'macOS 10.14',
-    version: 'latest-1'
+    version: 'latest-1',
+    flags: chromeFlags
   },
   // Firefox
   saucelabsWindows10FirefoxLatest: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 10',
-    version: 'latest'
+    version: 'latest',
+    prefs: firefoxPref
   },
   saucelabsWindows10FirefoxBeforeLatest: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 10',
-    version: 'latest-1'
+    version: 'latest-1',
+    prefs: firefoxPref
   },
   saucelabsWindows7FirefoxLatest: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 7',
-    version: 'latest'
+    version: 'latest',
+    prefs: firefoxPref
   },
   saucelabsWindows7FirefoxBeforeLatest: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 7',
-    version: 'latest-1'
-  },
-  saucelabsLinuxFirefoxLatest: {
-    base: 'SauceLabs',
-    browserName: 'firefox',
-    platform: 'Linux',
-    version: 'latest'
-  },
-  saucelabsLinuxFirefoxBeforeLatest: {
-    base: 'SauceLabs',
-    browserName: 'firefox',
-    platform: 'Linux',
-    version: 'latest-1'
+    version: 'latest-1',
+    prefs: firefoxPref
   },
   saucelabsMacFirefoxLatest: {
     base: 'SauceLabs',
     browserName: 'firefox',
-    platform: 'macOSS 10.14',
-    version: 'latest'
+    platform: 'macOS 10.14',
+    version: 'latest',
+    prefs: firefoxPref
   },
   saucelabsMacFirefoxBeforeLatest: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'macOS 10.14',
-    version: 'latest-1'
-  },
-  // Edge
-  saucelabsWindows10EdgeLatest: {
-    base: 'SauceLabs',
-    browserName: 'MicrosoftEdge',
-    platform: 'Windows 10',
-    version: 'latest'
-  },
-  saucelabsWindows10EdgeBeforeLatest: {
-    base: 'SauceLabs',
-    browserName: 'MicrosoftEdge',
-    platform: 'Windows 10',
     version: 'latest-1'
   },
   // Safari
@@ -194,14 +168,16 @@ const genSaucelabsBrowser = browser => (
       const { PROXY, TRAVIS } = process.env;
       const proxy = PROXY && TRAVIS === 'true'
         ? {
-          proxyType: 'manual',
-          httpProxy: process.env.PROXY,
-          sslProxy: process.env.PROXY
+          proxy: {
+            proxyType: 'manual',
+            httpProxy: process.env.PROXY,
+            sslProxy: process.env.PROXY
+          }
         }
         : {};
       newBrowser[key] = { // eslint-disable-line no-param-reassign
         ...value,
-        proxy
+        ...proxy
       };
       return newBrowser;
     }, {})
@@ -212,7 +188,7 @@ const genSaucelabsBrowser = browser => (
  * Merge to custom browser, local and saucelabs
  * @type {Object}
  */
-const customLaunchers = Object.assign(localBrowser, saucelabsBrower);
+const customLaunchers = Object.assign(localBrowser, genSaucelabsBrowser(saucelabsBrower));
 
 /**
  * Generate karma repoters from cli args
@@ -246,7 +222,7 @@ const genReporters = (config) => {
  */
 const genBrowser = config => Object.keys(customLaunchers)
   .filter((launcher) => {
-    if (config.ci) {
+    if (config.ci || config.sauce) {
       return /^saucelabs/.test(launcher);
     }
     return /^local/.test(launcher);
@@ -276,6 +252,15 @@ const startConnect = (() => (
   && process.env.SAUCE_ACCESS_KEY != null
   && process.env.TRAVIS === 'true'
 ))();
+
+const connectOptions = config => (
+  !config.sauce
+    ? {}
+    : {
+      connectLocationForSERelay: 'localhost',
+      connectPortForSERelay: '4445'
+    }
+);
 
 /**
  * Karma configuration
@@ -324,15 +309,21 @@ module.exports = function(config) {
       namedFiles: true,
       urlFriendlyName: true
     },
-    port: 9876,
+    port: 5555,
     colors: true,
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_DEBUG,
     autoWatch: config.autoWatch || false,
     singleRun: config.singleRun || false,
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
-      testName: `[Reach][${testName}] Unit Tests`
+      testName: `[Reach][${testName}] Unit Tests`,
+      startConnect: true,
+      connectOptions: {
+        doctor: true,
+        verboseDebugging: true,
+        verbose: true,
+      }
     }
   });
 };
