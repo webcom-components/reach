@@ -135,13 +135,6 @@ const saucelabsBrower = {
     version: 'latest-1',
     prefs: firefoxPref
   },
-  saucelabsMacFirefoxLatest: {
-    base: 'SauceLabs',
-    browserName: 'firefox',
-    platform: 'macOS 10.14',
-    version: 'latest',
-    prefs: firefoxPref
-  },
   saucelabsMacFirefoxBeforeLatest: {
     base: 'SauceLabs',
     browserName: 'firefox',
