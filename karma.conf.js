@@ -92,20 +92,6 @@ const saucelabsBrower = {
     version: 'latest-1',
     flags: chromeFlags
   },
-  saucelabsMacChromeLatest: {
-    base: 'SauceLabs',
-    browserName: 'chrome',
-    platform: 'macOS 10.14',
-    version: 'latest',
-    flags: chromeFlags
-  },
-  saucelabsMacChromeBeforeLatest: {
-    base: 'SauceLabs',
-    browserName: 'chrome',
-    platform: 'macOS 10.14',
-    version: 'latest-1',
-    flags: chromeFlags
-  },
   // Firefox
   saucelabsWindows10FirefoxLatest: {
     base: 'SauceLabs',
@@ -134,19 +120,6 @@ const saucelabsBrower = {
     platform: 'Windows 7',
     version: 'latest-1',
     prefs: firefoxPref
-  },
-  saucelabsMacFirefoxBeforeLatest: {
-    base: 'SauceLabs',
-    browserName: 'firefox',
-    platform: 'macOS 10.14',
-    version: 'latest-1'
-  },
-  // Safari
-  saucelabsMacSafariLatest: {
-    base: 'SauceLabs',
-    browserName: 'safari',
-    platform: 'macOS 10.14',
-    version: 'latest'
   }
 };
 
