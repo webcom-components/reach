@@ -311,19 +311,14 @@ module.exports = function(config) {
     },
     port: 5555,
     colors: true,
-    logLevel: config.LOG_DEBUG,
+    logLevel: config.LOG_INFO,
     autoWatch: config.autoWatch || false,
     singleRun: config.singleRun || false,
     browsers: genBrowser(config),
     customLaunchers,
     saucelabs: {
       testName: `[Reach][${testName}] Unit Tests`,
-      startConnect: true,
-      connectOptions: {
-        doctor: true,
-        verboseDebugging: true,
-        verbose: true,
-      }
+      startConnect
     }
   });
 };
