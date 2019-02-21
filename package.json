@@ -1,6 +1,6 @@
 {
   "name": "webcom-reach",
-  "version": "3.1.0",
+  "version": "3.1.5",
   "description": "Webcom-reach",
   "main": "dist/reach.js",
   "repository": {
@@ -38,6 +38,14 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "pre-commit": "yarn run lint"
     }
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      "@semantic-release/git"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
