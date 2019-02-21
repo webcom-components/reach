@@ -78,7 +78,7 @@ const saucelabsBrower = {
     version: 'latest-1',
     flags: chromeFlags
   },
-  saucelabsWindows7ChromeLatest: {
+  /* saucelabsWindows7ChromeLatest: {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 7',
@@ -91,7 +91,7 @@ const saucelabsBrower = {
     platform: 'Windows 7',
     version: 'latest-1',
     flags: chromeFlags
-  },
+  }, */
   // Firefox
   saucelabsWindows10FirefoxLatest: {
     base: 'SauceLabs',
@@ -107,7 +107,7 @@ const saucelabsBrower = {
     version: 'latest-1',
     prefs: firefoxPref
   },
-  saucelabsWindows7FirefoxLatest: {
+  /* saucelabsWindows7FirefoxLatest: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 7',
@@ -120,7 +120,7 @@ const saucelabsBrower = {
     platform: 'Windows 7',
     version: 'latest-1',
     prefs: firefoxPref
-  }
+  } */
 };
 
 /**
