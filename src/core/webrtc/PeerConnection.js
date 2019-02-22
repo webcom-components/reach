@@ -643,7 +643,6 @@ export default class PeerConnection {
         } else if (current && /^a=rtpmap:/.test(sdpLine)) {
           // eslint-disable-next-line no-useless-escape
           const c = /^a=rtpmap:(\d+)\s([a-zA-Z0-9\-\/]+)/.exec(sdpLine);
-          Log.d('PeerConnection~rtpmap', c);
           if (c) {
             current.codecs.push({
               id: c[1],
