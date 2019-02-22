@@ -282,12 +282,11 @@ module.exports = function(config) {
     singleRun: config.singleRun || false,
     browsers: genBrowser(config),
     customLaunchers,
+    browserNoActivityTimeout: 120000,
     saucelabs: {
       testName: `[Reach][${testName}] Unit Tests`,
-      startConnect: false,
-      connectOptions: {
-        tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER
-      }
+      startConnect,
+      tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER
     }
   });
 };
