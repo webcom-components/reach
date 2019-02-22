@@ -284,10 +284,7 @@ module.exports = function(config) {
     customLaunchers,
     saucelabs: {
       testName: `[Reach][${testName}] Unit Tests`,
-      startConnect: false,
-      connectOptions: {
-        tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER
-      }
+      startConnect,
     }
   });
 };
