@@ -8,6 +8,8 @@ cache:
   yarn: true
   directories:
     - node_modules
+addons:
+  sauce_connect: true
 jobs:
   include:
     - stage: release
@@ -17,6 +19,7 @@ jobs:
         - ./cc-test-reporter before-build
         - yarn test:ci
         - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+        - rm -f cc-test-reporter
       env: CC_TEST_REPORTER_ID=$CODECLIMATE_REPO_TOKEN
       deploy:
         provider: script
