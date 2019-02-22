@@ -512,9 +512,7 @@ export default class Local {
       streamMetaData));
     sharedStream.streamMetaData = streamMetaData;
     Log.d('Local~getLocalVideo', { sharedStream });
-    return navigator.mediaDevices.getUserMedia({
-      video: true
-    })
+    return navigator.mediaDevices.getUserMedia(sharedStream.constraints)
       .then((media) => {
         sharedStream.media = media;
         return sharedStream;

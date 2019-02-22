@@ -632,7 +632,8 @@ export default class PeerConnection {
       // Parse SDP
       sdpLines.forEach((sdpLine, i) => {
         if (/^m=/.test(sdpLine)) {
-          const d = /^m=(\w+)\s[0-9/]+\s[A-Za-z0-9/]+\s([0-9\s]+)/.exec(sdpLine);
+          // eslint-disable-next-line no-useless-escape
+          const d = /^m=(\w+)\s[0-9\/]+\s[A-Za-z0-9\/]+\s([0-9\s]+)/.exec(sdpLine);
           current = {
             fmt: d[2].split(/\s/),
             index: i,
@@ -640,7 +641,9 @@ export default class PeerConnection {
           };
           medias[d[1]].push(current);
         } else if (current && /^a=rtpmap:/.test(sdpLine)) {
-          const c = /^a=rtpmap:(\d+)\s([a-zA-Z0-9\-/]+)/.exec(sdpLine);
+          // eslint-disable-next-line no-useless-escape
+          const c = /^a=rtpmap:(\d+)\s([a-zA-Z0-9\-\/]+)/.exec(sdpLine);
+          Log.d('PeerConnection~rtpmap', c);
           if (c) {
             current.codecs.push({
               id: c[1],
