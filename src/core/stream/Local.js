@@ -479,10 +479,6 @@ export default class Local {
           Log.e.bind(Log));
         Log.d('Local~shared', { sharedStream });
         return sharedStream;
-      })
-      .catch((e) => {
-        Log.e(e);
-        throw e;
       });
   }
 
@@ -516,10 +512,6 @@ export default class Local {
       .then((media) => {
         sharedStream.media = media;
         return sharedStream;
-      })
-      .catch((e) => {
-        Log.e(e);
-        throw e;
       });
   }
 

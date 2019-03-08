@@ -156,7 +156,7 @@ export default class PeerConnection {
           this._remoteICECandidates(false);
           break;
         case ICE_CONNECTION_STATE_FAILED:
-          Log.e('PeerConnection~stateDisconnected', 'Failed PeerConnection');
+          Log.e('PeerConnection~stateFailed', 'Failed PeerConnection');
           break;
         case ICE_CONNECTION_STATE_DISCONNECTED:
           Log.e('PeerConnection~stateDisconnected', 'Disconnect PeerConnection');
@@ -309,11 +309,7 @@ export default class PeerConnection {
           .then(() => Log.d('PeerConnection~answer#remoteDescription', this.pc.remoteDescription.sdp))
           .then(() => {
             if (/^offer$/.test(this.pc.remoteDescription.type)) {
-              return this.pc.createAnswer()
-                .catch((e) => {
-                  Log.e(e);
-                  throw e;
-                });
+              return this.pc.createAnswer();
             }
             return Promise.reject(new Error('SDP is not an offer'));
           })
