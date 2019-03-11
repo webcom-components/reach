@@ -99,10 +99,10 @@ export default class PeerConnectionManager {
    * @param {object} subscriber
    * @return {Promise.<PeerConnection>}
    */
-  offer(localStream, subscriber) {
+  offer(localStream, subscriber, errorCallbacks) {
     Log.d('PeerConnectionManager~offer', { localStream, subscriber });
     return this.getPeerConnection(localStream, subscriber, true)
-      .then(pc => pc.offer(localStream.media));
+      .then(pc => pc.offer(localStream.media, errorCallbacks));
   }
 
   /**
@@ -111,10 +111,10 @@ export default class PeerConnectionManager {
    * @param {Element} htmlElement
    * @return {*|Promise.<PeerConnection>}
    */
-  answer(remoteStream, htmlElement) {
+  answer(remoteStream, htmlElement, errorCallbacks = []) {
     Log.d('PeerConnectionManager~answer', { remoteStream, htmlElement });
     return this.getPeerConnection(remoteStream, remoteStream, false)
-      .then(pc => pc.answer(htmlElement));
+      .then(pc => pc.answer(htmlElement, errorCallbacks));
   }
 
   /**

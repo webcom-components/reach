@@ -9,6 +9,7 @@ import {
   CONNECTED,
   NONE
 } from '../util/constants';
+import * as Events from '../../definitions/Events';
 
 const _facingModes = [Media.facingMode.USER, Media.facingMode.ENVIRONMENT];
 
@@ -85,6 +86,45 @@ export default class Local {
 
     // Set constraints
     this.constraints = values.constraints;
+
+    /**
+     * List of callbacks for Local
+     * @type object
+     * @private
+     */
+    this._callbacks = {};
+  }
+
+
+  /**
+   * Register a callback for a specific event
+   * @param {string} event The event name ({@link Events/Stream})
+   * @param {function} callback The callback for the event
+   */
+  on(event, callback) {
+    if (Events.local.supports(event)) {
+      if (!this._callbacks[event]) {
+        this._callbacks[event] = [];
+      }
+      this._callbacks[event].push(callback);
+    }
+  }
+
+  /**
+   * Register a callback for a specific event
+   * @param {string} [event] The event name ({@link Events/Stream})
+   * @param {function} [callback] The callback for the event
+   */
+  off(event, callback) {
+    if (!event) {
+      this._callbacks = {};
+    } else if (Events.local.supports(event)) {
+      if (!callback) {
+        this._callbacks[event] = [];
+      } else {
+        this._callbacks[event] = this._callbacks[event].filter(cb => cb !== callback);
+      }
+    }
   }
 
   /**
@@ -134,6 +174,11 @@ export default class Local {
     Log.d('Local~updateConstraints', constraints);
     this.constraints = constraints;
     return navigator.mediaDevices.getUserMedia(this.constraints)
+      .catch((e) => {
+        (this._callbacks[Events.local.WEBRTC_ERROR] || [])
+          .forEach(cb => cb(e));
+        return e;
+      })
       .then((media) => {
         ['audio', 'video'].forEach((kind) => {
           const constraintsValue = this.constraints[kind];
@@ -398,7 +443,7 @@ export default class Local {
    * If not defined the constraints defined in ReachConfig will be used.
    * @returns {Promise<Local, Error>}
    */
-  static share(roomId, type, container, constraints) {
+  /* static share(roomId, type, container, constraints) {
     if (!cache.user) {
       return Promise.reject(new Error('Only an authenticated user can share a stream.'));
     }
@@ -465,7 +510,11 @@ export default class Local {
             const subscriber = value(snapData);
             Log.d('Local~subscribed', subscriber);
             cache.peerConnections.offer(sharedStream, subscriber)
-              .then(pc => sharedStream.peerConnections.push(pc));
+              .then((pc) => {
+                (this._callbacks[Events.local.SUBSCRIBED] || [])
+                  .forEach(cb => cb(sharedStream, subscriber));
+                return sharedStream.peerConnections.push(pc);
+              });
           },
           Log.e.bind(Log));
         DataSync.on(path, 'child_removed',
@@ -480,7 +529,7 @@ export default class Local {
         Log.d('Local~shared', { sharedStream });
         return sharedStream;
       });
-  }
+  } */
 
   /**
    * Get a local stream
@@ -520,7 +569,7 @@ export default class Local {
    * @access protected
    * @returns {Local}
    */
-  static publish(sharedStream) {
+  publish(sharedStream) {
     Log.d('Local~publish');
     const { roomId } = sharedStream;
     return DataSync.push(`_/rooms/${roomId}/streams`, sharedStream.streamMetaData)
@@ -557,19 +606,22 @@ export default class Local {
         // Remove shared stream on Disconnect
         DataSync.onDisconnect(`_/rooms/${roomId}/subscribers/${sharedStream.uid}`).remove();
         // Start listening to subscribers
-        const
-          path = `_/rooms/${sharedStream.roomId}/subscribers/${sharedStream.uid}`;
-
-
+        const path = `_/rooms/${sharedStream.roomId}/subscribers/${sharedStream.uid}`;
         const value = snapData => Object.assign({ device: snapData.name() }, snapData.val() || {});
+
         DataSync.on(path, 'child_added',
           (snapData) => {
             const subscriber = value(snapData);
             Log.d('Local~subscribed', subscriber);
-            cache.peerConnections.offer(sharedStream, subscriber)
-              .then(pc => sharedStream.peerConnections.push(pc));
+            cache.peerConnections
+              .offer(sharedStream, subscriber, this._callbacks[Events.local.WEBRTC_ERROR])
+              .then((pc) => {
+                (this._callbacks[Events.local.SUBSCRIBED] || [])
+                  .forEach(cb => cb(sharedStream, subscriber));
+                return sharedStream.peerConnections.push(pc);
+              });
           },
-          Log.e.bind(Log));
+          Log.e.bind(Log), this);
         DataSync.on(path, 'child_removed',
           (snapData) => {
             const subscriber = value(snapData);

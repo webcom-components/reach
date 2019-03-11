@@ -47,6 +47,14 @@ import { ACCEPTED, CANCELED, REJECTED } from '../core/util/constants';
  * @typedef {Object} Events/Stream
  * @property {string} MUTE Fired when the mute status of the stream changes
  * @property {string} SIZE Fired when the size of the stream changes
+ * @property {string} WEBRTC_ERROR Fired when an error is raised on webrtc call.
+ */
+
+/**
+ * The events supported by {@link Local#on}.
+ * @typedef {Object} Events/Local
+ * @property {string} SUBSCRIBED Fired when the is subcribed by remote
+ * @property {string} WEBRTC_ERROR Fired when an error is raised on webrtc call.
  */
 
 /**
@@ -139,7 +147,12 @@ export const room = new _Events([
 /**
  * @ignore
  */
-export const stream = new _Events(['MUTE', 'SIZE']);
+export const stream = new _Events(['MUTE', 'SIZE', 'WEBRTC_ERROR']);
+
+/**
+ * @ignore
+ */
+export const local = new _Events(['SUBSCRIBED', 'WEBRTC_ERROR']);
 
 /**
  * @ignore

@@ -96,7 +96,8 @@ export default class Remote {
     // TODO: Test if not already subscribed ?
     this.container = remoteStreamContainer || cache.config.remoteStreamContainer;
     Log.d('Remote~subscribe', this.container);
-    return cache.peerConnections.answer(this, this.container)
+    return cache.peerConnections
+      .answer(this, this.container, this._callbacks[Events.stream.WEBRTC_ERROR])
       .then((pc) => {
         this.peerConnection = pc;
       })
@@ -138,10 +139,7 @@ export default class Remote {
           }
         });
       })
-      // .catch(Log.r('Remote~subscribe'));
-      .catch(() => Promise.reject(
-        new Error('Failed to subscribe to the remote stream')
-      ));
+      .catch(Log.r('Remote~subscribe'));
   }
 
   /**

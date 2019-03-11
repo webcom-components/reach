@@ -280,7 +280,9 @@ export default class Room {
    */
   share(type, localStreamContainer, constraints) {
     Log.i('Room~share', { type, localStreamContainer, constraints });
-    return Local.share(this.uid, type, localStreamContainer, constraints);
+    // return Local.share(this.uid, type, localStreamContainer, constraints);
+    return Local.getLocalVideo(this.uid, type, localStreamContainer, constraints)
+      .then(stream => stream.publish(stream));
   }
 
   /**
@@ -307,7 +309,7 @@ export default class Room {
    */
   publish() {
     Log.i('Room~publish Local');
-    return Local.publish(this.localStream);
+    return this.localStream.publish(this.localStream);
   }
 
   /**

@@ -126,6 +126,8 @@ export const on = (path, event, queryCallback, cancelCallback) => {
  * @param {string} path The path
  * @param {string} event The event
  * @param {function} [callback] The callback
+ * @param {function} [cancel] The cancel callback
+ * @param {object} context The execution context
  */
 export const off = (path, event, callback) => {
   cache.base.child(path).off(eventType(event), callback);
