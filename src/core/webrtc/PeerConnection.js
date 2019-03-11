@@ -156,7 +156,7 @@ export default class PeerConnection {
           this._remoteICECandidates(false);
           break;
         case ICE_CONNECTION_STATE_FAILED:
-          Log.e('PeerConnection~stateDisconnected', 'Failed PeerConnection');
+          Log.e('PeerConnection~stateFailed', 'Failed PeerConnection');
           break;
         case ICE_CONNECTION_STATE_DISCONNECTED:
           Log.e('PeerConnection~stateDisconnected', 'Disconnect PeerConnection');
@@ -282,9 +282,10 @@ export default class PeerConnection {
    * Init RTCPeerConnection for subscribers
    * @access protected
    * @param htmlElement
+   * @param errorCallbacks
    * @returns {Promise.<PeerConnection>}
    */
-  answer(htmlElement) {
+  answer(htmlElement, errorCallbacks = []) {
     Log.i('PeerConnection~answer', { htmlElement, peerConnection: this });
     this.container = htmlElement;
     if (Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'ontrack')) {
@@ -306,19 +307,21 @@ export default class PeerConnection {
       if (sdpOffer != null) {
         Log.d(`PeerConnection~offered ${sdpOffer.sdp}`);
         this.pc.setRemoteDescription(sdpOffer)
+          .catch((e) => {
+            errorCallbacks.forEach(cb => cb(e));
+            cache.peerConnections.close(this.streamId, this.remote.device);
+          })
           .then(() => Log.d('PeerConnection~answer#remoteDescription', this.pc.remoteDescription.sdp))
           .then(() => {
             if (/^offer$/.test(this.pc.remoteDescription.type)) {
               return this.pc.createAnswer()
-                .catch((e) => {
-                  Log.e(e);
-                  throw e;
-                });
+                .catch(e => Log.d.bind(Log, 'PeerConnections~answer#createAnswer', e));
             }
             return Promise.reject(new Error('SDP is not an offer'));
           })
           .then(description => this._setPreferredCodecs(description))
           .then(description => this.pc.setLocalDescription(description))
+          .catch(e => Log.d.bind(Log, 'PeerConnections~answer#setLocalDescription', e))
           .then(() => {
             Log.d('PeerConnection~answer#localSDP', this.pc.localDescription.sdp);
             this._remoteICECandidates(true);
@@ -339,9 +342,10 @@ export default class PeerConnection {
    * Init RTCPeerConnection for publishers
    * @access protected
    * @param stream
+   * @param errorCallbacks
    * @returns {Promise.<PeerConnection>}
    */
-  offer(stream) {
+  offer(stream, errorCallbacks = []) {
     Log.i('PeerConnection~offer', { stream, peerConnection: this });
     let sendTimeout;
     return new Promise((resolve, reject) => {
@@ -355,12 +359,13 @@ export default class PeerConnection {
         sendTimeout = setTimeout(() => {
           sendTimeout = null;
           this._sendOffer()
-            .then(() => {
-              resolve(this);
-            })
             .catch((e) => {
               Log.d('PeerConnection~offer', e);
+              errorCallbacks.forEach(cb => cb(e));
               reject(e);
+            })
+            .then(() => {
+              resolve(this);
             });
         }, 20);
       };
@@ -369,99 +374,20 @@ export default class PeerConnection {
         if (sdpAnswer != null) {
           Log.d(`PeerConnection~offer#answered ${sdpAnswer.sdp}`);
           this.pc.setRemoteDescription(sdpAnswer)
+            .catch((e) => {
+              errorCallbacks.forEach(cb => cb(e));
+              cache.peerConnections.close(this.streamId, this.remote.device);
+              Log.e.bind(Log, 'PeerConnection~offer#remoteDescription');
+            })
             .then(() => {
               Log.d('PeerConnection~offer#remoteDescription', this.pc.remoteDescription.sdp);
               this._remoteICECandidates(true);
-            })
-            .catch(Log.e.bind(Log, 'PeerConnection~offer#remoteDescription'));
+            });
         }
       });
       this._alterStream(stream, 'add');
     });
   }
-
-  /**
-   * Edits the SDP to set the preferred audio/video codec
-   * @access private
-   * @param {string} sdp The sdp to be modified
-   * @returns {string}}
-   */
-
-  /* _addVP8Codec(sdp) {
-        let sdpresult = sdp;
-        // Log.d('PeerConnection~_addVP8Codec');
-        if (sdpresult === null) { return null; }
-        const sdpLines = sdpresult.split(/\r?\n/);
-        const medias = {audio: [], video: []};
-        let current = null;
-        let vp8InVideoList = false;
-        let h264InVideoList = false;
-        let lastIndex = 0;
-        let firstIndex = 0;
-        // Parse SDP
-        sdpLines.forEach((sdpLine, i) => {
-            if(/^m=video/.test(sdpLine)) {
-                const d = /^m=(\w+)\s[0-9\/]+\s[A-Za-z0-9\/]+\s([0-9\s]+)/.exec(sdpLine);
-                current = { fmt: d[2].split(/\s/), index: i, codecs: [] };
-                medias[d[1]].push(current);
-                lastIndex = current.fmt[current.fmt.length - 1];
-                firstIndex = current.fmt[0];
-            } else if(current && /^a=rtpmap:/.test(sdpLine)) {
-                const c = /^a=rtpmap:(\d+)\s([a-zA-Z0-9\-\/]+)/.exec(sdpLine);
-                if(c) {
-                    current.codecs.push({ id: c[1], name: c[2], index: i });
-                    if (c[0].toUpperCase().indexOf('VP8') !== -1) { vp8InVideoList=true; }
-                    if (c[0].toUpperCase().indexOf('H264') !== -1) { h264InVideoList=true; }
-                }
-            }
-        });
-        const videoIndex = medias.video[0].index;
-        if (!vp8InVideoList) {
-            // lastIndex++;
-            lastIndex = firstIndex - 1;
-            let essai = sdpLines[videoIndex];
-            for (let media in medias.video[0].fmt) {
-                essai = essai.replace(' '+medias.video[0].fmt[media],'');
-            }
-            essai = essai.concat(' '+lastIndex);
-            for (let media in medias.video[0].fmt) {
-                essai = essai.concat(' '+medias.video[0].fmt[media]);
-            }
-            sdpLines[videoIndex] = essai;
-            sdpresult = sdpLines.join('\r\n');
-            sdpresult += `a=rtpmap:${lastIndex} VP8/90000 \r\n`+
-                                            `a=rtcp-fb:${lastIndex} ccm fir \r\n`+
-                                            `a=rtcp-fb:${lastIndex} nack \r\n`+
-                                            `a=rtcp-fb:${lastIndex} nack pli \r\n`+
-                                            `a=rtcp-fb:${lastIndex} goog-remb \r\n`+
-                                            `a=rtcp-fb:${lastIndex} transport-cc \r\n`;
-        }
-        if (!h264InVideoList) {
-            // lastIndex++;
-            lastIndex = firstIndex - 1;
-            let essai = sdpLines[videoIndex];
-            for (let media in medias.video[0].fmt) {
-                essai = essai.replace(' '+medias.video[0].fmt[media],'');
-            }
-            essai = essai.concat(' '+lastIndex);
-            for (let media in medias.video[0].fmt) {
-                essai = essai.concat(' '+medias.video[0].fmt[media]);
-            }
-            sdpLines[videoIndex] = essai;
-            sdpresult = sdpLines.join('\r\n');
-            sdpresult += `a=rtpmap:${lastIndex} H264/90000 \r\n`+
-                                            `a=rtcp-fb:${lastIndex} ccm fir \r\n`+
-                                            `a=rtcp-fb:${lastIndex} nack \r\n`+
-                                            `a=rtcp-fb:${lastIndex} nack pli \r\n`+
-                                            `a=rtcp-fb:${lastIndex} goog-remb \r\n`+
-                                            `a=rtcp-fb:${lastIndex} transport-cc \r\n`+
-                                            `a=rtcp-fb:${lastIndex} `+
-                                            'level-asymmetry-allowed=1;packetization-mode=1;'+
-                                            'profile-level-id=42e01f \r\n';
-        }
-        Log.d('PeerConnection~_addVP8Codec', sdpresult);
-        return sdpresult;
-    } */
 
   /**
    * Send SDP offer to the remote via DataSync
@@ -517,11 +443,7 @@ export default class PeerConnection {
       .then(description => this._setPreferredCodecs(description))
       .then(description => this.pc.setLocalDescription(description))
       .then(() => Log.d('PeerConnection~_sendOffer#localDescription', this.pc.localDescription.sdp))
-      .then(() => this._sendSdpToRemote())
-      .catch((e) => {
-        Log.e(e);
-        throw e;
-      });
+      .then(() => this._sendSdpToRemote());
   }
 
   /**

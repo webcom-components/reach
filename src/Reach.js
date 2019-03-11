@@ -61,11 +61,21 @@ export default class Reach {
 
   /**
    * The supported events
-   * @return {{room: Events/Room, reach: Events/Reach, stream: Events/Stream}}
+   * @return {{
+      room: Events/Room,
+      reach: Events/Reach,
+      stream: Events/Stream,
+      invite: Events/Invite,
+      local: Events/Local
+     }}
    */
   static get events() {
     return {
-      room: Events.room, reach: Events.reach, stream: Events.stream, invite: Events.invite
+      room: Events.room,
+      reach: Events.reach,
+      stream: Events.stream,
+      invite: Events.invite,
+      local: Events.local
     };
   }
 
