@@ -97,6 +97,7 @@ export default class PeerConnectionManager {
    * Create offer for a stream to a subscriber
    * @param {Local} localStream
    * @param {object} subscriber
+   * @param {array} errorCallbacks
    * @return {Promise.<PeerConnection>}
    */
   offer(localStream, subscriber, errorCallbacks) {
@@ -109,6 +110,7 @@ export default class PeerConnectionManager {
    * Answer to the offer from the publisher
    * @param {Remote} remoteStream
    * @param {Element} htmlElement
+   * @param {array} errorCallbacks
    * @return {*|Promise.<PeerConnection>}
    */
   answer(remoteStream, htmlElement, errorCallbacks = []) {
