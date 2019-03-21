@@ -1,13 +1,13 @@
 /* global RTCPeerConnection */
 /* global RTCRtpSender */
 import SocketIO from 'socket.io-client';
+import GetStats from 'getstats';
 import cache from '../util/cache';
 import * as Log from '../util/Log';
 import Media from '../util/Media';
 import Device from '../Device';
 import * as DataSync from '../util/DataSync';
 import { CLOSED, CLOSING, OPENED } from '../util/constants';
-import GetStats from './GetStats';
 import 'core-js/fn/array/find';
 
 const DtlsSrtpKeyAgreement = { DtlsSrtpKeyAgreement: true };
@@ -308,8 +308,13 @@ export default class PeerConnection {
         Log.d(`PeerConnection~offered ${sdpOffer.sdp}`);
         this.pc.setRemoteDescription(sdpOffer)
           .catch((e) => {
-            errorCallbacks.forEach(cb => cb(e));
-            cache.peerConnections.close(this.streamId, this.remote.device);
+            Log.e('PeerConnection~answer#remoteDescription Error', e);
+            errorCallbacks.forEach((cb) => {
+              Log.d('PeerConnection~answer#remoteDescription Error callback', e);
+              cb(e);
+            });
+            return e;
+            // cache.peerConnections.close(this.streamId, this.remote.device);
           })
           .then(() => Log.d('PeerConnection~answer#remoteDescription', this.pc.remoteDescription.sdp))
           .then(() => {
