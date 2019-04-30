@@ -30,7 +30,7 @@ let args = [`${version} ${message}`];
 if (/^(chrome|firefox)$/.test(browser.browser)) {
   args = [
     `%c ${version} %c ${message}`,
-    `background: ${browser.compatible ? '#f50' : 'red'}; color: #fff; font-weight: bold`,
+    `background: ${browser.compatible ? 'blue' : 'red'}; color: #fff; font-weight: bold`,
     `color: ${browser.compatible ? 'inherit' : 'red'}`
   ];
 }
