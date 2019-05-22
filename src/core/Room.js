@@ -32,15 +32,13 @@ const _joinRoom = (room, role) => {
     }
     Log.w('Room#join', [participant, `_/rooms/${room.uid}/participants/${uid}`]);
     return DataSync
-    // .update(`_/rooms/${room.uid}/participants/${cache.user.uid}`, participant)
       .update(`_/rooms/${room.uid}/participants/${uid}`, participant)
-      .then(() => room);
-    /* .then(() => {
-      DataSync
-        .onDisconnect(`_/rooms/${room.uid}/participants/${shortUserId}/status`)
-        .set(WAS_CONNECTED);
-      return room;
-    }); */
+      .then(() => {
+        DataSync
+          .onDisconnect(`_/rooms/${room.uid}/participants/${uid}/status`)
+          .set(WAS_CONNECTED);
+        return room;
+      });
   }
   return Promise.reject(new Error('can\'t join a close room'));
 };
