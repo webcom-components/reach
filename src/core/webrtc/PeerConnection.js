@@ -155,7 +155,6 @@ export default class PeerConnection {
           break;
         case ICE_CONNECTION_STATE_CONNECTED:
           Log.e('PeerConnection~stateConnected', this._errorCallbacks);
-          this._errorCallbacks.forEach(cb => cb('ICE_CONNECTION_STATE_CONNECTED'));
           this._attachStream();
           this._remoteICECandidates(false);
           this._getStats();
