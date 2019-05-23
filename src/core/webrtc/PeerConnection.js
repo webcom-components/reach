@@ -121,6 +121,12 @@ export default class PeerConnection {
      */
     this.container = null;
     /**
+     * The callback called when there is an error
+     * @type {Element}
+     * @access private
+     */
+    this._errorCallbacks = [];
+    /**
      * The actual RTCPeerConnection
      * @type {RTCPeerConnection}
      */
@@ -148,6 +154,7 @@ export default class PeerConnection {
           // Nothing to do yet
           break;
         case ICE_CONNECTION_STATE_CONNECTED:
+          Log.e('PeerConnection~stateConnected', this._errorCallbacks);
           this._attachStream();
           this._remoteICECandidates(false);
           this._getStats();
@@ -157,6 +164,7 @@ export default class PeerConnection {
           break;
         case ICE_CONNECTION_STATE_FAILED:
           Log.e('PeerConnection~stateFailed', 'Failed PeerConnection');
+          this._errorCallbacks.forEach(cb => cb('ICE_CONNECTION_STATE_FAILED'));
           break;
         case ICE_CONNECTION_STATE_DISCONNECTED:
           Log.e('PeerConnection~stateDisconnected', 'Disconnect PeerConnection');
@@ -288,6 +296,7 @@ export default class PeerConnection {
   answer(htmlElement, errorCallbacks = []) {
     Log.i('PeerConnection~answer', { htmlElement, peerConnection: this });
     this.container = htmlElement;
+    this._errorCallbacks = errorCallbacks;
     if (Object.getOwnPropertyDescriptor(RTCPeerConnection.prototype, 'ontrack')) {
       this.pc.ontrack = (e) => {
         Log.d('PeerConnection~ontrack', e.streams[0]);
