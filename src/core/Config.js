@@ -67,6 +67,13 @@ export default class Config {
      */
     this.preferredAudioCodec = null;
 
+    /**
+   * Set the communication quality (BAD, LOW, HIGH)
+   * @type {Element}
+   * @example communicationQuality: Reach.communicationQuality.LOW
+   */
+    this.communicationQuality = null;
+
     // Populate with default values
     this.reset();
 

@@ -3,6 +3,7 @@ import browser from './definitions/Browser';
 import StreamTypes from './definitions/StreamTypes';
 import * as Events from './definitions/Events';
 import { audio, video } from './definitions/Codec';
+import communicationQuality from './definitions/CommunicationQuality';
 import User from './core/User';
 import Room from './core/Room';
 import Invite from './core/Invite';
@@ -102,6 +103,14 @@ export default class Reach {
    */
   static get codecs() {
     return { audio, video };
+  }
+
+  /**
+   * The codec presets to use when setting {@link Config#communicationQuality}
+   * @return {communicationQuality}
+   */
+  static get communicationQuality() {
+    return communicationQuality;
   }
 
   /**

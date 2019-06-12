@@ -334,13 +334,17 @@ export default class PeerConnection {
             return Promise.reject(new Error('SDP is not an offer'));
           })
           .then(description => this._setPreferredCodecs(description))
-          .then(description => this.pc.setLocalDescription(description))
-          .catch(e => Log.d.bind(Log, 'PeerConnections~answer#setLocalDescription', e))
-          .then(() => {
-            Log.d('PeerConnection~answer#localSDP', this.pc.localDescription.sdp);
-            this._remoteICECandidates(true);
+          .then((description) => {
+            this.pc.setLocalDescription(description);
+            return this.setMediaBitrates(description);
           })
-          .then(() => this._sendSdpToRemote())
+          .catch(e => Log.d.bind(Log, 'PeerConnections~answer#setLocalDescription', e))
+          .then((newDescription) => {
+            Log.d('PeerConnection~answer#localSDP', newDescription.sdp);
+            this._remoteICECandidates(true);
+            return newDescription;
+          })
+          .then(newDescription => this._sendSdpToRemote(newDescription))
           // .catch(Log.r('PeerConnection~answser#error'));
           .catch(() => {
             // this.close();
@@ -406,17 +410,17 @@ export default class PeerConnection {
   /**
    * Send SDP offer to the remote via DataSync
    * @private
+   * @param newDesc
    */
-  _sendSdpToRemote() {
+  _sendSdpToRemote(newDesc) {
     // Log.d('PeerConnection~_sendSdpToRemote#localSDP', this.pc.localDescription.sdp);
     const remoteUserId = this.remote.to ? this.remote.to : this.remote.from;
     Device.get(remoteUserId, this.remote.device)
       .then((remoteDevice) => {
-        const sdpOffer = this.pc.localDescription.sdp;
+        const sdpOffer = newDesc.sdp; // 1109 - Didn't use pc.localDescription to set bitrate on SDP
         let newSdp = sdpOffer;
         const local = /Chrome\/([0-9]+)/.exec(navigator.userAgent);
         const remote = /Chrome\/([0-9]+)/.exec(remoteDevice.userAgent);
-
         if (navigator.userAgent.indexOf('Chrome') !== -1
           && navigator.userAgent.indexOf('Android') !== -1
           && remoteDevice.userAgent.indexOf('Safari') !== -1
@@ -440,7 +444,7 @@ export default class PeerConnection {
         Log.d(`PeerConnection~_sendSdpToRemote#SDP sent to remote ${newSdp}`);
         const descriptionChanged = {
           sdp: newSdp,
-          type: this.pc.localDescription.type
+          type: newDesc.type
         };
         DataSync.update(`${this._localPath}/sdp`, _toJSON(descriptionChanged));
       });
@@ -455,9 +459,15 @@ export default class PeerConnection {
     Log.d('PeerConnection~_sendOffer');
     return this.pc.createOffer()
       .then(description => this._setPreferredCodecs(description))
-      .then(description => this.pc.setLocalDescription(description))
-      .then(() => Log.d('PeerConnection~_sendOffer#localDescription', this.pc.localDescription.sdp))
-      .then(() => this._sendSdpToRemote());
+      .then((description) => {
+        this.pc.setLocalDescription(description);
+        return this.setMediaBitrates(description);
+      })
+      .then((newDesc) => {
+        Log.d('PeerConnection~_sendOffer#localDescription', newDesc.sdp);
+        return newDesc;
+      })
+      .then(newDesc => this._sendSdpToRemote(newDesc));
   }
 
   /**
@@ -616,5 +626,54 @@ export default class PeerConnection {
       }
     }
     return description;
+  }
+
+  setMediaBitrates(description) {
+    let videoBitrate = null;
+    let audioBitrate = null;
+    if (cache.config.communicationQuality) {
+      videoBitrate = cache.config.communicationQuality.video;
+      audioBitrate = cache.config.communicationQuality.audio;
+    }
+    return this._setMediaBitrate(this._setMediaBitrate(description, 'video', videoBitrate), 'audio', audioBitrate);
+  }
+
+  _setMediaBitrate(description, mediaType, bitrate) {
+    const sdpLines = description.sdp.split(/\r?\n/);
+    let mediaLineIndex = -1;
+    const mediaLine = `m=${mediaType}`;
+    let bitrateLineIndex = -1;
+    const bitrateLine = `b=AS:${bitrate}`;
+    mediaLineIndex = sdpLines.findIndex(line => line.startsWith(mediaLine));
+
+    // If we find a line matching “m={mediaType}”
+    if (mediaLineIndex && mediaLineIndex < sdpLines.length) {
+      // Skip the media line
+      bitrateLineIndex = mediaLineIndex + 1;
+
+      // Skip both i=* and c=* lines (bandwidths limiters have to come afterwards)
+      while (sdpLines[bitrateLineIndex].startsWith('i=') || sdpLines[bitrateLineIndex].startsWith('c=')) {
+        bitrateLineIndex += 1;
+      }
+
+      if (bitrate) { // If bitrare not null => set the value, else defaults value are setted
+        if (sdpLines[bitrateLineIndex].startsWith('b=')) {
+          // If the next line is a b=* line, replace it with our new bandwidth
+          sdpLines[bitrateLineIndex] = bitrateLine;
+        } else {
+          // Otherwise insert a new bitrate line.
+          sdpLines.splice(bitrateLineIndex, 0, bitrateLine);
+        }
+      } else if (sdpLines[bitrateLineIndex].startsWith('b=')) {
+        // If the next line is a b=* line, remove it to have the default bandwidth
+        sdpLines.splice(bitrateLineIndex, 1);
+      }
+    }
+
+    // Then return the description with the updated sdp content as a string
+    return {
+      sdp: sdpLines.join('\r\n'),
+      type: description.type
+    };
   }
 }
