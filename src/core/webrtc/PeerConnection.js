@@ -635,6 +635,16 @@ export default class PeerConnection {
       videoBitrate = cache.config.communicationQuality.video;
       audioBitrate = cache.config.communicationQuality.audio;
     }
+    if (cache.config.audioBitrateMax) {
+      if (((audioBitrate && audioBitrate > cache.config.audioBitrateMax) || !audioBitrate)) {
+        audioBitrate = cache.config.audioBitrateMax;
+      }
+    }
+    if (cache.config.videoBitrateMax) {
+      if (((videoBitrate && videoBitrate > cache.config.videoBitrateMax) || !videoBitrate)) {
+        videoBitrate = cache.config.videoBitrateMax;
+      }
+    }
     return this._setMediaBitrate(this._setMediaBitrate(description, 'video', videoBitrate), 'audio', audioBitrate);
   }
 

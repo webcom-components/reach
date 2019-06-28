@@ -106,11 +106,29 @@ export default class Reach {
   }
 
   /**
-   * The codec presets to use when setting {@link Config#communicationQuality}
+   * The bitrate presets to use when setting {@link Config#communicationQuality}
    * @return {communicationQuality}
    */
   static get communicationQuality() {
     return communicationQuality;
+  }
+
+  /**
+  static get audioBitrateMax() {
+   * The audio bitrate maximum {@link Config#audioBitrateMax}
+   * @return {audioBitrateMax}
+   */
+  static get audioBitrateMax() {
+    return cache.config.audioBitrateMax;
+  }
+
+  /**
+  static get videoBitrateMax() {
+   * The audio bitrate maximum {@link Config#videoBitrateMax}
+   * @return {videoBitrateMax}
+   */
+  static get videoBitrateMax() {
+    return cache.config.videoBitrateMax;
   }
 
   /**

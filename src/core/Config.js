@@ -74,6 +74,18 @@ export default class Config {
    */
     this.communicationQuality = null;
 
+    /**
+     * The bitrate max for the video
+     * @type {string|Element}
+     */
+    this.videoBitrateMax = null;
+
+    /**
+     * The bitrate max for the audio
+     * @type {string|Element}
+     */
+    this.audioBitrateMax = null;
+
     // Populate with default values
     this.reset();
 
