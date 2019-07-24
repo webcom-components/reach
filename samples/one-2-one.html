@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script type="text/javascript" src="https://unpkg.com/jquery@2.1.1/dist/jquery.min.js"></script>
+	<!-- Materialize -->
+	<link rel="stylesheet" href="https://unpkg.com/materialize-css@0.97.6/dist/css/materialize.min.css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<script src="https://unpkg.com/materialize-css@0.97.6/dist/js/materialize.min.js"></script>
+	<!-- Flexible Datasync -->
+	<script src="https://unpkg.com/webcom@1.2.3/webcom.js"></script>
+	<!-- Reach -->
+	<script src="../dist/reach-debug.js"></script>
+	<!-- Tester -->
+	<script type="text/javascript">
+		var format = function (tpl) {
+			var values = [].slice.call(arguments, 1);
+			return tpl.replace(
+					new RegExp('{([0-' + (values.length - 1 ) + '])}', 'g'),
+					function (match, index) {
+						return values[index];
+					}
+			);
+		};
+
+		// Use the same user
+		var localEmail = localStorage.getItem('reachtest:mail');
+		if (!localEmail && Reach.browser.compatible) {
+			var os;
+			if (/android/i.test(navigator.userAgent)) {
+				os = /android\s[0-9\.]+/i.exec(navigator.userAgent)[0].toLowerCase().replace(/[\s\.]/g, '_');
+			} else if (/iphone/i.test(navigator.userAgent)) {
+				os = 'ios'
+			} else if (/mac\sos\sx/i.test(navigator.userAgent)) {
+				os = 'osx';
+			} else if (/linux/i.test(navigator.userAgent)) {
+				os = 'linux';
+			} else {
+				os = 'win';
+			}
+			localEmail = format('{0}.{1}.{2}.{3}.@reach.io', Reach.browser.browser, Reach.browser.version, os, Date.now());
+			localStorage.setItem('reachtest:mail', localEmail);
+		}
+
+		var modalError = function (title, message) {
+			var dialog = $('#errorDialog');
+			dialog.find('h4').text(title);
+			dialog.find('p').text(message);
+			dialog.openModal();
+		};
+
+		$(document).ready(function () {
+			if (!Reach.browser.compatible) {
+				modalError('Incompatible browser', JSON.stringify(Reach.browser));
+			} else {
+				$('#current').show();
+				window.reachtest = new Reach('https://io.datasync.orange.com/base/reachtest', {
+					preferredAudioCodec: Reach.codecs.audio.OPUS,
+					preferredVideoCodec: Reach.codecs.video.VP9,
+					remoteStreamContainer: $('#remoteVideo')[0],
+					localStreamContainer: $('#localVideo')[0],
+					logLevel: 'DEBUG',
+					constraints: Reach.media.constraints()
+				});
+
+				var _radio = function (node, name, idx, label, value) {
+					$(node).append(
+							format(
+									'<p><input name="{0}" type="radio" id="{0}_{1}" value="{3}" {4}/><label for="{0}_{1}">{2}</label></p>',
+									name, idx, label, value, (idx === 0 ? 'checked' : '')
+							)
+					)
+				};
+				var _radios = function (node, name, values) {
+					values.forEach(function (item, i) {
+						_radio(node, name, i, item.label, item.value);
+					})
+				};
+
+				Reach.media.devices()
+						.then(function (devices) {
+							var map_devices = function (type) {
+								return devices[type].map(function (d) {
+									return {label: d.label || d.deviceId, value: d.deviceId}
+								})
+							};
+							var facingModes = Object.keys(Reach.media.facingMode).map(function (m) {
+								var v = Reach.media.facingMode[m];
+								return {value: v, label: v}
+							});
+							_radios('#vdevices', 'vdevice', map_devices('videoinput').concat(facingModes));
+							_radios('#adevices', 'adevice', map_devices('audioinput'));
+						});
+
+				var map_values = function (arr) {
+					return arr.map(function (m) {
+						return {value: m, label: m}
+					});
+				};
+				var map_codecs = function (type) {
+					return map_values(Object.keys(Reach.codecs[type]));
+				};
+				_radios('#vcodecs', 'vcodec', map_codecs('video'));
+				_radios('#acodecs', 'acodec', map_codecs('audio'));
+
+				_radios('#vpresets', 'vpreset', map_values(['HD', 'SD', 'FHD', 'UHD', 'SVGA', 'VGA']));
+			}
+		});
+
+		var user = {
+			add: function (u) {
+				if (u.uid != reachtest.current.uid && /reach.io$/.test(u.name) && !$(format('tr[data-userId={0}]', u.uid)).length) {
+					$('#users_list').append(
+							format(
+									'<tr data-userId="{0}"><td>{1}</td><td>{2}</td><td>{3}</td><td><a class="waves-effect waves-light btn">invite</a></td></tr>',
+									u.uid, u.name, u.status, new Date(u.lastSeen)
+							)
+					);
+					var bt = $('#users_list').find(format('tr[data-userId={0}] a', u.uid));
+					bt.toggleClass('disabled', /^DISCONNECTED$/.test(u.status) || /^NOT_CONNECTED$/.test(u.status));
+					bt.click(function (e) {
+						if (!$(e.target).hasClass('disabled') && !window._room) {
+							u.invite()
+									.then(function (d) {
+										window._room = d.room;
+										room.join(true);
+									});
+						}
+					});
+				}
+			},
+			update: function (u) {
+				if (u.uid && $('#users_list').find(format('tr[data-userId={0}]', u.uid)).length === 1) {
+					var tds = $('#users_list').find(format('tr[data-userId={0}] td', u.uid));
+					$(tds[0]).text(u.name);
+					$(tds[1]).text(u.status);
+					$('#users_list').find(format('tr[data-userId={0}] a', u.uid)).toggleClass('disabled', /^DISCONNECTED$/.test(u.status) || /^NOT_CONNECTED$/.test(u.status))
+				}
+			},
+			remove: function (u) {
+				u.uid && $('#users_list').find(format('tr[data-userId={0}]', u.uid)).remove();
+			}
+		};
+
+		var invite = {
+			add: function (i) {
+				if (i.isOnGoing && !window._room) {
+					i.accept()
+							.then(function (d) {
+								Materialize.toast(format('Invite from {0} to room {1} accepted', i.from, i.room), 3000);
+								window._room = d.room;
+								return room.join();
+							})
+							.catch(function (e) {
+								console.error(e);
+								window._room = null;
+							});
+				} else if (i.isOnGoing) {
+					i.reject()
+							.then(function () {
+								Materialize.toast(format('Invite from {0} to room {1} has been rejected', i.from, i.room), 3000);
+							})
+				} else {
+					// Old invite
+					reachtest.base.child(format('_/invites/{0}/{1}', reachtest.current.uid, +i.uid)).remove();
+				}
+			}
+		};
+
+		var constraints = {
+			show: function () {
+				$('#aconstraints').show();
+				$('#vconstraints').show();
+			},
+			hide: function () {
+				$('#aconstraints').hide();
+				$('#vconstraints').hide();
+			},
+			update: function () {
+				// Update constraints
+				var val = function (name) {
+					return $('[name=' + name + ']:checked').val();
+				};
+
+				window.reachtest.config.constraints = Reach.media.constraints(
+						val('vpreset'),
+						true,
+						'exact',
+						val('vdevice'),
+						val('adevice')
+				);
+				window.reachtest.config.preferredAudioCodec = Reach.codecs.audio[val('acodec')];
+				window.reachtest.config.preferredVideoCodec = Reach.codecs.video[val('vcodec')];
+
+				console.group('NEW CONSTRAINTS');
+				console.warn('Preset', val('vpreset'));
+				console.warn('Video device', val('vdevice'));
+				console.warn('Audio device', val('adevice'));
+				console.warn('Video codec', val('vcodec'), window.reachtest.config.preferredVideoCodec);
+				console.warn('Audio codec', val('acodec'), window.reachtest.config.preferredAudioCodec);
+				console.warn('Constraints', window.reachtest.config.constraints);
+				console.groupEnd();
+
+			}
+		};
+
+		var room = {
+			join: function (joined) {
+				(joined ? Promise.resolve(window._room) : window._room.join())
+						.then(function (_room) {
+							$('#users').hide();
+							constraints.show();
+							var roomNode = $('#room');
+							roomNode.find('table tbody').empty();
+							Object.keys(_room)
+									.filter(function (key) {
+										return !/^extra$/.test(key) && !/^_callbacks/.test(key);
+									})
+									.forEach(function (key) {
+										$("#roomMeta").append(format('<tr><td>{0}</td><td>{1}</td></tr>', key, _room[key]));
+									});
+							roomNode.show();
+							_room.on(Reach.events.room.STREAM_PUBLISHED, function (remoteStream) {
+								if (remoteStream.from !== reachtest.current.uid) {
+									window._remoteStream = remoteStream;
+									stream.subscribe();
+
+								}
+							});
+							_room.on(Reach.events.room.STREAM_UNPUBLISHED, function (stream) {
+								if (stream.uid === window._remoteStream.uid) {
+									$('#remote').hide();
+									window._remoteStream = null;
+								}
+							});
+							_room.on(Reach.events.room.PARTICIPANT_ADDED, function (participant) {
+								console.warn(Reach.events.room.PARTICIPANT_ADDED, participant.uid, participant.status);
+								var userName = participant.uid === reachtest.current.uid ? localEmail : $('#users_list').find(format('tr[data-userId={0}] td:first-child', participant.uid)).text();
+								$("#participants").append(
+										format(
+												'<tr data-userId="{0}"><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>',
+												participant.uid, userName, participant.role || 'NONE', new Date(participant._joined), participant.status
+										)
+								);
+							});
+							_room.on(Reach.events.room.PARTICIPANT_CHANGED, function (participant) {
+								console.warn(Reach.events.room.PARTICIPANT_CHANGED, participant.uid, participant.status);
+								var userName = $('#users_list').find(format('tr[data-userId={0}] td:first-child', participant.uid)).text();
+								$("#participants")
+										.find(format('tr[data-userId={0}]', participant.uid))
+										.replaceWith(
+												format(
+														'<tr data-userId="{0}"><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>',
+														participant.uid, userName, participant.role || 'NONE', new Date(participant._joined), participant.status
+												)
+										);
+							});
+							_room.on(Reach.events.room.PARTICIPANT_REMOVED, function (participant) {
+								console.warn(Reach.events.room.PARTICIPANT_REMOVED, participant.uid, participant.status);
+								$("#participants").find(format('tr[data-userId={0}]', participant.uid)).remove();
+								room._leave();
+							});
+						});
+			},
+			_leave: function () {
+				window._room && window._room.leave().then(function () {
+					$('#users').show();
+					constraints.hide();
+					$('#local').hide();
+					$('#remote').hide();
+					$('#room').hide();
+					$('#share_bts').find('').toggleClass('disabled', false);
+					window._room = null;
+				});
+			},
+			leave: function (btn) {
+				if (!$(btn).hasClass('disabled')) {
+					room._leave();
+				}
+			},
+			publish: function (btn, type) {
+				if (!$(btn).hasClass('disabled')) {
+					constraints.update();
+					window._room.share(type)
+							.then(function (localStream) {
+								window._localStream = localStream;
+								$('#local').show();
+								constraints.hide();
+								$('#share_bts').find('a').toggleClass('disabled', true);
+								$('#audio_bt').toggle(/audio/i.test(type));
+								$('#video_bt').toggle(/video/i.test(type));
+								stream.muteLocalStatus(localStream.muted);
+								Reach.media.devices()
+										.then(function (devices) {
+											Object.keys(devices).forEach(function (kind) {
+												if (/input$/.test(kind)) {
+													var node = $('#' + kind);
+													node.empty();
+													var inputDevices = devices[kind];
+													if (kind === 'videoinput' && inputDevices.length > 1) {
+														inputDevices = inputDevices.concat([{deviceId: 'user'}, {deviceId: 'environment'}])
+													}
+													inputDevices.forEach(function (device, i) {
+														node.append(format('<li><input name="{0}" type="radio" id="{0}_{1}" value="{3}" {4}/><label for="{0}_{1}">{2}</label></li>',
+																kind, i, device.label || device.deviceId, device.deviceId, localStream._inputs[kind.replace(/input$/, '')] === device.deviceId ? 'checked' : ''
+														));
+													});
+													$('input[type=radio][name=' + kind + ']').change(function () {
+														window._localStream && window._localStream[kind === 'audioinput' ? 'switchMicrophone' : 'switchCamera'](this.value);
+													});
+												}
+											});
+										});
+							})
+							.catch(function (e) {
+								constraints.show();
+								modalError('Publish fail', e.message);
+								console.error('Publish fail', e);
+							});
+				}
+			}
+		};
+
+		var stream = {
+			switchCamera: function (btn, id) {
+				!$(btn).hasClass('disabled') && window._localStream && window._localStream.switchCamera(id).then(function () {
+					$('input[name=videoinput][value=' + (id || window._localStream._inputs.video) + ']').prop('checked', true);
+				});
+			},
+			switchMic: function (btn, id) {
+				!$(btn).hasClass('disabled') && window._localStream && window._localStream.switchMicrophone(id).then(function () {
+					$('input[name=audioinput][value=' + (id || window._localStream._inputs.audio) + ']').prop('checked', true);
+				});
+			},
+			close: function () {
+				window._localStream && window._localStream.close();
+				constraints.show();
+				$('#local').hide();
+				$('#share_bts').find('a').toggleClass('disabled', false);
+			},
+			muteStatus: function (status) {
+				$('#video_mute').toggle(status.video);
+				$('#audio_mute').toggle(status.audio);
+			},
+			muteLocalStatus: function (status) {
+				$('#mute_video').toggle(!status.video);
+				$('#unmute_video').toggle(status.video);
+				$('#mute_audio').toggle(!status.audio);
+				$('#unmute_audio').toggle(status.audio);
+			},
+			remoteBtns: function (subscribed) {
+				var remote = $('#remote');
+				remote.find('.col:first-child a').toggleClass('disabled', !subscribed);
+				remote.find('.col.s4 a:first-child').toggleClass('disabled', !subscribed);
+				remote.find('.col.s4 a:last-child').toggleClass('disabled', subscribed)
+			},
+			subscribe: function (btn) {
+				if (!$(btn).hasClass('disabled') && window._remoteStream) {
+					window._remoteStream.on(Reach.events.stream.MUTE, stream.muteStatus);
+					window._remoteStream.subscribe()
+							.then(function () {
+								$('#remote').show();
+								stream.muteStatus(window._remoteStream.muted);
+								stream.remoteBtns(true);
+							});
+				}
+			},
+			unSubscribe: function (btn) {
+				if (!$(btn).hasClass('disabled') && window._remoteStream) {
+//					window._remoteStream.off();
+					window._remoteStream.unSubscribe();
+					stream.remoteBtns(false);
+				}
+			},
+			mute: function (btn, type, value) {
+				if (!$(btn).hasClass('disabled') && window._localStream) {
+					window._localStream.mute(type, value);
+					stream.muteLocalStatus(window._localStream.muted);
+				}
+			},
+			localStats: function (btn) {
+				if (!$(btn).hasClass('disabled') && window._localStream && window._localStream.peerConnections.length) {
+					stream.stats('Local stats', window._localStream.peerConnections[0].pc)
+				}
+			},
+			remoteStats: function (btn) {
+				if (!$(btn).hasClass('disabled') && window._remoteStream && window._remoteStream.peerConnection) {
+					stream.stats('Remote stats', window._remoteStream.peerConnection.pc)
+				}
+			},
+			stats: function (title, peerCo) {
+				peerCo.getStats()
+						.then(function (stats) {
+							var statsDialog = $('#statsDialog');
+							statsDialog.find('h4').text(title);
+							statsDialog.find('ul').empty();
+							var values = stats.values(), next = values.next();
+							while (!next.done) {
+								var li = document.createElement('li');
+								$(li).append(format('<div class="collapsible-header truncate">{0}</div>', next.value.id));
+								$(li).append('<div class="collapsible-body"><table class="striped"><tbody></tbody></table></div>');
+								Object.keys(next.value).forEach(function (key) {
+									$(li).find('tbody').append(format('<tr><td>{0}</td><td class="truncate">{1}</td></tr>', key, next.value[key]));
+								});
+								statsDialog.find('ul').append(li);
+								next = values.next();
+							}
+							statsDialog.openModal();
+						})
+			}
+
+		};
+
+		var login = function (btn) {
+			if (!$(btn).hasClass('disabled')) {
+				var previousId = localStorage.getItem('reachtest:uid');
+				reachtest.login(localEmail, 'Passwd123', localEmail)
+						.catch(
+								function (e) {
+									if (/INVALID_USER/i.test(e.code)) {
+										return reachtest.register(localEmail, 'Passwd123');
+									}
+									return Promise.reject(e);
+								}
+						)
+						.then(function () {
+							$('#current').find('a').toggleClass('disabled');
+							$('#users').show();
+							constraints.hide();
+							room.leave();
+							reachtest.on(Reach.events.reach.INVITE_ADDED, invite.add);
+							reachtest.on(Reach.events.reach.USER_ADDED, user.add);
+							reachtest.on(Reach.events.reach.USER_CHANGED, user.update);
+							reachtest.on(Reach.events.reach.USER_REMOVED, user.remove);
+							if (previousId !== reachtest.current.uid) {
+								localStorage.setItem('reachtest:uid', reachtest.current.uid);
+								reachtest.base.child('/users/' + previousId).remove();
+								reachtest.base.child('/_/invite/' + previousId).remove();
+								reachtest.base.child('/_/devices/' + previousId).remove();
+								Webcom.INTERNAL.PersistentStorage.remove(previousId);
+							}
+						});
+			}
+		};
+
+		var logout = function (btn) {
+			if (!$(btn).hasClass('disabled')) {
+				reachtest.logout()
+						.then(function () {
+							$('#users').hide();
+							constraints.hide();
+							$('#users_list').empty();
+							$('#current').find('a').toggleClass('disabled');
+							$('#local').hide();
+							$('#room').hide();
+							$('#remote').hide()
+						});
+			}
+		}
+	</script>
+	<style>
+		video {
+			position: relative;
+			max-width: 100%;
+		}
+	</style>
+</head>
+<body>
+
+<div id="errorDialog" class="modal">
+	<div class="modal-content">
+		<h4>Error</h4>
+		<p></p>
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">ok</a>
+	</div>
+</div>
+
+<div id="statsDialog" class="modal modal-fixed-footer">
+	<div class="modal-content">
+		<h4>Stats</h4>
+		<ul class="collapsible"></ul>
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">close</a>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col s12" id="current" style="display:none">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">Local User: <script>document.write(localEmail);</script></span>
+			</div>
+			<div class="card-action">
+				<a class="waves-effect waves-light btn" onclick="window.login(this)">login</a>
+				<a class="waves-effect waves-light btn disabled" onclick="window.logout(this)">logout</a>
+			</div>
+		</div>
+	</div>
+	<div class="col s12" id="users" style="display:none">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">Connected Users</span>
+				<table class="striped">
+					<thead>
+					<th data-field="name">Name</th>
+					<th data-field="status">Status</th>
+					<th data-field="lastSeen">Last Seen</th>
+					</thead>
+					<tbody id="users_list"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="col s6" id="vconstraints" style="display:none">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">Default Video Constraints</span>
+				<form action="#">
+					<h5>Device</h5>
+					<div id="vdevices"></div>
+					<h5>Preferred Codec</h5>
+					<div id="vcodecs"></div>
+					<h5>Preset</h5>
+					<div id="vpresets"></div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="col s6" id="aconstraints" style="display:none">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">Default Audio Constraints</span>
+				<form action="#">
+					<h5>Device</h5>
+					<div id="adevices"></div>
+					<h5>Preferred Codec</h5>
+					<div id="acodecs"></div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="col s12" id="room" style="display:none">
+		<div class="card">
+			<div class="card-content">
+				<div class="row">
+					<div class="col s12 m12 l6">
+						<span class="card-title">Room</span>
+						<table class="striped">
+							<thead>
+							<tr>
+								<th>Property</th>
+								<th>Value</th>
+							</tr>
+							</thead>
+							<tbody id="roomMeta"></tbody>
+						</table>
+					</div>
+					<div class="col s12 m12 l6">
+						<span class="card-title">Participants</span>
+						<table class="striped">
+							<thead>
+							<tr>
+								<th>Name</th>
+								<th>Role</th>
+								<th>Last Seen</th>
+								<th>Status</th>
+							</tr>
+							</thead>
+							<tbody id="participants"></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="card-action">
+				<div class="row">
+					<div class="col s2">
+						<a class="waves-effect waves-light btn-floating blue" onclick="room.leave(this)"
+						   title="Leave room"><i class="material-icons">power_settings_new</i></a>
+					</div>
+					<div class="col s4" id="share_bts">
+						<a class="waves-effect waves-light btn-floating cyan"
+						   onclick="room.publish(this, Reach.types.AUDIO_VIDEO)" title="Share audio & video"><i
+								class="material-icons">perm_camera_mic</i></a>
+						<a class="waves-effect waves-light btn-floating blue-grey"
+						   onclick="room.publish(this, Reach.types.AUDIO)" title="Share audio"><i
+								class="material-icons">mic</i></a>
+						<a class="waves-effect waves-light btn-floating green"
+						   onclick="room.publish(this, Reach.types.VIDEO)" title="Share video"><i
+								class="material-icons">videocam</i></a>
+					</div>
+					<div class="col s6"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col s12 m12 l6" id="local" style="display:none">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">Local Stream</span>
+				<div id="localVideo"></div>
+			</div>
+			<div class="card-action">
+				<div class="row">
+					<div class="col s2">
+						<a class="waves-effect waves-light btn-floating blue" onclick="stream.localStats(this)"
+						   title="stats"><i class="material-icons">trending_up</i></a>
+					</div>
+					<div class="col s2">
+						<a class="waves-effect waves-light btn-floating red" onclick="stream.close(this)" title="close"><i
+								class="material-icons">call_end</i></a>
+					</div>
+					<div class="col s4" id="video_bt">
+						<a
+							class="waves-effect waves-light btn-floating green"
+							id="mute_video"
+							onclick="stream.mute(this, 'video')"
+						>
+							<i class="material-icons">videocam_off</i>
+						</a>
+						<a
+							class="waves-effect waves-light btn-floating green"
+							id="unmute_video"
+							onclick="stream.mute(this, 'video', false)"
+						>
+							<i class="material-icons">videocam</i>
+						</a>
+						<a
+							class="waves-effect waves-light btn-floating green"
+							onclick="stream.switchCamera(this)"
+							title="Switch camera"
+						>
+							<i class="material-icons left">loop</i>
+						</a>
+						<ul id='videoinput'></ul>
+					</div>
+					<div class="col s4" id="audio_bt">
+						<a
+							class="waves-effect waves-light btn-floating blue-grey"
+							id="mute_audio"
+							onclick="stream.mute(this, 'audio')"
+						>
+							<i class="material-icons">mic_off</i>
+						</a>
+						<a
+							class="waves-effect waves-light btn-floating blue-grey"
+							id="unmute_audio"
+							onclick="stream.mute(this, 'audio', false)"
+						>
+							<i class="material-icons">mic</i>
+						</a>
+						<a
+							class="waves-effect waves-light btn-floating blue-grey"
+							onclick="stream.switchMic(this)"
+							title="Switch Microphone"
+						>
+							<i class="material-icons left">loop</i>
+						</a>
+						<ul id='audioinput' class='dropdown-content'></ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col s12 m12 l6" id="remote" style="display:none">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">Remote Stream</span>
+				<div id="remoteVideo"></div>
+			</div>
+			<div class="card-action">
+				<div class="row">
+					<div class="col s2">
+						<a class="waves-effect waves-light btn-floating blue" onclick="stream.remoteStats(this)"
+						   title="stats"><i class="material-icons">trending_up</i></a>
+					</div>
+					<div class="col s4">
+						<a class="waves-effect waves-light btn-floating red" onclick="stream.unSubscribe(this)"
+						   title="unsubscribe"><i class="material-icons">call_end</i></a>
+						<a class="waves-effect waves-light btn-floating green" onclick="stream.subscribe(this)"
+						   title="re-subscribe"><i class="material-icons">call</i></a>
+					</div>
+					<div class="col s2" id="video_status">
+						<a class="btn-floating disabled" id="video_mute" style="display:none"><i class="material-icons">videocam_off</i></a>
+					</div>
+					<div class="col s2" id="audio_status">
+						<a class="btn-floating disabled" id="audio_mute" style="display:none"><i class="material-icons">mic_off</i></a>
+					</div>
+					<div class="col s2"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

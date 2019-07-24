@@ -1,0 +1,55 @@
+[
+  {
+    "name": "off",
+    "filePath": "src/core/util/DataSync.js",
+    "lines": [
+      {
+        "lineNumber": 122,
+        "line": "/**"
+      },
+      {
+        "lineNumber": 123,
+        "line": " * {@link Webcom#off} shortcut"
+      },
+      {
+        "lineNumber": 124,
+        "line": " * @access protected"
+      },
+      {
+        "lineNumber": 125,
+        "line": " * @param {string} path The path"
+      },
+      {
+        "lineNumber": 126,
+        "line": " * @param {string} event The event"
+      },
+      {
+        "lineNumber": 127,
+        "line": " * @param {function} [callback] The callback"
+      },
+      {
+        "lineNumber": 128,
+        "line": " * @param {object} context The execution context"
+      },
+      {
+        "lineNumber": 129,
+        "line": " */"
+      },
+      {
+        "lineNumber": 130,
+        "line": "export const off = (path, event, callback) => {"
+      }
+    ],
+    "codeParams": [
+      "path",
+      "event",
+      "callback"
+    ],
+    "docParams": [
+      "path",
+      "event",
+      "callback",
+      "context"
+    ]
+  }
+]

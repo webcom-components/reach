@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/definitions/Events.js | Reach</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Webcom-reach"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Reach"><meta property="twitter:description" content="Webcom-reach"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  <a href="./manual/index.html" data-ice="manualHeaderLink">Manual</a>
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/webcom-components/reach"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Reach.js~Reach.html">Reach</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core">core</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Config.js~Config.html">Config</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Invite.js~Invite.html">Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Message.js~Message.html">Message</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Participant.js~Participant.html">Participant</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Room.js~Room.html">Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/User.js~User.html">User</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-stream">core/stream</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Local.js~Local.html">Local</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Remote.js~Remote.html">Remote</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-util">core/util</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/util/Media.js~Media.html">Media</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-webrtc">core/webrtc</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/webrtc/PeerConnection.js~PeerConnection.html">PeerConnection</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#definitions">definitions</a><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Browser">Browser</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/audio">Codec/audio</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/video">Codec/video</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-CommunicationQuality/bitrate">CommunicationQuality/bitrate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Invite">Events/Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Local">Events/Local</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Reach">Events/Reach</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Room">Events/Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Stream">Events/Stream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-ICEServer">ICEServer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-StreamTypes">StreamTypes</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-datasync">external/datasync</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/Webcom.html">Webcom</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/api.Query.html#~cancelCallback">Webcom/api.Query~cancelCallback</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-dom">external/dom</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-webrtc">external/webrtc</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="http://w3c.github.io/mediacapture-main/#idl-def-MediaDeviceInfo">MediaDeviceInfo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#stream-api">MediaStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaStreamConstraints">MediaStreamConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaTrackConstraints">MediaTrackConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#interface-definition">RTCPeerConnection</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcrtpsender-interface">RTCRtpSender</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcsessiondescription-class">RTCSessionDescription</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/definitions/Events.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import User from &apos;../core/User&apos;;
+import Room from &apos;../core/Room&apos;;
+import Invite from &apos;../core/Invite&apos;;
+import Participant from &apos;../core/Participant&apos;;
+import Message from &apos;../core/Message&apos;;
+import Remote from &apos;../core/stream/Remote&apos;;
+import { ACCEPTED, CANCELED, REJECTED } from &apos;../core/util/constants&apos;;
+
+/**
+ * The events supported by {@link Reach#on}
+ * @typedef {Object} Events/Reach
+ * @property {string} USER_ADDED Fired when a new user is registered
+ * @property {string} USER_CHANGED Fired when an existing user logs in or out or changes is status
+ * @property {string} USER_REMOVED Fired when a user is unregistered
+ * @property {string} ROOM_ADDED Fired when a room is created
+ * @property {string} ROOM_CHANGED Fired when a room status is changing
+ * @property {string} ROOM_REMOVED Fired when a room is closed definitely
+ * @property {string} INVITE_ADDED Fired when an invite is received
+ * @property {string} INVITE_CHANGED Fired when an invite status is modified
+ */
+
+/**
+ * The events supported by {@link Room#on}
+ * @typedef {Object} Events/Room
+ * @property {string} PARTICIPANT_ADDED Fired when a new participant is added to the room.
+ * Does not mean he&apos;s connected but that he&apos;s invited to
+ * @property {string} PARTICIPANT_CHANGED Fired when a participant
+ * changes is status (enter/leaves the room)
+ * @property {string} PARTICIPANT_REMOVED Fired when a user leaves definitely or is banned
+ * @property {string} MESSAGE_ADDED Fired when a new instant message is sent to the room
+ * @property {string} MESSAGE_CHANGED Fired when an instant message is edited
+ * @property {string} MESSAGE_REMOVED Fired when an instant message is removed
+ * @property {string} STREAM_PUBLISHED Fired when a participant publishes a stream
+ * @property {string} STREAM_UNPUBLISHED Fired when a participant stops the publishing of his stream
+ */
+
+/**
+ * The events supported by {@link Invite#on}
+ * @typedef {Object} Events/Invite
+ * @property {string} ACCEPTED Fired when the invite has been accepted
+ * @property {string} REJECTED Fired when the invite has been accepted
+ * @property {string} CANCELED Fired when the invite has been canceled
+ */
+
+/**
+ * The events supported by {@link Remote#on}.
+ * @typedef {Object} Events/Stream
+ * @property {string} MUTE Fired when the mute status of the stream changes
+ * @property {string} SIZE Fired when the size of the stream changes
+ * @property {string} WEBRTC_ERROR Fired when an error is raised on webrtc call.
+ */
+
+/**
+ * The events supported by {@link Local#on}.
+ * @typedef {Object} Events/Local
+ * @property {string} SUBSCRIBED Fired when the is subcribed by remote
+ * @property {string} WEBRTC_ERROR Fired when an error is raised on webrtc call.
+ */
+
+/**
+ * Path configuration for each event
+ * @ignore
+ * @type {{}}
+ */
+const paths = {
+  USER: () =&gt; &apos;users&apos;,
+  ROOM: () =&gt; &apos;rooms&apos;,
+  INVITE: (user) =&gt; {
+    if (!user) {
+      throw new Error(&apos;You must be authenticated to list the invites&apos;);
+    }
+    return `_/invites/${user.uid}`;
+  },
+  PARTICIPANT: room =&gt; `_/rooms/${room.uid}/participants`,
+  MESSAGE: room =&gt; `_/rooms/${room.uid}/messages`,
+  STREAM: room =&gt; `_/rooms/${room.uid}/streams`
+};
+
+/**
+ * Object type configuration for each event
+ * @ignore
+ * @type {{}}
+ */
+const classes = {
+  USER: User,
+  ROOM: Room,
+  INVITE: Invite,
+  PARTICIPANT: Participant,
+  MESSAGE: Message,
+  STREAM: Remote
+};
+
+/**
+ * Private class to add support test methods
+ * @class _Events
+ * @ignore
+ */
+class _Events {
+  constructor(keys) {
+    keys.forEach((key) =&gt; {
+      this[key] = key;
+    });
+  }
+
+  supports(event) {
+    if (!event || typeof event !== &apos;string&apos; || this[event] !== event.toUpperCase()) {
+      throw (
+        new Error(`Unsupported event. Use one of the following: ${JSON.stringify(Object.keys(this))}`)
+      );
+    }
+    return true;
+  }
+
+  toPath(event) {
+    if (this.supports(event)) {
+      return paths[event.toUpperCase().replace(/_.*$/, &apos;&apos;)] || (() =&gt; null);
+    }
+    return null;
+  }
+
+  toClass(event) {
+    if (this.supports(event)) {
+      return classes[event.toUpperCase().replace(/_.*$/, &apos;&apos;)];
+    }
+    return null;
+  }
+}
+
+/**
+ * @ignore
+ */
+export const reach = new _Events([
+  &apos;USER_ADDED&apos;, &apos;USER_CHANGED&apos;, &apos;USER_REMOVED&apos;,
+  &apos;ROOM_ADDED&apos;, &apos;ROOM_CHANGED&apos;, &apos;ROOM_REMOVED&apos;,
+  &apos;INVITE_ADDED&apos;, &apos;INVITE_CHANGED&apos;
+]);
+
+/**
+ * @ignore
+ */
+export const room = new _Events([
+  &apos;MESSAGE_ADDED&apos;, &apos;MESSAGE_CHANGED&apos;, &apos;MESSAGE_REMOVED&apos;,
+  &apos;PARTICIPANT_ADDED&apos;, &apos;PARTICIPANT_CHANGED&apos;, &apos;PARTICIPANT_REMOVED&apos;,
+  &apos;STREAM_PUBLISHED&apos;, &apos;STREAM_UNPUBLISHED&apos;
+]);
+
+/**
+ * @ignore
+ */
+export const stream = new _Events([&apos;MUTE&apos;, &apos;SIZE&apos;, &apos;WEBRTC_ERROR&apos;]);
+
+/**
+ * @ignore
+ */
+export const local = new _Events([&apos;SUBSCRIBED&apos;, &apos;WEBRTC_ERROR&apos;]);
+
+/**
+ * @ignore
+ */
+export const invite = new _Events([ACCEPTED, REJECTED, CANCELED]);
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

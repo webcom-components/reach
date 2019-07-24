@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">src/core/util/Media.js | Reach</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Webcom-reach"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Reach"><meta property="twitter:description" content="Webcom-reach"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  <a href="./manual/index.html" data-ice="manualHeaderLink">Manual</a>
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/webcom-components/reach"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Reach.js~Reach.html">Reach</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core">core</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Config.js~Config.html">Config</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Invite.js~Invite.html">Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Message.js~Message.html">Message</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Participant.js~Participant.html">Participant</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/Room.js~Room.html">Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/User.js~User.html">User</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-stream">core/stream</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Local.js~Local.html">Local</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/stream/Remote.js~Remote.html">Remote</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-util">core/util</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/util/Media.js~Media.html">Media</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#core-webrtc">core/webrtc</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/core/webrtc/PeerConnection.js~PeerConnection.html">PeerConnection</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#definitions">definitions</a><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Browser">Browser</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/audio">Codec/audio</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Codec/video">Codec/video</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-CommunicationQuality/bitrate">CommunicationQuality/bitrate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Invite">Events/Invite</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Local">Events/Local</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Reach">Events/Reach</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Room">Events/Room</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-Events/Stream">Events/Stream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-ICEServer">ICEServer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-typedef">T</span><span data-ice="name"><span><a href="typedef/index.html#static-typedef-StreamTypes">StreamTypes</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-datasync">external/datasync</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/Webcom.html">Webcom</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://datasync.orange.com/doc/api.Query.html#~cancelCallback">Webcom/api.Query~cancelCallback</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-dom">external/dom</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#external-webrtc">external/webrtc</a><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="http://w3c.github.io/mediacapture-main/#idl-def-MediaDeviceInfo">MediaDeviceInfo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#stream-api">MediaStream</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaStreamConstraints">MediaStreamConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/mediacapture-main/getusermedia.html#idl-def-MediaTrackConstraints">MediaTrackConstraints</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#interface-definition">RTCPeerConnection</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcrtpsender-interface">RTCRtpSender</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-external">E</span><span data-ice="name"><span><a href="https://w3c.github.io/webrtc-pc/#rtcsessiondescription-class">RTCSessionDescription</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/core/util/Media.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/* eslint max-params: [2, 5], max-len: [0, 120] */
+import * as Log from &apos;./Log&apos;;
+import Reach from &apos;../../Reach&apos;;
+
+/**
+ * Video resolution presets
+ * @access private
+ * @type {{UHD: {w: number, h: number, min: string}, FHD: {w: number, h: number, min: string, max: string}, HD: {w: number, h: number, min: string, max: string}, SVGA: {w: number, h: number, min: string, max: string}, SD: {w: number, h: number, min: string, max: string}, VGA: {w: number, h: number, max: string}}}
+ */
+const presets = {
+  UHD: { w: 3840, h: 2160, min: &apos;HD&apos; },
+  FHD: {
+    w: 1920, h: 1080, min: &apos;HD&apos;, max: &apos;UHD&apos;
+  },
+  HD: {
+    w: 1280, h: 720, min: &apos;SD&apos;, max: &apos;FHD&apos;
+  },
+  SVGA: {
+    w: 800, h: 600, min: &apos;VGA&apos;, max: &apos;HD&apos;
+  },
+  SD: {
+    w: 720, h: 576, min: &apos;VGA&apos;, max: &apos;HD&apos;
+  },
+  VGA: { w: 640, h: 480, max: &apos;SVGA&apos; }
+};
+
+/**
+ * Assign deviceId to constraint
+ * @param constraint
+ * @param deviceId
+ * @returns {*}
+ */
+const _assignDevice = (constraint, deviceId) =&gt; {
+  if (constraint &amp;&amp; deviceId) {
+    return Object.assign(
+      /^((user)|(environment))$/i.test(deviceId) ? { facingMode: deviceId } : { deviceId },
+      constraint === true ? {} : constraint
+    );
+  }
+  return constraint;
+};
+
+/**
+ * Helpers for MediaDevices and MediaStreamConstraints.
+ */
+export default class Media {
+  /**
+   * facingMode values to use with constraints
+   * @returns {{USER: string, ENVIRONMENT: string}}
+   */
+  static get facingMode() {
+    return {
+      USER: &apos;user&apos;,
+      ENVIRONMENT: &apos;environment&apos;
+    };
+  }
+
+  /**
+   * Helpers to create a MediaStreamConstraints configuration object
+   * @param {boolean|MediaTrackConstraints|string} [videoConstraints=&apos;HD&apos;] a boolean, a video constraints object or a preset id (UHD, FHD, HD, SVGA, SD, VGA)
+   * @param {boolean|MediaTrackConstraints} [audioConstraints=true] a boolean or an audio constraints object
+   * @param {string} [type=ideal] type of constraints for video when using a preset (exact,min,max or ideal)
+   * @param {string|object} [videoDeviceId] video input device id or facingMode
+   * @param {string|object} [audioDeviceId] audio input device id
+   * @returns {object}
+   * @throws {Error}
+   *
+   * @example &lt;caption&gt;HD AudioVideo with default devices&lt;/caption&gt;
+   * let myConstraints = Reach.media.constraints();
+   * console.log(myConstraints);
+   *
+   * @example &lt;caption&gt;Full HD Video without audio using default devices&lt;/caption&gt;
+   * let myConstraints = Reach.media.constraints(&apos;FHD&apos;, false, &apos;exact&apos;);
+   * console.log(myConstraints);
+   */
+  static constraints(videoConstraints = &apos;HD&apos;, audioConstraints = true, type = &apos;ideal&apos;, videoDeviceId, audioDeviceId) {
+    let video = videoConstraints;
+    if (typeof videoConstraints === &apos;string&apos;) {
+      if (presets[videoConstraints.toUpperCase()]) {
+        const
+          preset = presets[videoConstraints.toUpperCase()];
+
+
+        const dimConstraint = (dim) =&gt; {
+          if (/^(min|max|exact)$/.test(type)) {
+            const r = {};
+            r[type] = preset[dim];
+            return r;
+          }
+          return {
+            min: preset.min ? presets[preset.min][dim] : preset[dim],
+            ideal: preset[dim],
+            max: preset.max ? presets[preset.max][dim] : preset[dim]
+          };
+        };
+        video = { width: dimConstraint(&apos;w&apos;), height: dimConstraint(&apos;h&apos;) };
+      } else {
+        throw new Error(&apos;Unknown Video Resolution preset (UHD, FHD, HD, SVGA, SD, VGA)&apos;);
+      }
+    }
+    video = _assignDevice(video, videoDeviceId);
+
+    const audio = _assignDevice(audioConstraints, audioDeviceId);
+
+    Log.d(&apos;Media#constraints&apos;, { video, audio });
+    return { video, audio };
+  }
+
+  /**
+   * Init stream display node depending on stream type
+   * @param {MediaStream} mediaStream The MediaStream to display
+   * @param {Element} container Container node for streams
+   * @param {Element} previous Previous node for the stream
+   * @param {number} [volume=.7] the default volume
+   * @return {Element}
+   */
+  static attachStream(mediaStream, container, previous, volume = 0.7) {
+    let tagName = &apos;&apos;;
+    if (mediaStream.getVideoTracks().length &gt; 0) {
+      tagName = &apos;video&apos;;
+    } else if (mediaStream.getAudioTracks().length &gt; 0) {
+      tagName = &apos;audio&apos;;
+    }
+    Log.d(&apos;Media#attachStream&apos;, mediaStream, tagName);
+    if (tagName.length &gt; 0) {
+      let _node = previous;
+      if (!_node || _node.tagName.toLowerCase() !== tagName) {
+        _node = document.createElement(tagName);
+        _node.autoplay = true;
+        // set these attributes in order to launch the video on IOS
+        if (Reach.browser.browser === &apos;safari&apos;) {
+          _node.setAttribute(&apos;playsinline&apos;, true);
+          _node.setAttribute(&apos;muted&apos;, true);
+        } else {
+          // _node.setAttribute(&apos;type&apos;,&apos;video/mp4&apos;);
+        }
+        _node.style.borderRadius = &apos;1px&apos;;
+      }
+      if (container) {
+        if (previous &amp;&amp; previous !== _node) {
+          container.replaceChild(_node, previous);
+        } else if (!previous) {
+          container.appendChild(_node);
+        }
+      }
+      _node.srcObject = mediaStream;
+      /* _node.addEventListener(&apos;play&apos;, (event) =&gt; {
+        Log.d(`video.onplay = ${event.type}`);
+        _node.srcObject.onaddtrack = (track) =&gt; {
+          Log.d(`[Local] listener: video.onaddtrack = ${track.label}`); // eslint-disable-line
+        };
+        _node.srcObject.onremovetrack = (track) =&gt; {
+          Log.d(`[Local] listener: video.onremovetrack = ${track.label}`); // eslint-disable-line
+        };
+        _node.srcObject.oninactive = () =&gt; {
+          Log.d(`[Local] listener: video.oninactive`); // eslint-disable-line
+        };
+        _node.srcObject.onplaying = (event) =&gt; {
+          console.debug(`[Local] listener: video.onplaying = ${event.type}`); // eslint-disable-line
+        };
+        _node.srcObject.onstalled = (event) =&gt; {
+          console.debug(`[Local] listener: video.onstalled = ${event.type}`); // eslint-disable-line
+        };
+        _node.srcObject.onsuspend = (event) =&gt; {
+          console.debug(`[Local] listener: video.onsuspend = ${event.type}`); // eslint-disable-line
+          console.debug(event); // eslint-disable-line
+          console.debug(&apos;on passe l&#xE0;&apos;);
+        };
+      }); */
+      /* _node.onsuspend = (event) =&gt; {
+        console.debug(`[Local] listener: video.onsuspend = ${event}`); // eslint-disable-line
+        console.debug(event); // eslint-disable-line
+        /!* console.debug(&apos;on est ici&apos;);
+                const tagmuted = _node.muted;
+                _node.setAttribute(&apos;muted&apos;,true);
+                let autoPlayAllowed = true;
+                const promise = _node.play();
+                if (promise instanceof Promise) {
+                    promise.then(function(status) {
+                        console.dir(promise);
+                    });
+                    promise.catch(function(error) {
+                        console.error(error.message);
+                        if (error.name === &apos;NotAllowedError&apos;) {
+                            autoPlayAllowed = false;
+                        } else {
+                            // Don&apos;t throw the error so that we get to the then
+                            // or throw it but set the autoPlayAllowed to true in here
+                        }
+                    }).then(function() {
+                        if (autoPlayAllowed) {
+                            console.log(&apos;autoplay allowed&apos;)
+                        } else {
+                            console.log(&apos;autoplay NOT allowed&apos;)
+                        }
+                    });
+                } else {
+                    console.log(&apos;autoplay unknown&apos;)
+                } *!/
+      }; */
+      // _node.addEventListener(&apos;loadeddata&apos;, () =&gt; Log.d(&apos;on a charg&#xE9; les donn&#xE9;es&apos;));
+      // _node.addEventListener(&apos;error&apos;, error =&gt; Log.d(`on a une erreur ${error}`));
+      // _node.setAttribute(&apos;controls&apos;,true);
+      // disabled doesn&apos;t seem to be needed
+      // _node.disabled = false;
+      _node.volume = volume;
+      return _node;
+    }
+    return previous;
+  }
+
+  /**
+   * List available input devices
+   * @return {Promise&lt;{audioinput: MediaDeviceInfo[], videoinput: MediaDeviceInfo[]}&gt;}
+   *
+   * @example
+   * Reach.media.devices().then(devices =&gt; {
+   *  // Video cameras
+   *  console.log(devices.videoinput);
+   *  // Audio mics
+   *  console.log(devices.audioinput);
+   * });
+   */
+  static devices() {
+    return navigator.mediaDevices.enumerateDevices()
+      .then((devices) =&gt; {
+        const r = {};
+        devices.forEach((device) =&gt; {
+          if (!r[device.kind]) {
+            r[device.kind] = [];
+          }
+          r[device.kind].push(device);
+        });
+        Log.d(&apos;Media#devices&apos;, r);
+        return r;
+      })
+      .catch(Log.r(&apos;Media#devices&apos;));
+  }
+}
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+{
+  "coverage": "90.75%",
+  "expectCount": 346,
+  "actualCount": 314,
+  "files": {
+    "src/Reach.js": {
+      "expectCount": 28,
+      "actualCount": 28,
+      "undocumentLines": []
+    },
+    "src/core/Config.js": {
+      "expectCount": 22,
+      "actualCount": 17,
+      "undocumentLines": [
+        6,
+        114,
+        195,
+        196,
+        199
+      ]
+    },
+    "src/core/Device.js": {
+      "expectCount": 8,
+      "actualCount": 8,
+      "undocumentLines": []
+    },
+    "src/core/Invite.js": {
+      "expectCount": 25,
+      "actualCount": 25,
+      "undocumentLines": []
+    },
+    "src/core/Message.js": {
+      "expectCount": 10,
+      "actualCount": 10,
+      "undocumentLines": []
+    },
+    "src/core/Participant.js": {
+      "expectCount": 7,
+      "actualCount": 7,
+      "undocumentLines": []
+    },
+    "src/core/Room.js": {
+      "expectCount": 27,
+      "actualCount": 26,
+      "undocumentLines": [
+        21
+      ]
+    },
+    "src/core/User.js": {
+      "expectCount": 13,
+      "actualCount": 12,
+      "undocumentLines": [
+        9
+      ]
+    },
+    "src/core/stream/Local.js": {
+      "expectCount": 33,
+      "actualCount": 30,
+      "undocumentLines": [
+        14,
+        16,
+        21
+      ]
+    },
+    "src/core/stream/Remote.js": {
+      "expectCount": 22,
+      "actualCount": 21,
+      "undocumentLines": [
+        210
+      ]
+    },
+    "src/core/stream/StreamManager.js": {
+      "expectCount": 6,
+      "actualCount": 6,
+      "undocumentLines": []
+    },
+    "src/core/util/DataSync.js": {
+      "expectCount": 13,
+      "actualCount": 13,
+      "undocumentLines": []
+    },
+    "src/core/util/Log.js": {
+      "expectCount": 10,
+      "actualCount": 10,
+      "undocumentLines": []
+    },
+    "src/core/util/Media.js": {
+      "expectCount": 7,
+      "actualCount": 7,
+      "undocumentLines": []
+    },
+    "src/core/util/cache.js": {
+      "expectCount": 26,
+      "actualCount": 25,
+      "undocumentLines": [
+        168
+      ]
+    },
+    "src/core/util/constants.js": {
+      "expectCount": 14,
+      "actualCount": 14,
+      "undocumentLines": []
+    },
+    "src/core/webrtc/PeerConnection.js": {
+      "expectCount": 45,
+      "actualCount": 36,
+      "undocumentLines": [
+        13,
+        14,
+        194,
+        214,
+        216,
+        631,
+        667,
+        694,
+        716
+      ]
+    },
+    "src/core/webrtc/PeerConnectionManager.js": {
+      "expectCount": 10,
+      "actualCount": 7,
+      "undocumentLines": [
+        6,
+        11,
+        18
+      ]
+    },
+    "src/definitions/Browser.js": {
+      "expectCount": 3,
+      "actualCount": 0,
+      "undocumentLines": [
+        18,
+        19,
+        29
+      ]
+    },
+    "src/definitions/Events.js": {
+      "expectCount": 13,
+      "actualCount": 8,
+      "undocumentLines": [
+        99,
+        101,
+        105,
+        114,
+        121
+      ]
+    },
+    "src/definitions/StreamTypes.js": {
+      "expectCount": 4,
+      "actualCount": 4,
+      "undocumentLines": []
+    }
+  }
+}
