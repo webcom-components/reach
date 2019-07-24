@@ -312,9 +312,9 @@ export default class PeerConnection {
     // Listen to SDP offer
     DataSync.on(`${this._remotePath}/sdp`, 'value', (snap) => {
       const sdpOffer = snap.val();
-      // Log.d('Offer', sdpOffer);
+      // Log.d('Offer', sdpOffer.sdp);
       if (sdpOffer != null) {
-        Log.d(`PeerConnection~offered ${sdpOffer.sdp}`);
+        Log.d('PeerConnection~offered', sdpOffer.sdp);
         this.pc.setRemoteDescription(sdpOffer)
           .catch((e) => {
             Log.e('PeerConnection~answer#remoteDescription Error', e);
@@ -336,7 +336,7 @@ export default class PeerConnection {
           .then(description => this._setPreferredCodecs(description))
           .then((description) => {
             this.pc.setLocalDescription(description);
-            return this.setMediaBitrates(description);
+            return this.setLowerMediaBitrates(description, this.pc.remoteDescription);
           })
           .catch(e => Log.d.bind(Log, 'PeerConnections~answer#setLocalDescription', e))
           .then((newDescription) => {
@@ -628,6 +628,69 @@ export default class PeerConnection {
     return description;
   }
 
+  setLowerMediaBitrates(description, remoteDescription) {
+    let videoBitrate = null;
+    let audioBitrate = null;
+    if (cache.config.communicationQuality) {
+      videoBitrate = cache.config.communicationQuality.video;
+      audioBitrate = cache.config.communicationQuality.audio;
+    }
+    if (cache.config.audioBitrateMax) {
+      if (((audioBitrate && parseInt(audioBitrate, 10) > parseInt(cache.config.audioBitrateMax, 10))
+       || !audioBitrate)) {
+        audioBitrate = cache.config.audioBitrateMax;
+      }
+    }
+    if (cache.config.videoBitrateMax) {
+      if (((videoBitrate && parseInt(videoBitrate, 10) > parseInt(cache.config.videoBitrateMax, 10))
+       || !videoBitrate)) {
+        videoBitrate = cache.config.videoBitrateMax;
+      }
+    }
+    const audioRemoteBitrate = this.getMediaBitrateFromDesc(remoteDescription, 'audio');
+    const videoRemoteBitrate = this.getMediaBitrateFromDesc(remoteDescription, 'video');
+    if (audioRemoteBitrate) {
+      if (((audioBitrate && parseInt(audioBitrate, 10) > parseInt(audioRemoteBitrate, 10))
+        || !audioBitrate)) {
+        audioBitrate = audioRemoteBitrate;
+      }
+    }
+    if (videoRemoteBitrate) {
+      if (((videoBitrate && parseInt(videoBitrate, 10) > parseInt(videoRemoteBitrate, 10))
+        || !videoBitrate)) {
+        videoBitrate = videoRemoteBitrate;
+      }
+    }
+    return this._setMediaBitrate(this._setMediaBitrate(description, 'video', videoBitrate), 'audio', audioBitrate);
+  }
+
+  getMediaBitrateFromDesc(description, mediaType) {
+    let bitrateResult = null;
+    if (description) {
+      const sdpLines = description.sdp.split(/\r?\n/);
+      let mediaLineIndex = -1;
+      const mediaLine = `m=${mediaType}`;
+      let bitrateLineIndex = -1;
+      mediaLineIndex = sdpLines.findIndex(line => line.startsWith(mediaLine));
+
+      // If we find a line matching “m={mediaType}”
+      if (mediaLineIndex && mediaLineIndex < sdpLines.length) {
+        // Skip the media line
+        bitrateLineIndex = mediaLineIndex + 1;
+
+        // Skip both i=* and c=* lines (bandwidths limiters have to come afterwards)
+        while (sdpLines[bitrateLineIndex].startsWith('i=') || sdpLines[bitrateLineIndex].startsWith('c=')) {
+          bitrateLineIndex += 1;
+        }
+        if (sdpLines[bitrateLineIndex].startsWith('b=')) {
+          // If the next line is a b=* line, get the bandwidth
+          bitrateResult = sdpLines[bitrateLineIndex].substring(5);
+        }
+      }
+    }
+    return bitrateResult;
+  }
+
   setMediaBitrates(description) {
     let videoBitrate = null;
     let audioBitrate = null;
@@ -636,12 +699,14 @@ export default class PeerConnection {
       audioBitrate = cache.config.communicationQuality.audio;
     }
     if (cache.config.audioBitrateMax) {
-      if (((audioBitrate && audioBitrate > cache.config.audioBitrateMax) || !audioBitrate)) {
+      if (((audioBitrate && parseInt(audioBitrate, 10) > parseInt(cache.config.audioBitrateMax, 10))
+        || !audioBitrate)) {
         audioBitrate = cache.config.audioBitrateMax;
       }
     }
     if (cache.config.videoBitrateMax) {
-      if (((videoBitrate && videoBitrate > cache.config.videoBitrateMax) || !videoBitrate)) {
+      if (((videoBitrate && parseInt(videoBitrate, 10) > parseInt(cache.config.videoBitrateMax, 10))
+        || !videoBitrate)) {
         videoBitrate = cache.config.videoBitrateMax;
       }
     }
@@ -665,11 +730,13 @@ export default class PeerConnection {
       while (sdpLines[bitrateLineIndex].startsWith('i=') || sdpLines[bitrateLineIndex].startsWith('c=')) {
         bitrateLineIndex += 1;
       }
-
-      if (bitrate) { // If bitrare not null => set the value, else defaults value are setted
+      if (bitrate) { // If bitrate not null => set the value, else defaults value are setted
         if (sdpLines[bitrateLineIndex].startsWith('b=')) {
           // If the next line is a b=* line, replace it with our new bandwidth
-          sdpLines[bitrateLineIndex] = bitrateLine;
+          // AND the new bitrate is smaller
+          if (parseInt(sdpLines[bitrateLineIndex].substring(5), 10) > parseInt(bitrate, 10)) {
+            sdpLines[bitrateLineIndex] = bitrateLine;
+          }
         } else {
           // Otherwise insert a new bitrate line.
           sdpLines.splice(bitrateLineIndex, 0, bitrateLine);
