@@ -88,7 +88,7 @@
     "karma-webpack": "^3.0.5",
     "puppeteer": "^1.11.0",
     "rimraf": "^2.6.3",
-    "semantic-release": "^15.13.3",
+    "semantic-release": "^17.2.3",
     "shelljs": "^0.8.3",
     "webpack": "^4.28.3",
     "webpack-bundle-analyzer": "^3.0.3",
